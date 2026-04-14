@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>LLM Observability</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: system-ui, sans-serif; background: #0f1117; color: #e2e8f0; padding: 2rem; }
+    h1 { font-size: 1.5rem; margin-bottom: 0.25rem; }
+    .subtitle { color: #64748b; font-size: 0.875rem; margin-bottom: 1.5rem; }
+    .kpi-bar { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; margin-bottom: 1.5rem; }
+    .kpi { background: #1e2130; border: 1px solid #2d3148; border-radius: 8px; padding: 1rem 1.25rem; }
+    .kpi-label { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; color: #64748b; margin-bottom: 0.4rem; }
+    .kpi-value { font-size: 1.75rem; font-weight: 700; }
+    .kpi-value.good { color: #4ade80; }
+    .kpi-value.bad  { color: #f87171; }
+    .kpi-value.mid  { color: #fb923c; }
+    .kpi-value.neutral { color: #818cf8; }
+    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 1.5rem; }
+    .card { background: #1e2130; border: 1px solid #2d3148; border-radius: 8px; padding: 1.25rem; }
+    .card h2 { font-size: 0.875rem; text-transform: uppercase; letter-spacing: 0.05em; color: #64748b; margin-bottom: 1rem; }
+    canvas { width: 100% !important; }
+    table { width: 100%; border-collapse: collapse; font-size: 0.8rem; }
+    th { text-align: left; padding: 0.5rem 0.75rem; color: #64748b; border-bottom: 1px solid #2d3148; font-weight: 500; }
+    td { padding: 0.5rem 0.75rem; border-bottom: 1px solid #1a1d2e; vertical-align: top; }
+    tr:last-child td { border-bottom: none; }
+    .score { font-weight: 700; }
+    .score.bad  { color: #f87171; }
+    .score.mid  { color: #fb923c; }
+    .score.good { color: #4ade80; }
+    .flag { display: inline-block; font-size: 0.7rem; background: #2d1b1b; color: #f87171;
+            border: 1px solid #7f1d1d; border-radius: 4px; padding: 0 0.35rem; margin: 1px; }
+    .preview { color: #94a3b8; max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .explanation { color: #64748b; font-style: italic; font-size: 0.75rem; max-width: 240px; }
+    .bar-row { display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem; font-size: 0.8rem; }
+    .bar-label { width: 130px; color: #94a3b8; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; flex-shrink: 0; }
+    .bar-track { flex: 1; height: 8px; background: #0f1117; border-radius: 4px; overflow: hidden; }
+    .bar-fill { height: 100%; border-radius: 4px; }
+    .bar-val { width: 36px; text-align: right; color: #64748b; font-size: 0.75rem; flex-shrink: 0; }
+    @media (max-width: 900px) { .grid { grid-template-columns: 1fr; } .kpi-bar { grid-template-columns: 1fr 1fr; } }
+    @media (max-width: 500px) { .kpi-bar { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+  <h1>LLM Observability</h1>
+  <p class="subtitle">Evaluation-first monitoring — worst responses surface first</p>
+
+  <!-- Regression alert banner -->
+  <div id="regressionAlert" style="display:none; background:#2d1b1b; border:1px solid #7f1d1d; border-radius:8px; padding:1rem 1.25rem; margin-bottom:1.5rem; color:#f87171;">
+    <strong>⚠ Regression detected</strong> — <span id="regressionMsg"></span>
+  </div>
+
+  <!-- KPI header bar -->
+  <div class="kpi-bar" id="kpiBar">
+    <div class="kpi"><div class="kpi-label">Total Calls (24 h)</div><div class="kpi-value neutral" id="kpiCalls">—</div></div>
+    <div class="kpi"><div class="kpi-label">Avg Quality (24 h)</div><div class="kpi-value" id="kpiQuality">—</div></div>
+    <div class="kpi"><div class="kpi-label">Total Cost (24 h)</div><div class="kpi-value neutral" id="kpiCost">—</div></div>
+    <div class="kpi"><div class="kpi-label">Bad Response Rate</div><div class="kpi-value" id="kpiBadRate">—</div></div>
+  </div>
+
+  <!-- Trend + Bad Categories -->
+  <div class="grid">
+    <div class="card">
+      <h2>Quality Trend (last 24 h)</h2>
+      <canvas id="trendChart" height="120"></canvas>
+    </div>
+    <div class="card">
+      <h2>Bad Response Categories</h2>
+      <div id="clusterWrap" style="display:flex; gap:0.75rem; flex-wrap:wrap; margin-top:0.5rem;"></div>
+    </div>
+  </div>
+
+  <!-- Cost vs Quality + Root Cause -->
+  <div class="grid">
+    <div class="card">
+      <h2>Cost ↔ Quality by Model</h2>
+      <canvas id="costQualityChart" height="140"></canvas>
+    </div>
+    <div class="card">
+      <h2>Root-Cause: Worst Prompts</h2>
+      <div id="rootCauseWrap"></div>
+    </div>
+  </div>
+
+  <!-- Worst responses table -->
+  <div class="card">
+    <h2>Worst Responses</h2>
+    <table id="worstTable">
+      <thead>
+        <tr>
+          <th>Quality</th>
+          <th>Hall.</th>
+          <th>Flags</th>
+          <th>Model</th>
+          <th>Output preview</th>
+          <th>Why</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </div>
+
+  <script>
+    const API = "";
+
+    function scoreClass(s) {
+      if (s < 0.4) return "bad";
+      if (s < 0.7) return "mid";
+      return "good";
+    }
+
+    // ── KPI bar ──────────────────────────────────────────────────────────────
+    async function loadStats() {
+      try {
+        const res = await fetch(`${API}/requests/stats`);
+        const d = await res.json();
+        document.getElementById("kpiCalls").textContent = d.total_calls_24h;
+        const qEl = document.getElementById("kpiQuality");
+        qEl.textContent = d.avg_quality_24h.toFixed(2);
+        qEl.className = "kpi-value " + scoreClass(d.avg_quality_24h);
+        document.getElementById("kpiCost").textContent = "$" + d.total_cost_24h_usd.toFixed(4);
+        const brEl = document.getElementById("kpiBadRate");
+        const br = d.bad_response_rate;
+        brEl.textContent = (br * 100).toFixed(1) + "%";
+        brEl.className = "kpi-value " + (br > 0.3 ? "bad" : br > 0.15 ? "mid" : "good");
+      } catch(e) { console.warn("stats failed", e); }
+    }
+
+    // ── Quality trend ─────────────────────────────────────────────────────────
+    async function loadTrend() {
+      try {
+        const res = await fetch(`${API}/requests/trend`);
+        const data = await res.json();
+        new Chart(document.getElementById("trendChart"), {
+          type: "line",
+          data: {
+            labels: data.map(d => d.hour.slice(11, 16)),
+            datasets: [{
+              label: "Avg quality",
+              data: data.map(d => d.avg_quality),
+              borderColor: "#818cf8",
+              backgroundColor: "rgba(129,140,248,0.1)",
+              tension: 0.3,
+              fill: true,
+              pointRadius: 3,
+            }],
+          },
+          options: {
+            scales: {
+              y: { min: 0, max: 1, ticks: { color: "#64748b" }, grid: { color: "#1e2130" } },
+              x: { ticks: { color: "#64748b" }, grid: { color: "#1e2130" } },
+            },
+            plugins: { legend: { labels: { color: "#e2e8f0" } } },
+          },
+        });
+      } catch(e) { console.warn("trend failed", e); }
+    }
+
+    // ── Regression alert ──────────────────────────────────────────────────────
+    async function loadRegression() {
+      try {
+        const res = await fetch(`${API}/requests/regression?window_minutes=60&threshold=0.1`);
+        const data = await res.json();
+        if (data.regression_detected) {
+          document.getElementById("regressionAlert").style.display = "block";
+          document.getElementById("regressionMsg").textContent =
+            `${data.reason} | current: ${data.current_avg} vs previous: ${data.previous_avg} (last ${data.window_minutes} min)`;
+        }
+      } catch(e) { console.warn("regression failed", e); }
+    }
+
+    // ── Bad response categories ───────────────────────────────────────────────
+    async function loadClusters() {
+      try {
+        const res = await fetch(`${API}/requests/clusters?quality_threshold=0.7`);
+        const data = await res.json();
+        const wrap = document.getElementById("clusterWrap");
+        wrap.innerHTML = "";
+        if (!data.length) {
+          wrap.innerHTML = '<span style="color:#64748b;font-size:0.875rem;">No bad responses yet</span>';
+          return;
+        }
+        const colors = { no_answer:"#f87171", too_short:"#fb923c", likely_incorrect:"#fbbf24", possible_hallucination:"#a78bfa", unflagged:"#64748b" };
+        for (const c of data) {
+          const color = colors[c.category] || "#94a3b8";
+          wrap.innerHTML += `
+            <div style="background:#0f1117;border:1px solid ${color}44;border-radius:8px;padding:0.75rem 1rem;min-width:150px;">
+              <div style="color:${color};font-weight:700;font-size:1.25rem;">${c.count}</div>
+              <div style="color:#e2e8f0;font-size:0.8rem;margin:0.2rem 0;">${c.category.replace(/_/g," ")}</div>
+              <div style="color:#64748b;font-size:0.75rem;">avg quality ${c.avg_quality}</div>
+            </div>`;
+        }
+      } catch(e) { console.warn("clusters failed", e); }
+    }
+
+    // ── Cost ↔ Quality chart ──────────────────────────────────────────────────
+    async function loadCostQuality() {
+      try {
+        const res = await fetch(`${API}/requests/cost-quality`);
+        const data = await res.json();
+        if (!data.length) return;
+        const labels = data.map(d => d.model);
+        const qualities = data.map(d => d.avg_quality);
+        const costs = data.map(d => +(d.avg_cost_usd * 1000).toFixed(4)); // to milli-dollars for readability
+        new Chart(document.getElementById("costQualityChart"), {
+          type: "bar",
+          data: {
+            labels,
+            datasets: [
+              {
+                label: "Avg Quality",
+                data: qualities,
+                backgroundColor: "rgba(129,140,248,0.7)",
+                yAxisID: "yQ",
+              },
+              {
+                label: "Avg Cost (m$)",
+                data: costs,
+                backgroundColor: "rgba(251,146,60,0.7)",
+                yAxisID: "yC",
+                type: "line",
+                borderColor: "#fb923c",
+                fill: false,
+                tension: 0.2,
+                pointRadius: 4,
+              },
+            ],
+          },
+          options: {
+            scales: {
+              yQ: { min: 0, max: 1, position: "left", ticks: { color: "#818cf8" }, grid: { color: "#1e2130" }, title: { display: true, text: "Quality", color: "#818cf8" } },
+              yC: { min: 0, position: "right", ticks: { color: "#fb923c" }, grid: { drawOnChartArea: false }, title: { display: true, text: "Cost (m$)", color: "#fb923c" } },
+              x: { ticks: { color: "#64748b" }, grid: { color: "#1e2130" } },
+            },
+            plugins: { legend: { labels: { color: "#e2e8f0" } } },
+          },
+        });
+      } catch(e) { console.warn("cost-quality failed", e); }
+    }
+
+    // ── Root-cause analysis ───────────────────────────────────────────────────
+    async function loadRootCause() {
+      try {
+        const res = await fetch(`${API}/requests/root-cause?quality_threshold=0.6`);
+        const data = await res.json();
+        const wrap = document.getElementById("rootCauseWrap");
+        if (!data.length) {
+          wrap.innerHTML = '<span style="color:#64748b;font-size:0.875rem;">No failures above threshold</span>';
+          return;
+        }
+        wrap.innerHTML = data.map(d => {
+          const pct = d.failure_rate;
+          const color = pct > 0.6 ? "#f87171" : pct > 0.3 ? "#fb923c" : "#fbbf24";
+          const barW = Math.round(pct * 100);
+          return `
+            <div class="bar-row" title="${d.prompt_preview}">
+              <div class="bar-label">${d.prompt_preview.slice(0,40)}</div>
+              <div class="bar-track"><div class="bar-fill" style="width:${barW}%;background:${color};"></div></div>
+              <div class="bar-val">${(pct*100).toFixed(0)}%</div>
+            </div>
+            <div style="font-size:0.7rem;color:#475569;margin:-0.35rem 0 0.6rem 0;padding-left:0;">
+              ${d.total_calls} calls · avg quality ${d.avg_quality} · $${d.total_cost_usd} · ${d.models.join(", ")}
+            </div>`;
+        }).join("");
+      } catch(e) { console.warn("root-cause failed", e); }
+    }
+
+    // ── Worst responses table ─────────────────────────────────────────────────
+    async function loadWorst() {
+      try {
+        const res = await fetch(`${API}/requests/worst?limit=20`);
+        const rows = await res.json();
+        const tbody = document.querySelector("#worstTable tbody");
+        tbody.innerHTML = "";
+        for (const r of rows) {
+          const tr = document.createElement("tr");
+          const flags = (r.flags || []).map(f => `<span class="flag">${f}</span>`).join(" ");
+          tr.innerHTML = `
+            <td><span class="score ${scoreClass(r.quality_score)}">${r.quality_score.toFixed(2)}</span></td>
+            <td><span class="score ${scoreClass(1 - r.hallucination_score)}">${r.hallucination_score.toFixed(2)}</span></td>
+            <td>${flags}</td>
+            <td>${r.model}</td>
+            <td class="preview" title="${r.output_preview}">${r.output_preview}</td>
+            <td class="explanation">${r.score_explanation || "—"}</td>
+          `;
+          tbody.appendChild(tr);
+        }
+      } catch(e) { console.warn("worst failed", e); }
+    }
+
+    // Load everything in parallel
+    loadStats();
+    loadTrend();
+    loadRegression();
+    loadClusters();
+    loadCostQuality();
+    loadRootCause();
+    loadWorst();
+  </script>
+</body>
+</html>

@@ -1,0 +1,34 @@
+from contextlib import asynccontextmanager
+
+from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
+
+from api.routes.ingest import router as ingest_router
+from api.routes.dashboard import router as dashboard_router
+from pipeline.worker import start_worker, stop_worker
+from storage.database import init_db
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    await init_db()
+    await start_worker()
+    yield
+    await stop_worker()
+
+
+app = FastAPI(title="LLM Observability MVP", lifespan=lifespan)
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+app.include_router(ingest_router)
+app.include_router(dashboard_router)
+
+# Serve the static dashboard
+app.mount("/", StaticFiles(directory="dashboard", html=True), name="dashboard")
