@@ -15,7 +15,7 @@ Most LLM apps run blind. You don't know which prompts fail, which models waste m
 ## Install
 
 ```bash
-pip install llm-evaltrack
+pip install agentlens-monitor
 ```
 
 ---

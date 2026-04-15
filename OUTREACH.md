@@ -1,4 +1,4 @@
-# Outreach Templates — llm-evaltrack
+# Outreach Templates — AgentLens
 
 Target: Developers / CTOs / Founding Engineers bei Startups die OpenAI/Anthropic in Production nutzen.
 
@@ -10,9 +10,9 @@ Target: Developers / CTOs / Founding Engineers bei Startups die OpenAI/Anthropic
 
 > Hey [Name] — ich hab gesehen du baust mit [OpenAI/Claude/LLMs].
 >
-> Ich hab ein Tool gebaut das ich gerade launche: llm-evaltrack. 2 Zeilen Code, und du siehst welche Responses schlechte Qualität haben, wo Halluzinationen auftreten, was du pro Call bezahlst — und bei Multi-Step Agents welcher Step crasht oder zu teuer ist.
+> Ich hab ein Tool gebaut das ich gerade launche: AgentLens. 2 Zeilen Code, und du siehst welche Responses schlechte Qualität haben, wo Halluzinationen auftreten, was du pro Call bezahlst — und bei Multi-Step Agents welcher Step crasht oder zu teuer ist.
 >
-> Self-hosted, MIT License, läuft auf Railway. Live Demo: llm-evaltrack-production.up.railway.app
+> Self-hosted, MIT License, läuft auf Railway. Live Demo: AgentLens-production.up.railway.app
 >
 > Wärst du offen für 15 Min Feedback? Oder falls du es ausprobieren willst — Early Adopter Preis ist €99/Monat (die ersten 10 Kunden).
 
@@ -28,7 +28,7 @@ Target: Developers / CTOs / Founding Engineers bei Startups die OpenAI/Anthropic
 >
 > Das Problem das ich bei fast jedem LLM-Team sehe: Man weiß nicht welche Responses schlecht sind, bis ein User sich beschwert. Kein Monitoring, kein Quality Scoring, kein Visibility in Agent Runs.
 >
-> Ich hab llm-evaltrack gebaut — eine self-hosted Alternative zu LangSmith, in 2 Zeilen integriert:
+> Ich hab AgentLens gebaut — eine self-hosted Alternative zu LangSmith, in 2 Zeilen integriert:
 >
 > ```python
 > llm_observe.init("https://dein-server.com")
@@ -42,7 +42,7 @@ Target: Developers / CTOs / Founding Engineers bei Startups die OpenAI/Anthropic
 > - Agent Debugger mit Waterfall Timeline
 > - GDPR-konform (deine Daten, dein Server)
 >
-> Live Demo (kein Login): llm-evaltrack-production.up.railway.app
+> Live Demo (kein Login): AgentLens-production.up.railway.app
 >
 > Ich gebe den ersten 10 Kunden 50% Rabatt forever — €99/Monat statt €199.
 >
@@ -61,7 +61,7 @@ Target: Developers / CTOs / Founding Engineers bei Startups die OpenAI/Anthropic
 >
 > I've been building LLM apps for a while and kept running into the same problem: no visibility into what's actually happening in production. Which responses are bad? Which prompts hallucinate? Which agent step is eating all the cost?
 >
-> So I built **llm-evaltrack** — a self-hosted, open source alternative to LangSmith/Helicone.
+> So I built **AgentLens** — a self-hosted, open source alternative to LangSmith/Helicone.
 >
 > **2-line integration:**
 > ```python
@@ -79,11 +79,11 @@ Target: Developers / CTOs / Founding Engineers bei Startups die OpenAI/Anthropic
 >
 > **Tech:** FastAPI + SQLite + plain HTML dashboard (no frontend build step). Deploys to Railway in 1 click.
 >
-> **Live demo** (no login): https://llm-evaltrack-production.up.railway.app
+> **Live demo** (no login): https://AgentLens-production.up.railway.app
 >
-> **GitHub:** https://github.com/Soufianeazz/llm-evaltrack
+> **GitHub:** https://github.com/Soufianeazz/AgentLens
 >
-> **PyPI:** `pip install llm-evaltrack`
+> **PyPI:** `pip install AgentLens`
 >
 > Happy to answer questions or take feedback. What features would make you actually use this?
 
@@ -91,24 +91,24 @@ Target: Developers / CTOs / Founding Engineers bei Startups die OpenAI/Anthropic
 
 ## 4. Hacker News — "Show HN"
 
-**Titel:** Show HN: llm-evaltrack – self-hosted LLM observability with agent waterfall debugging
+**Titel:** Show HN: AgentLens – self-hosted LLM observability with agent waterfall debugging
 
 > I built this after getting frustrated with not knowing what was happening in my LLM apps in production.
 >
-> The core insight: most LLM monitoring tools just log requests. They don't tell you *quality*. llm-evaltrack automatically scores every response (0–1), flags hallucinations, tracks cost, and shows regression alerts when quality drops.
+> The core insight: most LLM monitoring tools just log requests. They don't tell you *quality*. AgentLens automatically scores every response (0–1), flags hallucinations, tracks cost, and shows regression alerts when quality drops.
 >
 > The newest feature (v0.2.0): Agent Debugger. If you run multi-step agents, you get a waterfall timeline showing every span — LLM calls, tool calls, retrieval steps — with timing, token counts, and errors. Click any span to expand input/output.
 >
 > **Technical:**
 > - FastAPI + SQLite + aiosqlite (async)
-> - SDK: `pip install llm-evaltrack` — patches OpenAI/Anthropic clients with 2 lines
+> - SDK: `pip install AgentLens` — patches OpenAI/Anthropic clients with 2 lines
 > - Dashboard: plain HTML + Chart.js, no build step
 > - Deploys to Railway via git push
 >
 > **Self-hosted** = GDPR-friendly, your data stays on your server.
 >
-> Live demo: https://llm-evaltrack-production.up.railway.app
-> GitHub: https://github.com/Soufianeazz/llm-evaltrack
+> Live demo: https://AgentLens-production.up.railway.app
+> GitHub: https://github.com/Soufianeazz/AgentLens
 >
 > Would love feedback on what's missing or what would make you switch from LangSmith.
 
@@ -119,7 +119,7 @@ Target: Developers / CTOs / Founding Engineers bei Startups die OpenAI/Anthropic
 **Tweet 1:**
 > I got tired of running LLM apps blind in production.
 >
-> So I built llm-evaltrack — self-hosted observability in 2 lines:
+> So I built AgentLens — self-hosted observability in 2 lines:
 >
 > ```python
 > llm_observe.patch_openai()
@@ -134,7 +134,7 @@ Target: Developers / CTOs / Founding Engineers bei Startups die OpenAI/Anthropic
 > It doesn't tell you *which* prompts hallucinate.
 > It doesn't tell you *which* agent step is burning money.
 >
-> llm-evaltrack does all three.
+> AgentLens does all three.
 
 **Tweet 3:**
 > New in v0.2.0: Agent Debugger
@@ -152,8 +152,8 @@ Target: Developers / CTOs / Founding Engineers bei Startups die OpenAI/Anthropic
 >
 > MIT License. Deploys to Railway in 1 click.
 >
-> Live demo (no login): llm-evaltrack-production.up.railway.app
-> GitHub: github.com/Soufianeazz/llm-evaltrack
+> Live demo (no login): AgentLens-production.up.railway.app
+> GitHub: github.com/Soufianeazz/AgentLens
 
 ---
 
