@@ -9,6 +9,7 @@ from api.routes.dashboard import router as dashboard_router
 from api.routes.alerts import router as alerts_router
 from api.routes.debug import router as debug_router
 from api.routes.compliance import router as compliance_router
+from api.routes.traces import router as traces_router
 from pipeline.worker import start_worker, stop_worker
 from storage.database import init_db
 
@@ -35,6 +36,7 @@ app.include_router(dashboard_router)
 app.include_router(alerts_router)
 app.include_router(debug_router)
 app.include_router(compliance_router)
+app.include_router(traces_router)
 
 # Serve the static dashboard
 app.mount("/", StaticFiles(directory="dashboard", html=True), name="dashboard")

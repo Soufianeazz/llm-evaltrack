@@ -49,6 +49,50 @@ class RetentionPolicy(Base):
     last_run = Column(Float, nullable=True)
 
 
+class Trace(Base):
+    """One agent run — contains multiple spans (steps)."""
+    __tablename__ = "traces"
+
+    id = Column(String, primary_key=True)
+    name = Column(String, nullable=False)  # e.g. "research_agent", "booking_flow"
+    status = Column(String, nullable=False, default="running")  # running, completed, failed
+    input = Column(Text, nullable=True)  # initial user input
+    output = Column(Text, nullable=True)  # final agent output
+    total_tokens = Column(Float, default=0)
+    total_cost_usd = Column(Float, default=0)
+    total_duration_ms = Column(Float, nullable=True)
+    error = Column(Text, nullable=True)
+    metadata_ = Column("metadata", JSON, default=dict)
+    started_at = Column(Float, nullable=False, index=True)
+    ended_at = Column(Float, nullable=True)
+
+    spans = relationship("Span", back_populates="trace", order_by="Span.started_at")
+
+
+class Span(Base):
+    """One step in an agent run — LLM call, tool call, decision, etc."""
+    __tablename__ = "spans"
+
+    id = Column(String, primary_key=True)
+    trace_id = Column(String, ForeignKey("traces.id"), nullable=False, index=True)
+    parent_span_id = Column(String, nullable=True)  # for nested spans
+    name = Column(String, nullable=False)  # e.g. "llm_call", "tool:search", "decision"
+    span_type = Column(String, nullable=False)  # llm, tool, retrieval, decision, custom
+    status = Column(String, nullable=False, default="running")  # running, completed, failed
+    input = Column(Text, nullable=True)
+    output = Column(Text, nullable=True)
+    model = Column(String, nullable=True)  # only for LLM spans
+    tokens = Column(Float, nullable=True)
+    cost_usd = Column(Float, nullable=True)
+    duration_ms = Column(Float, nullable=True)
+    error = Column(Text, nullable=True)
+    metadata_ = Column("metadata", JSON, default=dict)
+    started_at = Column(Float, nullable=False)
+    ended_at = Column(Float, nullable=True)
+
+    trace = relationship("Trace", back_populates="spans")
+
+
 class Evaluation(Base):
     __tablename__ = "evaluations"
 

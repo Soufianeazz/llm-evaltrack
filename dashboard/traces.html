@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Agent Debugger — LLM Evaltrack</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: system-ui, sans-serif; background: #0f1117; color: #e2e8f0; padding: 2rem; }
+    a { color: #818cf8; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    h1 { font-size: 1.5rem; margin-bottom: 0.25rem; }
+    .subtitle { color: #64748b; font-size: 0.875rem; margin-bottom: 1.5rem; }
+    .nav { margin-bottom: 1rem; display: flex; gap: 1rem; }
+    .filters { display: flex; gap: 0.75rem; margin-bottom: 1.5rem; align-items: end; flex-wrap: wrap; }
+    .filter-group { display: flex; flex-direction: column; gap: 0.25rem; }
+    .filter-group label { font-size: 0.7rem; color: #64748b; text-transform: uppercase; }
+    .filter-group input, .filter-group select {
+      background: #1e2130; border: 1px solid #2d3148; color: #e2e8f0;
+      padding: 0.4rem 0.6rem; border-radius: 4px; font-size: 0.85rem; width: 160px;
+    }
+    .btn { background: #818cf8; color: #0f1117; border: none; padding: 0.45rem 1rem; border-radius: 6px; font-weight: 600; cursor: pointer; }
+    .btn:hover { background: #6366f1; }
+
+    /* Trace list */
+    .trace-card {
+      background: #1e2130; border: 1px solid #2d3148; border-radius: 8px;
+      padding: 1rem 1.25rem; margin-bottom: 0.5rem; cursor: pointer; transition: border-color 0.2s;
+    }
+    .trace-card:hover { border-color: #818cf8; }
+    .trace-header { display: flex; justify-content: space-between; align-items: center; }
+    .trace-name { font-weight: 700; font-size: 1rem; }
+    .trace-meta { display: flex; gap: 1rem; font-size: 0.75rem; color: #64748b; }
+    .status { display: inline-block; padding: 0.1rem 0.4rem; border-radius: 4px; font-size: 0.7rem; font-weight: 600; }
+    .status.completed { background: #1a2e1a; color: #4ade80; }
+    .status.failed { background: #3b1111; color: #f87171; }
+    .status.running { background: #1e3a5f; color: #60a5fa; }
+    .trace-preview { color: #94a3b8; font-size: 0.8rem; margin-top: 0.4rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+    /* Detail view */
+    #detailView { display: none; }
+    .detail-header { margin-bottom: 1.5rem; }
+    .detail-kpis { display: grid; grid-template-columns: repeat(5, 1fr); gap: 0.75rem; margin-bottom: 1.5rem; }
+    .detail-kpi { background: #1e2130; border: 1px solid #2d3148; border-radius: 8px; padding: 0.75rem; text-align: center; }
+    .detail-kpi .val { font-size: 1.25rem; font-weight: 700; color: #818cf8; }
+    .detail-kpi .lbl { font-size: 0.7rem; color: #64748b; margin-top: 0.2rem; }
+    .io-section { margin-bottom: 1rem; }
+    .io-label { font-size: 0.7rem; text-transform: uppercase; color: #64748b; margin-bottom: 0.3rem; }
+    .io-content { background: #1e2130; border: 1px solid #2d3148; border-radius: 6px; padding: 0.75rem; font-size: 0.8rem; color: #cbd5e1; white-space: pre-wrap; word-break: break-word; max-height: 150px; overflow-y: auto; }
+
+    /* Waterfall timeline */
+    .waterfall { margin-top: 1.5rem; }
+    .waterfall h2 { font-size: 0.875rem; text-transform: uppercase; color: #64748b; margin-bottom: 1rem; }
+    .span-row { display: flex; align-items: stretch; margin-bottom: 2px; min-height: 36px; }
+    .span-label { width: 200px; flex-shrink: 0; display: flex; align-items: center; gap: 0.4rem; font-size: 0.8rem; padding-right: 0.5rem; }
+    .span-type-badge { font-size: 0.6rem; padding: 0.1rem 0.3rem; border-radius: 3px; font-weight: 600; flex-shrink: 0; }
+    .span-type-badge.llm { background: #312e81; color: #a5b4fc; }
+    .span-type-badge.tool { background: #1a2e1a; color: #4ade80; }
+    .span-type-badge.retrieval { background: #2d2418; color: #fb923c; }
+    .span-type-badge.decision { background: #3b1111; color: #fca5a5; }
+    .span-type-badge.custom { background: #1e293b; color: #94a3b8; }
+    .span-track { flex: 1; position: relative; background: #0f1117; border-radius: 4px; overflow: hidden; }
+    .span-bar { position: absolute; height: 100%; border-radius: 4px; min-width: 2px; cursor: pointer; display: flex; align-items: center; padding-left: 0.4rem; font-size: 0.7rem; color: #fff; }
+    .span-bar.completed { background: #818cf8; }
+    .span-bar.failed { background: #f87171; }
+    .span-bar.running { background: #60a5fa; }
+    .span-bar:hover { opacity: 0.85; }
+
+    /* Span detail popup */
+    .span-detail { display: none; background: #1e2130; border: 1px solid #2d3148; border-radius: 8px; padding: 1rem; margin: 0.5rem 0 0.5rem 200px; font-size: 0.8rem; }
+    .span-detail.open { display: block; }
+    .span-detail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; margin-bottom: 0.75rem; }
+    .span-detail-item .key { color: #64748b; font-size: 0.7rem; text-transform: uppercase; }
+    .span-detail-item .val { color: #e2e8f0; margin-top: 0.15rem; }
+    .span-io { margin-top: 0.5rem; }
+    .span-io-label { font-size: 0.7rem; color: #64748b; text-transform: uppercase; margin-bottom: 0.2rem; }
+    .span-io-content { background: #0f1117; border-radius: 4px; padding: 0.5rem; color: #cbd5e1; white-space: pre-wrap; max-height: 120px; overflow-y: auto; font-size: 0.75rem; }
+
+    @media (max-width: 700px) { .detail-kpis { grid-template-columns: repeat(2, 1fr); } .span-label { width: 120px; } }
+  </style>
+</head>
+<body>
+  <div class="nav">
+    <a href="/">← Dashboard</a>
+    <a href="/debug.html">Prompt Debugger</a>
+    <a href="/compliance.html">Compliance</a>
+  </div>
+  <h1>Agent Debugger</h1>
+  <p class="subtitle">Trace multi-step agent runs — see every step, find where things break</p>
+
+  <!-- List view -->
+  <div id="listView">
+    <div class="filters">
+      <div class="filter-group">
+        <label>Agent name</label>
+        <input type="text" id="filterName" placeholder="e.g. research_agent" />
+      </div>
+      <div class="filter-group">
+        <label>Status</label>
+        <select id="filterStatus">
+          <option value="">All</option>
+          <option value="completed">Completed</option>
+          <option value="failed">Failed</option>
+          <option value="running">Running</option>
+        </select>
+      </div>
+      <div class="filter-group">
+        <label>&nbsp;</label>
+        <button class="btn" id="searchBtn">Search</button>
+      </div>
+    </div>
+    <div id="traceCount" style="color:#64748b; font-size:0.8rem; margin-bottom:0.75rem;"></div>
+    <div id="traceList"></div>
+  </div>
+
+  <!-- Detail view -->
+  <div id="detailView">
+    <button class="btn" id="backBtn" style="margin-bottom:1rem; background:none; border:1px solid #2d3148; color:#64748b;">← Back to list</button>
+    <div class="detail-header">
+      <div style="display:flex; align-items:center; gap:0.75rem;">
+        <span id="detailName" style="font-size:1.25rem; font-weight:700;"></span>
+        <span id="detailStatus"></span>
+      </div>
+      <div id="detailError" style="display:none; background:#2d1b1b; border:1px solid #7f1d1d; border-radius:6px; padding:0.5rem 0.75rem; color:#f87171; font-size:0.85rem; margin-top:0.5rem;"></div>
+    </div>
+
+    <div class="detail-kpis">
+      <div class="detail-kpi"><div class="val" id="kpiSpans">—</div><div class="lbl">Steps</div></div>
+      <div class="detail-kpi"><div class="val" id="kpiDuration">—</div><div class="lbl">Duration</div></div>
+      <div class="detail-kpi"><div class="val" id="kpiTokens">—</div><div class="lbl">Total Tokens</div></div>
+      <div class="detail-kpi"><div class="val" id="kpiCost">—</div><div class="lbl">Total Cost</div></div>
+      <div class="detail-kpi"><div class="val" id="kpiModel">—</div><div class="lbl">Models</div></div>
+    </div>
+
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem; margin-bottom:1.5rem;">
+      <div class="io-section">
+        <div class="io-label">Agent Input</div>
+        <div class="io-content" id="detailInput">—</div>
+      </div>
+      <div class="io-section">
+        <div class="io-label">Agent Output</div>
+        <div class="io-content" id="detailOutput">—</div>
+      </div>
+    </div>
+
+    <div class="waterfall">
+      <h2>Execution Timeline</h2>
+      <div id="waterfallContainer"></div>
+    </div>
+  </div>
+
+  <script>
+    const API = "";
+
+    function fmtTime(ts) { return ts ? new Date(ts * 1000).toLocaleString() : "—"; }
+    function fmtDuration(ms) {
+      if (!ms) return "—";
+      if (ms < 1000) return ms.toFixed(0) + "ms";
+      return (ms / 1000).toFixed(1) + "s";
+    }
+
+    // ── List view ────────────────────────────────────────────────────────────
+    async function loadTraces() {
+      const params = new URLSearchParams();
+      const name = document.getElementById("filterName").value;
+      const status = document.getElementById("filterStatus").value;
+      if (name) params.set("name", name);
+      if (status) params.set("status", status);
+
+      const res = await fetch(`${API}/traces?${params}`);
+      const data = await res.json();
+
+      document.getElementById("traceCount").textContent = `${data.count} traces`;
+      const list = document.getElementById("traceList");
+      list.innerHTML = "";
+
+      for (const t of data.traces) {
+        const card = document.createElement("div");
+        card.className = "trace-card";
+        card.innerHTML = `
+          <div class="trace-header">
+            <div>
+              <span class="trace-name">${t.name}</span>
+              <span class="status ${t.status}">${t.status}</span>
+            </div>
+            <div class="trace-meta">
+              <span>${t.span_count} steps</span>
+              <span>${fmtDuration(t.total_duration_ms)}</span>
+              <span>${t.total_tokens ? t.total_tokens + ' tok' : ''}</span>
+              <span>${t.total_cost_usd ? '$' + t.total_cost_usd.toFixed(4) : ''}</span>
+              <span>${fmtTime(t.started_at)}</span>
+            </div>
+          </div>
+          ${t.input_preview ? `<div class="trace-preview">${t.input_preview}</div>` : ""}
+          ${t.error ? `<div style="color:#f87171; font-size:0.8rem; margin-top:0.3rem;">Error: ${t.error.slice(0, 100)}</div>` : ""}
+        `;
+        card.addEventListener("click", () => loadTraceDetail(t.trace_id));
+        list.appendChild(card);
+      }
+
+      if (!data.count) {
+        list.innerHTML = '<div style="color:#64748b; text-align:center; padding:3rem;">No traces yet. Use <code>trace_agent()</code> in your code to start tracing.</div>';
+      }
+    }
+
+    // ── Detail view ──────────────────────────────────────────────────────────
+    async function loadTraceDetail(traceId) {
+      const res = await fetch(`${API}/traces/${traceId}`);
+      const t = await res.json();
+
+      document.getElementById("listView").style.display = "none";
+      document.getElementById("detailView").style.display = "block";
+
+      document.getElementById("detailName").textContent = t.name;
+      document.getElementById("detailStatus").className = "status " + t.status;
+      document.getElementById("detailStatus").textContent = t.status;
+
+      if (t.error) {
+        const el = document.getElementById("detailError");
+        el.style.display = "block";
+        el.textContent = "Error: " + t.error;
+      } else {
+        document.getElementById("detailError").style.display = "none";
+      }
+
+      document.getElementById("kpiSpans").textContent = t.spans.length;
+      document.getElementById("kpiDuration").textContent = fmtDuration(t.total_duration_ms);
+      document.getElementById("kpiTokens").textContent = t.total_tokens || "—";
+      document.getElementById("kpiCost").textContent = t.total_cost_usd ? "$" + t.total_cost_usd.toFixed(4) : "—";
+
+      const models = [...new Set(t.spans.filter(s => s.model).map(s => s.model))];
+      document.getElementById("kpiModel").textContent = models.join(", ") || "—";
+
+      document.getElementById("detailInput").textContent = t.input || "—";
+      document.getElementById("detailOutput").textContent = t.output || "—";
+
+      // Build waterfall
+      renderWaterfall(t.spans, t.started_at, t.ended_at || (t.started_at + (t.total_duration_ms || 1000) / 1000));
+    }
+
+    function renderWaterfall(spans, traceStart, traceEnd) {
+      const container = document.getElementById("waterfallContainer");
+      container.innerHTML = "";
+
+      const totalDuration = (traceEnd - traceStart) || 0.001;
+
+      for (const s of spans) {
+        const row = document.createElement("div");
+        row.className = "span-row";
+
+        const spanStart = s.started_at - traceStart;
+        const spanEnd = (s.ended_at || traceEnd) - traceStart;
+        const leftPct = (spanStart / totalDuration) * 100;
+        const widthPct = Math.max(((spanEnd - spanStart) / totalDuration) * 100, 1);
+
+        const indent = s.parent_span_id ? "  " : "";
+
+        row.innerHTML = `
+          <div class="span-label">
+            ${indent}<span class="span-type-badge ${s.span_type}">${s.span_type}</span>
+            <span style="overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${s.name}</span>
+          </div>
+          <div class="span-track">
+            <div class="span-bar ${s.status}" style="left:${leftPct}%; width:${widthPct}%;"
+                 title="${s.name}: ${fmtDuration(s.duration_ms)}">
+              ${s.duration_ms ? fmtDuration(s.duration_ms) : ""}
+            </div>
+          </div>
+        `;
+
+        container.appendChild(row);
+
+        // Span detail (click to expand)
+        const detail = document.createElement("div");
+        detail.className = "span-detail";
+        detail.innerHTML = `
+          <div class="span-detail-grid">
+            <div class="span-detail-item"><div class="key">Status</div><div class="val"><span class="status ${s.status}">${s.status}</span></div></div>
+            <div class="span-detail-item"><div class="key">Duration</div><div class="val">${fmtDuration(s.duration_ms)}</div></div>
+            ${s.model ? `<div class="span-detail-item"><div class="key">Model</div><div class="val">${s.model}</div></div>` : ""}
+            ${s.tokens ? `<div class="span-detail-item"><div class="key">Tokens</div><div class="val">${s.tokens}</div></div>` : ""}
+            ${s.cost_usd ? `<div class="span-detail-item"><div class="key">Cost</div><div class="val">$${s.cost_usd.toFixed(4)}</div></div>` : ""}
+            ${s.error ? `<div class="span-detail-item"><div class="key">Error</div><div class="val" style="color:#f87171;">${s.error}</div></div>` : ""}
+          </div>
+          ${s.input ? `<div class="span-io"><div class="span-io-label">Input</div><div class="span-io-content">${s.input}</div></div>` : ""}
+          ${s.output ? `<div class="span-io"><div class="span-io-label">Output</div><div class="span-io-content">${s.output}</div></div>` : ""}
+        `;
+        container.appendChild(detail);
+
+        row.addEventListener("click", () => {
+          detail.classList.toggle("open");
+        });
+      }
+    }
+
+    // ── Events ───────────────────────────────────────────────────────────────
+    document.getElementById("searchBtn").addEventListener("click", loadTraces);
+    document.getElementById("backBtn").addEventListener("click", () => {
+      document.getElementById("detailView").style.display = "none";
+      document.getElementById("listView").style.display = "block";
+    });
+
+    loadTraces();
+  </script>
+</body>
+</html>
