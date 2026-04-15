@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Compliance — LLM Evaltrack</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: system-ui, sans-serif; background: #0f1117; color: #e2e8f0; padding: 2rem; }
+    a { color: #818cf8; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    h1 { font-size: 1.5rem; margin-bottom: 0.25rem; }
+    .subtitle { color: #64748b; font-size: 0.875rem; margin-bottom: 1.5rem; }
+    .kpi-bar { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; margin-bottom: 1.5rem; }
+    .kpi { background: #1e2130; border: 1px solid #2d3148; border-radius: 8px; padding: 1rem 1.25rem; }
+    .kpi-label { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; color: #64748b; margin-bottom: 0.4rem; }
+    .kpi-value { font-size: 1.5rem; font-weight: 700; color: #818cf8; }
+    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 1.5rem; }
+    .card { background: #1e2130; border: 1px solid #2d3148; border-radius: 8px; padding: 1.25rem; }
+    .card h2 { font-size: 0.875rem; text-transform: uppercase; letter-spacing: 0.05em; color: #64748b; margin-bottom: 1rem; }
+    .btn { background: #818cf8; color: #0f1117; border: none; padding: 0.45rem 1rem; border-radius: 6px; font-weight: 600; cursor: pointer; font-size: 0.85rem; }
+    .btn:hover { background: #6366f1; }
+    .btn-danger { background: #f87171; }
+    .btn-danger:hover { background: #ef4444; }
+    .btn-ghost { background: none; border: 1px solid #2d3148; color: #64748b; }
+    .btn-green { background: #4ade80; }
+    input, select {
+      background: #0f1117; border: 1px solid #2d3148; color: #e2e8f0;
+      padding: 0.4rem 0.6rem; border-radius: 4px; font-size: 0.85rem;
+    }
+    .form-row { display: flex; gap: 0.75rem; align-items: end; flex-wrap: wrap; margin-bottom: 0.75rem; }
+    .form-group { display: flex; flex-direction: column; gap: 0.25rem; }
+    .form-group label { font-size: 0.7rem; color: #64748b; text-transform: uppercase; }
+    .audit-table { width: 100%; border-collapse: collapse; font-size: 0.8rem; }
+    .audit-table th { text-align: left; padding: 0.5rem; color: #64748b; border-bottom: 1px solid #2d3148; }
+    .audit-table td { padding: 0.5rem; border-bottom: 1px solid #1a1d2e; }
+    .action-tag { display: inline-block; font-size: 0.7rem; padding: 0.1rem 0.4rem; border-radius: 4px; font-weight: 600; }
+    .action-tag.export { background: #1e3a5f; color: #60a5fa; }
+    .action-tag.delete { background: #3b1111; color: #f87171; }
+    .action-tag.policy_change { background: #1a2e1a; color: #4ade80; }
+    .action-tag.retention_run { background: #2d2418; color: #fb923c; }
+    .status-badge { display: inline-block; padding: 0.2rem 0.5rem; border-radius: 4px; font-size: 0.75rem; font-weight: 600; }
+    .status-badge.active { background: #1a2e1a; color: #4ade80; }
+    .status-badge.inactive { background: #2d1b1b; color: #f87171; }
+    @media (max-width: 900px) { .grid { grid-template-columns: 1fr; } .kpi-bar { grid-template-columns: 1fr 1fr; } }
+  </style>
+</head>
+<body>
+  <div style="margin-bottom:1rem;"><a href="/">← Dashboard</a> &nbsp; <a href="/debug.html">Prompt Debugger</a></div>
+  <h1>Compliance & Data Management</h1>
+  <p class="subtitle">GDPR-ready data export, retention policies, audit logging</p>
+
+  <!-- KPI bar -->
+  <div class="kpi-bar">
+    <div class="kpi"><div class="kpi-label">Total Records</div><div class="kpi-value" id="kpiTotal">—</div></div>
+    <div class="kpi"><div class="kpi-label">Oldest Record</div><div class="kpi-value" id="kpiOldest" style="font-size:1rem;">—</div></div>
+    <div class="kpi"><div class="kpi-label">Retention Policy</div><div class="kpi-value" id="kpiRetention" style="font-size:1rem;">—</div></div>
+    <div class="kpi"><div class="kpi-label">Audit Events</div><div class="kpi-value" id="kpiAudit">—</div></div>
+  </div>
+
+  <div class="grid">
+    <!-- Export -->
+    <div class="card">
+      <h2>Data Export</h2>
+      <p style="color:#94a3b8; font-size:0.85rem; margin-bottom:1rem;">Export all LLM call data for compliance or analysis.</p>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Format</label>
+          <select id="exportFormat">
+            <option value="json">JSON</option>
+            <option value="csv">CSV</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Last N days (empty = all)</label>
+          <input type="number" id="exportDays" min="1" max="365" placeholder="e.g. 30" style="width:100px;" />
+        </div>
+        <div class="form-group">
+          <label>&nbsp;</label>
+          <button class="btn" id="exportBtn">Export</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Retention Policy -->
+    <div class="card">
+      <h2>Retention Policy</h2>
+      <p style="color:#94a3b8; font-size:0.85rem; margin-bottom:1rem;">Auto-delete data older than X days. Runs on manual trigger.</p>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Retention (days)</label>
+          <input type="number" id="retentionDays" min="1" max="365" placeholder="e.g. 90" style="width:100px;" />
+        </div>
+        <div class="form-group">
+          <label>&nbsp;</label>
+          <button class="btn btn-green" id="retentionSave">Save Policy</button>
+        </div>
+        <div class="form-group">
+          <label>&nbsp;</label>
+          <button class="btn btn-danger" id="retentionRun">Run Now</button>
+        </div>
+      </div>
+      <div id="retentionStatus" style="margin-top:0.5rem; font-size:0.8rem; color:#64748b;"></div>
+    </div>
+  </div>
+
+  <div class="grid">
+    <!-- Delete -->
+    <div class="card">
+      <h2>Data Deletion (GDPR)</h2>
+      <p style="color:#94a3b8; font-size:0.85rem; margin-bottom:1rem;">Delete individual requests or bulk-delete old data.</p>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Request ID</label>
+          <input type="text" id="deleteId" placeholder="request UUID" style="width:250px;" />
+        </div>
+        <div class="form-group">
+          <label>&nbsp;</label>
+          <button class="btn btn-danger" id="deleteOneBtn">Delete</button>
+        </div>
+      </div>
+      <div style="border-top:1px solid #2d3148; margin:1rem 0; padding-top:1rem;">
+        <div class="form-row">
+          <div class="form-group">
+            <label>Bulk delete older than (days)</label>
+            <input type="number" id="bulkDeleteDays" min="1" max="365" style="width:100px;" />
+          </div>
+          <div class="form-group">
+            <label>&nbsp;</label>
+            <button class="btn btn-danger" id="bulkDeleteBtn">Bulk Delete</button>
+          </div>
+        </div>
+      </div>
+      <div id="deleteStatus" style="margin-top:0.5rem; font-size:0.8rem; color:#64748b;"></div>
+    </div>
+
+    <!-- Audit Log -->
+    <div class="card" style="max-height:400px; overflow-y:auto;">
+      <h2>Audit Log</h2>
+      <table class="audit-table">
+        <thead><tr><th>Time</th><th>Action</th><th>Detail</th></tr></thead>
+        <tbody id="auditBody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <script>
+    const API = "";
+
+    function fmtTime(ts) {
+      if (!ts) return "—";
+      return new Date(ts * 1000).toLocaleString();
+    }
+
+    // ── Load stats ───────────────────────────────────────────────────────────
+    async function loadStats() {
+      try {
+        const res = await fetch(`${API}/compliance/stats`);
+        const d = await res.json();
+        document.getElementById("kpiTotal").textContent = d.total_requests;
+        document.getElementById("kpiOldest").textContent = d.oldest_record ? fmtTime(d.oldest_record) : "No data";
+        document.getElementById("kpiAudit").textContent = d.audit_log_entries;
+
+        if (d.retention_policy) {
+          const rp = d.retention_policy;
+          document.getElementById("kpiRetention").innerHTML =
+            `${rp.retention_days}d <span class="status-badge ${rp.enabled ? 'active' : 'inactive'}">${rp.enabled ? 'Active' : 'Inactive'}</span>`;
+          document.getElementById("retentionDays").value = rp.retention_days;
+        } else {
+          document.getElementById("kpiRetention").textContent = "Not set";
+        }
+      } catch(e) { console.warn("stats failed", e); }
+    }
+
+    // ── Export ────────────────────────────────────────────────────────────────
+    document.getElementById("exportBtn").addEventListener("click", async () => {
+      const format = document.getElementById("exportFormat").value;
+      const days = document.getElementById("exportDays").value;
+      let url = `${API}/compliance/export?format=${format}`;
+      if (days) url += `&days=${days}`;
+
+      if (format === "csv") {
+        window.location.href = url;
+      } else {
+        const res = await fetch(url);
+        const data = await res.json();
+        const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
+        const a = document.createElement("a");
+        a.href = URL.createObjectURL(blob);
+        a.download = "llm-evaltrack-export.json";
+        a.click();
+      }
+      setTimeout(loadAudit, 1000);
+    });
+
+    // ── Retention ────────────────────────────────────────────────────────────
+    document.getElementById("retentionSave").addEventListener("click", async () => {
+      const days = document.getElementById("retentionDays").value;
+      if (!days) return;
+      const res = await fetch(`${API}/compliance/retention?retention_days=${days}&enabled=true`, { method: "POST" });
+      const d = await res.json();
+      document.getElementById("retentionStatus").textContent = `Policy saved: ${d.retention_days} days`;
+      loadStats();
+      loadAudit();
+    });
+
+    document.getElementById("retentionRun").addEventListener("click", async () => {
+      if (!confirm("This will permanently delete old data. Continue?")) return;
+      const res = await fetch(`${API}/compliance/retention/run`, { method: "POST" });
+      const d = await res.json();
+      document.getElementById("retentionStatus").textContent =
+        d.error ? d.error : `Deleted ${d.deleted_count} records older than ${d.retention_days} days`;
+      loadStats();
+      loadAudit();
+    });
+
+    // ── Delete ───────────────────────────────────────────────────────────────
+    document.getElementById("deleteOneBtn").addEventListener("click", async () => {
+      const id = document.getElementById("deleteId").value.trim();
+      if (!id) return;
+      const res = await fetch(`${API}/compliance/requests/${id}`, { method: "DELETE" });
+      const d = await res.json();
+      document.getElementById("deleteStatus").textContent = d.deleted ? `Deleted ${id}` : `Not found: ${id}`;
+      loadStats();
+      loadAudit();
+    });
+
+    document.getElementById("bulkDeleteBtn").addEventListener("click", async () => {
+      const days = document.getElementById("bulkDeleteDays").value;
+      if (!days) return;
+      if (!confirm(`Delete ALL data older than ${days} days? This cannot be undone.`)) return;
+      const res = await fetch(`${API}/compliance/requests?older_than_days=${days}`, { method: "DELETE" });
+      const d = await res.json();
+      document.getElementById("deleteStatus").textContent = `Deleted ${d.deleted_count} records`;
+      loadStats();
+      loadAudit();
+    });
+
+    // ── Audit log ────────────────────────────────────────────────────────────
+    async function loadAudit() {
+      try {
+        const res = await fetch(`${API}/compliance/audit-log?limit=30`);
+        const data = await res.json();
+        const tbody = document.getElementById("auditBody");
+        tbody.innerHTML = "";
+        for (const e of data) {
+          const tr = document.createElement("tr");
+          tr.innerHTML = `
+            <td style="white-space:nowrap;">${fmtTime(e.timestamp)}</td>
+            <td><span class="action-tag ${e.action}">${e.action}</span></td>
+            <td style="color:#94a3b8;">${e.detail || "—"}</td>
+          `;
+          tbody.appendChild(tr);
+        }
+        if (!data.length) {
+          tbody.innerHTML = '<tr><td colspan="3" style="color:#64748b;">No audit events yet</td></tr>';
+        }
+      } catch(e) { console.warn("audit failed", e); }
+    }
+
+    loadStats();
+    loadAudit();
+  </script>
+</body>
+</html>

@@ -31,6 +31,24 @@ class Request(Base):
     evaluation = relationship("Evaluation", back_populates="request", uselist=False)
 
 
+class AuditLog(Base):
+    __tablename__ = "audit_log"
+
+    id = Column(String, primary_key=True)
+    action = Column(String, nullable=False)  # export, delete, retention_run, policy_change
+    detail = Column(Text, nullable=True)
+    timestamp = Column(Float, nullable=False, index=True)
+
+
+class RetentionPolicy(Base):
+    __tablename__ = "retention_policy"
+
+    id = Column(String, primary_key=True, default="default")
+    retention_days = Column(Float, nullable=False)  # delete data older than X days
+    enabled = Column(Boolean, default=True)
+    last_run = Column(Float, nullable=True)
+
+
 class Evaluation(Base):
     __tablename__ = "evaluations"
 
