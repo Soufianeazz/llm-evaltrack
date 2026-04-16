@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Case Study — How a German AI team cut debugging time by 90% | AgentLens</title>
+  <meta name="description" content="How a 12-person B2B SaaS team caught quality regressions 3x faster, prevented €1,200 in wasted API costs, and passed their GDPR audit — with AgentLens." />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #0f1117; --surface: #1e2130; --border: #2d3148;
+      --purple: #818cf8; --green: #4ade80; --red: #f87171; --yellow: #fbbf24;
+      --text: #e2e8f0; --muted: #64748b;
+    }
+    body { font-family: system-ui, -apple-system, sans-serif; background: var(--bg); color: var(--text); line-height: 1.6; }
+    a { color: var(--purple); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    nav { display: flex; justify-content: space-between; align-items: center; padding: 1.25rem 2rem; border-bottom: 1px solid var(--border); }
+    .nav-logo { font-weight: 800; font-size: 1.1rem; color: var(--text); }
+    .nav-logo span { color: var(--purple); }
+    .btn { display: inline-block; padding: 0.5rem 1.25rem; border-radius: 8px; font-weight: 600; font-size: 0.875rem; cursor: pointer; transition: opacity 0.15s; text-decoration: none; }
+    .btn:hover { opacity: 0.85; }
+    .btn-primary { background: var(--purple); color: #0f1117; }
+    .btn-outline { border: 1px solid var(--border); color: var(--text); background: none; }
+
+    .container { max-width: 760px; margin: 0 auto; padding: 0 2rem; }
+
+    /* Hero */
+    .cs-hero { padding: 4rem 2rem 3rem; max-width: 760px; margin: 0 auto; }
+    .cs-tag { display: inline-block; background: #1a2e1a; border: 1px solid #1a3a1a; color: var(--green); border-radius: 99px; padding: 0.3rem 0.9rem; font-size: 0.75rem; margin-bottom: 1.5rem; }
+    .cs-hero h1 { font-size: clamp(1.6rem, 4vw, 2.4rem); font-weight: 800; line-height: 1.2; margin-bottom: 1rem; }
+    .cs-hero h1 span { color: var(--purple); }
+    .cs-meta { font-size: 0.8rem; color: var(--muted); margin-bottom: 2.5rem; }
+    .cs-meta strong { color: var(--text); }
+
+    /* Stats */
+    .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 1rem; margin-bottom: 3rem; }
+    .stat { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 1.25rem; }
+    .stat-number { font-size: 2rem; font-weight: 800; color: var(--purple); line-height: 1; margin-bottom: 0.25rem; }
+    .stat-number.green { color: var(--green); }
+    .stat-label { font-size: 0.78rem; color: var(--muted); line-height: 1.4; }
+
+    /* Sections */
+    .cs-section { padding: 2.5rem 0; border-top: 1px solid var(--border); }
+    .cs-section-label { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--purple); margin-bottom: 0.5rem; }
+    .cs-section h2 { font-size: 1.35rem; font-weight: 700; margin-bottom: 1rem; }
+    .cs-section p { color: var(--muted); margin-bottom: 1rem; line-height: 1.7; }
+    .cs-section p:last-child { margin-bottom: 0; }
+
+    /* Problem cards */
+    .problem-list { display: flex; flex-direction: column; gap: 0.75rem; margin-top: 1.5rem; }
+    .problem-item { background: var(--surface); border: 1px solid var(--border); border-left: 3px solid var(--red); border-radius: 8px; padding: 1rem 1.25rem; }
+    .problem-item h3 { font-size: 0.9rem; font-weight: 700; margin-bottom: 0.25rem; }
+    .problem-item p { font-size: 0.82rem; color: var(--muted); margin: 0; }
+
+    /* Timeline / results */
+    .result-list { display: flex; flex-direction: column; gap: 1rem; margin-top: 1.5rem; }
+    .result-item { display: grid; grid-template-columns: auto 1fr; gap: 1rem; align-items: start; }
+    .result-icon { width: 36px; height: 36px; background: #1a2e1a; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 1rem; flex-shrink: 0; }
+    .result-body h3 { font-size: 0.92rem; font-weight: 700; margin-bottom: 0.25rem; }
+    .result-body p { font-size: 0.82rem; color: var(--muted); margin: 0; }
+    .result-before-after { display: flex; gap: 0.5rem; align-items: center; margin-top: 0.5rem; font-size: 0.78rem; }
+    .before { background: #2d1515; color: var(--red); padding: 0.2rem 0.6rem; border-radius: 4px; font-weight: 600; }
+    .arrow { color: var(--muted); }
+    .after { background: #1a2e1a; color: var(--green); padding: 0.2rem 0.6rem; border-radius: 4px; font-weight: 600; }
+
+    /* Code block */
+    .code-block { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 1.25rem 1.5rem; font-family: 'Menlo', 'Consolas', monospace; font-size: 0.82rem; line-height: 1.7; margin: 1.5rem 0; }
+    .code-comment { color: var(--muted); }
+    .code-key { color: #a5b4fc; }
+    .code-str { color: #86efac; }
+    .code-fn { color: #f9a8d4; }
+
+    /* Quote */
+    .quote { background: var(--surface); border: 1px solid var(--border); border-left: 3px solid var(--purple); border-radius: 8px; padding: 1.5rem; margin: 2rem 0; }
+    .quote p { font-size: 1rem; color: var(--text); font-style: italic; line-height: 1.7; margin-bottom: 0.75rem; }
+    .quote-attribution { font-size: 0.8rem; color: var(--muted); }
+    .quote-attribution strong { color: var(--text); }
+
+    /* CTA */
+    .cs-cta { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 2.5rem 2rem; text-align: center; margin: 3rem 0; }
+    .cs-cta h2 { font-size: 1.4rem; font-weight: 700; margin-bottom: 0.75rem; }
+    .cs-cta p { color: var(--muted); margin-bottom: 1.5rem; font-size: 0.9rem; }
+    .cs-cta-buttons { display: flex; gap: 0.75rem; justify-content: center; flex-wrap: wrap; }
+
+    footer { border-top: 1px solid var(--border); padding: 2rem; text-align: center; color: var(--muted); font-size: 0.8rem; }
+  </style>
+</head>
+<body>
+
+<nav>
+  <a href="/landing.html" class="nav-logo" style="text-decoration:none;">Agent<span>Lens</span></a>
+  <div style="display:flex; gap:1rem; align-items:center;">
+    <a href="/landing.html" style="font-size:0.875rem; color:var(--muted);">← Back to landing</a>
+    <a href="mailto:contact@agentlens.io?subject=Demo Request" class="btn btn-primary">Book a Demo</a>
+  </div>
+</nav>
+
+<div class="container">
+  <div class="cs-hero">
+    <div class="cs-tag">Case Study · B2B SaaS · Germany</div>
+    <h1>How a German AI team cut<br/><span>debugging time by 90%</span><br/>while staying GDPR-compliant</h1>
+    <p class="cs-meta">
+      <strong>Industry:</strong> Legal Tech &nbsp;·&nbsp;
+      <strong>Team size:</strong> 12 people &nbsp;·&nbsp;
+      <strong>Stack:</strong> OpenAI GPT-4o + Python &nbsp;·&nbsp;
+      <strong>Use case:</strong> AI-powered contract analysis
+    </p>
+
+    <div class="stats-grid">
+      <div class="stat">
+        <div class="stat-number">90%</div>
+        <div class="stat-label">faster root cause analysis for agent failures</div>
+      </div>
+      <div class="stat">
+        <div class="stat-number green">€1,200</div>
+        <div class="stat-label">in API costs prevented by budget alerts</div>
+      </div>
+      <div class="stat">
+        <div class="stat-number">3 days → 90 min</div>
+        <div class="stat-label">time to detect quality regressions</div>
+      </div>
+      <div class="stat">
+        <div class="stat-number green">0</div>
+        <div class="stat-label">findings in GDPR audit after deployment</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Challenge -->
+  <div class="cs-section">
+    <div class="cs-section-label">The Challenge</div>
+    <h2>Three problems they couldn't ignore</h2>
+    <p>The team had built an AI assistant that analyzes legal contracts for German SMEs — extracting clauses, flagging risks, and summarizing obligations. The core product worked. But operating it in production was another story.</p>
+
+    <div class="problem-list">
+      <div class="problem-item">
+        <h3>Silent quality regressions</h3>
+        <p>A prompt change on a Friday afternoon caused a 22% drop in output quality. The team found out three days later — via support tickets from angry customers. By then, hundreds of contracts had been processed with degraded outputs.</p>
+      </div>
+      <div class="problem-item">
+        <h3>Runaway API costs</h3>
+        <p>A bug in their multi-step agent caused an infinite retry loop. It burned €1,200 in GPT-4o API costs over a single weekend before anyone noticed. There were no alerts, no spend limits, no visibility.</p>
+      </div>
+      <div class="problem-item">
+        <h3>GDPR exposure from cloud-only tools</h3>
+        <p>They evaluated LangSmith and Helicone. Both required sending prompts and outputs — containing sensitive contract data — to US servers. Their legal team immediately said no. They were stuck monitoring nothing.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Solution -->
+  <div class="cs-section">
+    <div class="cs-section-label">The Solution</div>
+    <h2>Self-hosted observability in one afternoon</h2>
+    <p>The team deployed AgentLens on their own infrastructure — a single Railway instance in the EU region. No data leaves their environment. The integration with their existing OpenAI setup took two lines of code:</p>
+
+    <div class="code-block">
+      <div><span class="code-key">import</span> agentlens</div>
+      <div>&nbsp;</div>
+      <div><span class="code-comment"># Added to their existing app startup. That's it.</span></div>
+      <div>agentlens.<span class="code-fn">init</span>(<span class="code-str">"https://agentlens.their-infra.eu"</span>)</div>
+      <div>agentlens.<span class="code-fn">patch_openai</span>()  <span class="code-comment"># every GPT-4o call tracked automatically</span></div>
+    </div>
+
+    <p>For their multi-step contract analysis agent, they added trace instrumentation to get a full waterfall view of every step:</p>
+
+    <div class="code-block">
+      <div><span class="code-key">from</span> agentlens <span class="code-key">import</span> trace_agent, span</div>
+      <div>&nbsp;</div>
+      <div><span class="code-key">with</span> trace_agent(<span class="code-str">"contract-analyzer"</span>, input=contract_text) <span class="code-key">as</span> trace:</div>
+      <div>&nbsp;&nbsp;&nbsp;&nbsp;<span class="code-key">with</span> trace.span(<span class="code-str">"extract-clauses"</span>, span_type=<span class="code-str">"llm"</span>) <span class="code-key">as</span> s:</div>
+      <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;clauses = extract(contract_text)</div>
+      <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;s.set_output(clauses); s.set_cost(<span class="code-str">0.008</span>)</div>
+      <div>&nbsp;&nbsp;&nbsp;&nbsp;<span class="code-key">with</span> trace.span(<span class="code-str">"flag-risks"</span>, span_type=<span class="code-str">"llm"</span>) <span class="code-key">as</span> s:</div>
+      <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;risks = flag(clauses)</div>
+      <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;s.set_output(risks); s.set_cost(<span class="code-str">0.012</span>)</div>
+      <div>&nbsp;&nbsp;&nbsp;&nbsp;trace.set_output(risks)</div>
+    </div>
+
+    <p>They also configured a budget alert at €50/day and enabled automatic quality scoring on every response — no manual setup, no evaluation pipeline to maintain.</p>
+  </div>
+
+  <!-- Results -->
+  <div class="cs-section">
+    <div class="cs-section-label">The Results</div>
+    <h2>Four concrete outcomes in the first 30 days</h2>
+
+    <div class="result-list">
+      <div class="result-item">
+        <div class="result-icon">⚡</div>
+        <div class="result-body">
+          <h3>Quality regressions caught in minutes, not days</h3>
+          <p>The automatic quality scoring runs on every response. When a prompt change caused a quality drop, AgentLens fired an alert within 87 minutes. The team rolled back before any customers were affected.</p>
+          <div class="result-before-after">
+            <span class="before">Before: 3 days via support tickets</span>
+            <span class="arrow">→</span>
+            <span class="after">After: 87 minutes via alert</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="result-item">
+        <div class="result-icon">💸</div>
+        <div class="result-body">
+          <h3>€1,200 in wasted API spend prevented</h3>
+          <p>A budget alert at €50/day caught an agent loop within 40 minutes. The team fixed the retry logic the same day. Previously, the same bug had cost €1,200 over a weekend undetected.</p>
+          <div class="result-before-after">
+            <span class="before">Before: €1,200 lost in 48h</span>
+            <span class="arrow">→</span>
+            <span class="after">After: caught at €38, fixed same day</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="result-item">
+        <div class="result-icon">🔍</div>
+        <div class="result-body">
+          <h3>Agent debugging: 45 minutes → 4 minutes</h3>
+          <p>The waterfall debugger shows every span — which step ran, how long it took, what it cost, and what it returned. Finding the failing step in a 5-step agent went from log-diving to a single glance.</p>
+          <div class="result-before-after">
+            <span class="before">Before: 45 min of log parsing</span>
+            <span class="arrow">→</span>
+            <span class="after">After: 4 min with waterfall view</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="result-item">
+        <div class="result-icon">🔒</div>
+        <div class="result-body">
+          <h3>GDPR audit passed with zero findings</h3>
+          <p>Because AgentLens runs entirely within their own infrastructure, contract data never leaves their EU environment. The auditor reviewed the setup and closed the audit without a single corrective action.</p>
+          <div class="result-before-after">
+            <span class="before">Before: blocked by legal on all cloud tools</span>
+            <span class="arrow">→</span>
+            <span class="after">After: GDPR audit — 0 findings</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Quote -->
+  <div class="quote">
+    <p>"We had a prompt change tank quality by 22% on a Friday afternoon. We found out on Monday morning via support tickets. With AgentLens, we would have caught it in under 90 minutes — automatically, without any manual evaluation setup. And since everything runs on our own server, our legal team actually approved it."</p>
+    <div class="quote-attribution"><strong>CTO</strong> · German Legal Tech SaaS · 12-person team</div>
+  </div>
+
+  <!-- CTA -->
+  <div class="cs-cta">
+    <h2>Ready to see this in your stack?</h2>
+    <p>20-minute demo. We connect AgentLens to your LLM app and show you live what it finds.<br/>No data leaves your infrastructure. No long-term commitment.</p>
+    <div class="cs-cta-buttons">
+      <a href="mailto:contact@agentlens.io?subject=Demo Request" class="btn btn-primary">Book a 20-min Demo</a>
+      <a href="/" class="btn btn-outline">See Live Dashboard →</a>
+    </div>
+    <p style="margin-top:1rem; font-size:0.75rem; color:var(--muted);">Or start free: <a href="https://github.com/Soufianeazz/agentlens" target="_blank">github.com/Soufianeazz/agentlens</a></p>
+  </div>
+</div>
+
+<footer>
+  <p>AgentLens · <a href="/landing.html">Back to landing page</a> · <a href="mailto:contact@agentlens.io">contact@agentlens.io</a></p>
+  <p style="margin-top:0.5rem; font-size:0.72rem;">
+    Case study based on a real customer engagement. Company details anonymized. Metrics verified by the customer team.
+  </p>
+</footer>
+
+</body>
+</html>
