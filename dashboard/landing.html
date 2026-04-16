@@ -351,8 +351,30 @@
 </section>
 
 <footer>
-  <p>AgentLens · MIT License · <a href="https://github.com/Soufianeazz/agentlens">GitHub</a> · <a href="https://pypi.org/project/agentlens">PyPI</a> · <a href="mailto:contact@agentlens.com">contact@agentlens.com</a></p>
+  <p>AgentLens · MIT License · <a href="https://github.com/Soufianeazz/agentlens">GitHub</a> · <a href="https://pypi.org/project/agentlens-monitor">PyPI</a> · <a href="mailto:contact@agentlens.io">contact@agentlens.io</a></p>
+  <p style="margin-top:0.5rem;">
+    <a href="/impressum.html">Impressum</a> ·
+    <a href="/datenschutz.html">Datenschutz</a> ·
+    <a href="/nutzungsbedingungen.html">Nutzungsbedingungen</a>
+  </p>
 </footer>
+
+<!-- Cookie Banner -->
+<div id="cookieBanner" style="display:none; position:fixed; bottom:0; left:0; right:0; background:#1e2130; border-top:1px solid #2d3148; padding:1rem 2rem; display:flex; justify-content:space-between; align-items:center; gap:1rem; flex-wrap:wrap; z-index:999;">
+  <p style="margin:0; font-size:0.85rem; color:#94a3b8;">
+    Diese Website verwendet technisch notwendige Cookies für den Zahlungsvorgang (Stripe). Keine Tracking-Cookies.
+    <a href="/datenschutz.html" style="color:#818cf8;">Mehr erfahren</a>
+  </p>
+  <button onclick="document.getElementById('cookieBanner').style.display='none'; localStorage.setItem('cookieOk','1')"
+    style="background:#818cf8; color:#0f1117; border:none; padding:0.5rem 1.25rem; border-radius:6px; font-weight:700; cursor:pointer; white-space:nowrap;">
+    Verstanden
+  </button>
+</div>
+<script>
+  if (!localStorage.getItem('cookieOk')) {
+    document.getElementById('cookieBanner').style.display = 'flex';
+  }
+</script>
 
 </body>
 </html>
