@@ -1,5 +1,6 @@
 """
-Stripe billing — checkout sessions for Starter and Growth plans.
+Stripe billing — checkout sessions for Starter, Team, and Scale plans.
+Enterprise redirects to sales contact.
 """
 import os
 import stripe
@@ -13,19 +14,33 @@ stripe.api_key = (os.getenv("STRIPE_SECRET_KEY") or os.getenv("stripe_secret_key
 PLANS = {
     "starter": {
         "name": "AgentLens Starter",
-        "description": "Managed hosting, up to 500k calls/month, 1 project, email support",
-        "amount": 19900,
+        "description": "Managed hosting, up to 1M calls/month, 1 project, email support, onboarding call",
+        "amount": 29900,  # €299/month
     },
-    "growth": {
-        "name": "AgentLens Growth",
-        "description": "Up to 5M calls/month, 3 projects, Slack support, priority features",
-        "amount": 49900,
+    "team": {
+        "name": "AgentLens Team",
+        "description": "Up to 10M calls/month, 5 projects, GDPR DPA included, Slack support, monthly review call",
+        "amount": 99900,  # €999/month
+    },
+    "scale": {
+        "name": "AgentLens Scale",
+        "description": "Up to 50M calls/month, unlimited projects, dedicated cloud instance, 99.9% SLA, security package",
+        "amount": 299900,  # €2,999/month
     },
 }
+
+ENTERPRISE_EMAIL = "contact@agentlens.io"
 
 
 @router.get("/checkout/{plan}")
 async def checkout(plan: str):
+    if plan == "enterprise":
+        subject = "Enterprise%20Plan%20Inquiry"
+        return RedirectResponse(
+            f"mailto:{ENTERPRISE_EMAIL}?subject={subject}",
+            status_code=303,
+        )
+
     if plan not in PLANS:
         raise HTTPException(status_code=404, detail="Plan not found")
 

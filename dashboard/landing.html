@@ -114,27 +114,27 @@
     <a href="#pricing">Pricing</a>
     <a href="https://github.com/Soufianeazz/agentlens" target="_blank">GitHub</a>
     <a href="/" class="btn btn-outline">Live Demo</a>
-    <a href="mailto:contact@agentlens.com" class="btn btn-primary">Get Started</a>
+    <a href="mailto:contact@agentlens.io?subject=Demo Request" class="btn btn-primary">Book a Demo</a>
   </div>
 </nav>
 
 <!-- Hero -->
 <section class="hero">
-  <div class="badge">v0.2.0 — Agent Debugging now available</div>
-  <h1>Know exactly where your<br/><span>LLM app breaks</span></h1>
-  <p>Quality scoring, hallucination detection, cost tracking, and agent run debugging — self-hosted, in 2 lines of code.</p>
+  <div class="badge">For EU AI Engineering Teams · GDPR-native · Self-hosted</div>
+  <h1>LLM Observability<br/><span>that stays in your cloud</span></h1>
+  <p>Catch quality drops before users do, debug agent failures in seconds, and control costs — without prompts ever leaving your infrastructure.</p>
   <div class="hero-ctas">
-    <a href="mailto:contact@agentlens.com" class="btn btn-primary">Get Early Access</a>
-    <a href="/" class="btn btn-outline">View Live Demo</a>
+    <a href="mailto:contact@agentlens.io?subject=Demo Request" class="btn btn-primary">Book a Demo</a>
+    <a href="/" class="btn btn-outline" style="font-weight:400; color:var(--muted);">See it live →</a>
   </div>
-  <p class="hero-sub">Open source · Self-hosted · MIT License · <strong style="color:var(--text)">First 10 customers: 50% off forever</strong></p>
+  <p class="hero-sub">Self-hosted · MIT License · GDPR Article 28 ready · <strong style="color:var(--text)">2-line integration</strong></p>
 
   <div class="code-block">
     <div><span class="code-key">import</span> llm_observe</div>
     <div>&nbsp;</div>
-    <div><span class="code-comment"># 2 lines. That's it.</span></div>
-    <div>llm_observe.<span class="code-fn">init</span>(<span class="code-str">"https://your-server.com"</span>)</div>
-    <div>llm_observe.<span class="code-fn">patch_openai</span>()  <span class="code-comment"># auto-tracks everything</span></div>
+    <div><span class="code-comment"># Full setup. Nothing else needed.</span></div>
+    <div>llm_observe.<span class="code-fn">init</span>(<span class="code-str">"https://agentlens.your-company.com"</span>)</div>
+    <div>llm_observe.<span class="code-fn">patch_openai</span>()  <span class="code-comment"># every call tracked automatically</span></div>
   </div>
 </section>
 
@@ -208,47 +208,49 @@
 
 <!-- Comparison -->
 <section class="section">
-  <div class="section-label">Comparison</div>
-  <h2>vs. the alternatives</h2>
-  <table class="compare-table">
+  <div class="section-label">How we compare</div>
+  <h2>Built for teams that own their data</h2>
+  <p>AgentLens is designed around one constraint: your LLM data never leaves your infrastructure. That shapes everything — from how it deploys to how it's priced.</p>
+
+  <table class="compare-table" style="margin-top:2rem;">
     <thead>
       <tr>
-        <th>Feature</th>
-        <th class="ours" style="color:var(--purple)">agentlens</th>
+        <th>Capability</th>
+        <th class="ours" style="color:var(--purple)">AgentLens</th>
         <th>LangSmith</th>
         <th>Helicone</th>
       </tr>
     </thead>
     <tbody>
       <tr>
-        <td>Self-hosted</td>
-        <td class="ours"><span class="check">✓</span></td>
-        <td><span class="cross">✗</span></td>
-        <td><span class="cross">✗</span></td>
+        <td>Self-hosted deployment</td>
+        <td class="ours"><span class="check">✓</span> <span style="font-size:0.8rem;color:var(--muted)">default</span></td>
+        <td style="font-size:0.8rem;color:var(--muted)">Enterprise plan only</td>
+        <td style="font-size:0.8rem;color:var(--muted)">Cloud only</td>
       </tr>
       <tr>
-        <td>Auto quality scoring</td>
-        <td class="ours"><span class="check">✓</span></td>
-        <td><span class="cross">✗</span></td>
-        <td><span class="cross">✗</span></td>
+        <td>EU data residency / GDPR DPA</td>
+        <td class="ours"><span class="check">✓</span> <span style="font-size:0.8rem;color:var(--muted)">Team plan+</span></td>
+        <td style="font-size:0.8rem;color:var(--muted)">Enterprise plan only</td>
+        <td style="font-size:0.8rem;color:var(--muted)">Not available</td>
+      </tr>
+      <tr>
+        <td>Automatic quality scoring</td>
+        <td class="ours"><span class="check">✓</span> <span style="font-size:0.8rem;color:var(--muted)">zero config</span></td>
+        <td style="font-size:0.8rem;color:var(--muted)">Manual eval setup required</td>
+        <td style="font-size:0.8rem;color:var(--muted)">Not available</td>
       </tr>
       <tr>
         <td>Hallucination detection</td>
-        <td class="ours"><span class="check">✓</span></td>
-        <td><span class="cross">✗</span></td>
-        <td><span class="cross">✗</span></td>
+        <td class="ours"><span class="check">✓</span> <span style="font-size:0.8rem;color:var(--muted)">built-in</span></td>
+        <td style="font-size:0.8rem;color:var(--muted)">Not available</td>
+        <td style="font-size:0.8rem;color:var(--muted)">Not available</td>
       </tr>
       <tr>
         <td>Agent waterfall debugger</td>
         <td class="ours"><span class="check">✓</span></td>
         <td><span class="check">✓</span></td>
-        <td><span class="cross">✗</span></td>
-      </tr>
-      <tr>
-        <td>GDPR / data residency</td>
-        <td class="ours"><span class="check">✓</span></td>
-        <td><span class="cross">✗</span></td>
-        <td><span class="cross">✗</span></td>
+        <td style="font-size:0.8rem;color:var(--muted)">Not available</td>
       </tr>
       <tr>
         <td>2-line integration</td>
@@ -257,82 +259,106 @@
         <td><span class="check">✓</span></td>
       </tr>
       <tr>
-        <td>Price</td>
-        <td class="ours" style="color:var(--green); font-weight:700">€199/mo</td>
-        <td style="color:var(--red)">$500+/mo</td>
-        <td style="color:var(--red)">$200+/mo</td>
+        <td>Managed hosting — entry price</td>
+        <td class="ours" style="color:var(--green); font-weight:700">€299 / mo</td>
+        <td style="color:var(--muted); font-size:0.85rem;">from $39 / seat / mo</td>
+        <td style="color:var(--muted); font-size:0.85rem;">from $0 / mo (cloud)</td>
       </tr>
     </tbody>
   </table>
+
+  <p style="margin-top:1.25rem; font-size:0.75rem; color:var(--muted); line-height:1.6;">
+    Comparison based on publicly available information as of April 2026. Features and pricing may have changed —
+    verify at <a href="https://www.langchain.com/pricing" target="_blank" rel="noopener">langchain.com/pricing</a>
+    and <a href="https://www.helicone.ai/pricing" target="_blank" rel="noopener">helicone.ai/pricing</a>.
+    "Enterprise plan only" indicates the feature requires a paid enterprise contract with the respective vendor.
+  </p>
 </section>
 
 <!-- Pricing -->
 <section class="section" id="pricing">
   <div class="section-label">Pricing</div>
-  <h2>Simple, honest pricing</h2>
-  <p>Self-host for free forever. Pay for managed hosting and support.</p>
+  <h2>Pricing that scales with your team</h2>
+  <p>Self-host free forever. Upgrade for managed hosting, compliance packages, and dedicated support.</p>
 
-  <div class="early-badge">
-    🎯 <strong>Early Adopter Offer:</strong> First 10 customers get 50% off their plan — forever. Lock in your rate before we raise prices.
-  </div>
-
-  <div class="pricing-grid">
+  <div class="pricing-grid" style="grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));">
     <div class="plan">
-      <div class="plan-name">Open Source</div>
-      <div class="plan-price">€0 <span>/ forever</span></div>
-      <div class="plan-desc">Self-host on your own infrastructure.</div>
+      <div class="plan-name">Starter</div>
+      <div class="plan-price">€299 <span>/ month</span></div>
+      <div class="plan-desc">One team shipping one LLM product.</div>
       <ul class="plan-features">
-        <li>All features included</li>
-        <li>Unlimited calls</li>
-        <li>MIT License</li>
-        <li>Community support</li>
+        <li>Managed hosting (we run it)</li>
+        <li>1M calls / month</li>
+        <li>1 project</li>
+        <li>Quality scoring + hallucination detection</li>
+        <li>Agent debugger</li>
+        <li>Email support (24h)</li>
+        <li>Onboarding call included</li>
       </ul>
-      <a href="https://github.com/Soufianeazz/agentlens" class="plan-cta btn-outline btn" target="_blank">GitHub →</a>
+      <a href="/billing/checkout/starter" class="plan-cta btn-outline btn">Get Started →</a>
     </div>
 
     <div class="plan featured">
-      <div class="plan-badge">Most Popular</div>
-      <div class="plan-name">Starter</div>
-      <div class="plan-price">€199 <span>/ month</span></div>
-      <div class="plan-desc">We host it. You just connect and monitor.</div>
+      <div class="plan-badge">Best for EU Teams</div>
+      <div class="plan-name">Team</div>
+      <div class="plan-price">€999 <span>/ month</span></div>
+      <div class="plan-desc">AI teams with compliance requirements.</div>
       <ul class="plan-features">
-        <li>Managed hosting on Railway</li>
-        <li>Up to 500k calls / month</li>
-        <li>1 project / team</li>
-        <li>Email support (24h response)</li>
-        <li>Setup call included</li>
+        <li>Everything in Starter</li>
+        <li>10M calls / month</li>
+        <li>5 projects</li>
+        <li>GDPR DPA (Article 28) included</li>
+        <li>Audit log + compliance exports</li>
+        <li>Custom data retention policies</li>
+        <li>Slack support</li>
+        <li>Monthly review call</li>
       </ul>
-      <a href="/billing/checkout/starter" class="plan-cta btn-primary btn">Get Started →</a>
+      <a href="mailto:contact@agentlens.io?subject=Team Plan — Book a Demo" class="plan-cta btn-primary btn">Book a Demo →</a>
     </div>
 
     <div class="plan">
-      <div class="plan-name">Growth</div>
-      <div class="plan-price">€499 <span>/ month</span></div>
-      <div class="plan-desc">For teams shipping multiple LLM products.</div>
+      <div class="plan-name">Scale</div>
+      <div class="plan-price">€2.999 <span>/ month</span></div>
+      <div class="plan-desc">Multiple products, dedicated deployment.</div>
       <ul class="plan-features">
-        <li>Everything in Starter</li>
-        <li>Up to 5M calls / month</li>
-        <li>3 projects / teams</li>
-        <li>Slack support</li>
-        <li>Custom retention policies</li>
-        <li>Priority feature requests</li>
+        <li>Everything in Team</li>
+        <li>50M calls / month</li>
+        <li>Unlimited projects</li>
+        <li>Dedicated cloud instance (your region)</li>
+        <li>99.9% SLA</li>
+        <li>Security package (pen test results)</li>
+        <li>Custom integrations</li>
+        <li>Dedicated Slack channel</li>
       </ul>
-      <a href="/billing/checkout/growth" class="plan-cta btn-outline btn">Get Started →</a>
+      <a href="mailto:contact@agentlens.io?subject=Scale Plan — Book a Demo" class="plan-cta btn-outline btn">Book a Demo →</a>
     </div>
 
     <div class="plan">
       <div class="plan-name">Enterprise</div>
-      <div class="plan-price">Custom</div>
-      <div class="plan-desc">Private deployment on your infrastructure.</div>
+      <div class="plan-price">€5.000+ <span>/ month</span></div>
+      <div class="plan-desc">On-premise on your own cloud infrastructure.</div>
       <ul class="plan-features">
-        <li>Deploy on your cloud (AWS/GCP/Azure)</li>
+        <li>Deploy on AWS / GCP / Azure</li>
         <li>Unlimited calls & projects</li>
-        <li>SLA + dedicated support</li>
-        <li>Custom integrations</li>
+        <li>Data never leaves your VPC</li>
+        <li>Custom SLA + dedicated engineer</li>
         <li>Invoice billing</li>
+        <li>Security review + compliance audit</li>
+        <li>Custom model support</li>
       </ul>
-      <a href="mailto:contact@agentlens.io?subject=Enterprise" class="plan-cta btn-outline btn">Talk to Us</a>
+      <a href="mailto:contact@agentlens.io?subject=Enterprise Inquiry" class="plan-cta btn-outline btn">Talk to Us →</a>
     </div>
+  </div>
+
+  <div style="margin-top:1.5rem; background:var(--surface); border:1px solid var(--border); border-radius:10px; padding:1.25rem 1.5rem; font-size:0.82rem; color:var(--muted);">
+    <strong style="color:var(--text);">Add-ons available on any plan:</strong>
+    Extra projects (+€99/project/mo) · Extra call volume (+€49/1M calls) · Compliance report package (+€299/mo) · Priority SLA (+€199/mo)
+  </div>
+
+  <div style="margin-top:1rem; background:#0f1c0f; border:1px solid #1a3a1a; border-radius:10px; padding:1rem 1.5rem; font-size:0.82rem; text-align:center;">
+    <strong style="color:#4ade80;">Open Source forever:</strong>
+    <span style="color:var(--muted);"> Self-host the full stack for free. MIT License.
+    <a href="https://github.com/Soufianeazz/agentlens" target="_blank" style="color:#4ade80;">GitHub →</a></span>
   </div>
 </section>
 
