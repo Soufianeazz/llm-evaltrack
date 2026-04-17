@@ -44,7 +44,7 @@ def evaluate_request(input_: str, output: str, prompt: str) -> dict:
     Evaluate an LLM response.
     Uses Claude as judge when ANTHROPIC_API_KEY is available, otherwise heuristics.
     """
-    if os.environ.get("ANTHROPIC_API_KEY"):
+    if os.environ.get("ANTHROPIC_API_KEY") or os.environ.get("anthropic-api-key"):
         try:
             from evaluation import llm_judge
             result = llm_judge.evaluate(input_, output, prompt)

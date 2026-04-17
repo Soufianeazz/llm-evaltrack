@@ -2,6 +2,7 @@
 Stripe billing — checkout sessions for Starter, Team, and Scale plans.
 Enterprise redirects to sales contact.
 """
+import asyncio
 import os
 import stripe
 from fastapi import APIRouter, HTTPException
@@ -44,25 +45,34 @@ async def checkout(plan: str):
     if plan not in PLANS:
         raise HTTPException(status_code=404, detail="Plan not found")
 
+    if not stripe.api_key:
+        raise HTTPException(status_code=503, detail="Stripe not configured. Set STRIPE_SECRET_KEY.")
+
     p = PLANS[plan]
     base_url = os.getenv("BASE_URL", "https://llm-evaltrack-production.up.railway.app")
 
-    session = stripe.checkout.Session.create(
-        mode="subscription",
-        line_items=[{
-            "price_data": {
-                "currency": "eur",
-                "product_data": {
-                    "name": p["name"],
-                    "description": p["description"],
-                },
-                "unit_amount": p["amount"],
-                "recurring": {"interval": "month"},
-            },
-            "quantity": 1,
-        }],
-        success_url=f"{base_url}/success.html?session_id={{CHECKOUT_SESSION_ID}}",
-        cancel_url=f"{base_url}/landing.html",
-        allow_promotion_codes=True,
-    )
+    try:
+        session = await asyncio.to_thread(
+            lambda: stripe.checkout.Session.create(
+                mode="subscription",
+                line_items=[{
+                    "price_data": {
+                        "currency": "eur",
+                        "product_data": {
+                            "name": p["name"],
+                            "description": p["description"],
+                        },
+                        "unit_amount": p["amount"],
+                        "recurring": {"interval": "month"},
+                    },
+                    "quantity": 1,
+                }],
+                success_url=f"{base_url}/success.html?session_id={{CHECKOUT_SESSION_ID}}",
+                cancel_url=f"{base_url}/landing.html",
+                allow_promotion_codes=True,
+            )
+        )
+    except stripe.StripeError as e:
+        raise HTTPException(status_code=502, detail=f"Stripe error: {e.user_message}")
+
     return RedirectResponse(session.url, status_code=303)

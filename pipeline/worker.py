@@ -36,7 +36,9 @@ async def _process(message: dict[str, Any]) -> None:
                 logger.warning("Request %s not found in DB", request_id)
                 return
 
-            eval_result = evaluate_request(req.input, req.output, req.prompt)
+            eval_result = await asyncio.to_thread(
+                evaluate_request, req.input, req.output, req.prompt
+            )
 
             ev = Evaluation(
                 request_id=request_id,

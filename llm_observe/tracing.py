@@ -19,7 +19,6 @@ Usage:
 """
 from __future__ import annotations
 
-import asyncio
 import contextvars
 import logging
 import time
@@ -81,16 +80,6 @@ async def _apost(path: str, data: dict) -> dict | None:
     except Exception as exc:
         logger.error("tracing: failed to POST %s: %s", path, exc)
         return None
-
-
-def _fire(path: str, data: dict) -> dict | None:
-    """Send request — async if loop is running, else sync."""
-    try:
-        loop = asyncio.get_running_loop()
-        future = asyncio.ensure_future(_apost(path, data))
-        return None  # fire-and-forget in async context
-    except RuntimeError:
-        return _post(path, data)
 
 
 class SpanContext:

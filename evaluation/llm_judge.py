@@ -50,7 +50,7 @@ def evaluate(input_: str, output: str, prompt: str) -> dict:
     Returns the same dict shape as the heuristic engine.
     Raises RuntimeError if the API call fails (caller should fall back to heuristics).
     """
-    api_key = os.environ.get("ANTHROPIC_API_KEY")
+    api_key = os.environ.get("ANTHROPIC_API_KEY") or os.environ.get("anthropic-api-key")
     if not api_key:
         raise RuntimeError("ANTHROPIC_API_KEY not set")
 
@@ -67,12 +67,10 @@ def evaluate(input_: str, output: str, prompt: str) -> dict:
     response = client.messages.create(
         model=_JUDGE_MODEL,
         max_tokens=512,
-        thinking={"type": "adaptive"},
         system=_SYSTEM_PROMPT,
         messages=[{"role": "user", "content": user_message}],
     )
 
-    # Extract the text block (thinking blocks come first, skip them)
     text = next(
         (block.text for block in response.content if block.type == "text"),
         None,

@@ -27,7 +27,7 @@ async def _log_action(db: AsyncSession, action: str, detail: str) -> None:
 
 @router.get("/export")
 async def export_data(
-    format: str = Query("json", regex="^(json|csv)$"),
+    format: str = Query("json", pattern="^(json|csv)$"),
     days: int | None = Query(None, ge=1, le=365),
     db: AsyncSession = Depends(get_session),
 ):

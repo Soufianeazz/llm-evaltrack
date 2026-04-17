@@ -162,14 +162,19 @@ async def list_traces(
     result = await db.execute(query.offset(offset).limit(limit))
     traces = result.scalars().all()
 
-    # Get span counts
+    # Single query for all span counts
+    trace_ids = [t.id for t in traces]
+    span_counts: dict[str, int] = {}
+    if trace_ids:
+        counts_result = await db.execute(
+            select(Span.trace_id, func.count(Span.id).label("cnt"))
+            .where(Span.trace_id.in_(trace_ids))
+            .group_by(Span.trace_id)
+        )
+        span_counts = {row.trace_id: row.cnt for row in counts_result}
+
     items = []
     for t in traces:
-        count_result = await db.execute(
-            select(func.count()).where(Span.trace_id == t.id)
-        )
-        span_count = count_result.scalar()
-
         items.append({
             "trace_id": t.id,
             "name": t.name,
@@ -179,7 +184,7 @@ async def list_traces(
             "total_tokens": t.total_tokens,
             "total_cost_usd": t.total_cost_usd,
             "total_duration_ms": t.total_duration_ms,
-            "span_count": span_count,
+            "span_count": span_counts.get(t.id, 0),
             "error": t.error,
             "started_at": t.started_at,
             "ended_at": t.ended_at,
