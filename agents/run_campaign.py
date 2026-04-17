@@ -17,6 +17,11 @@ import argparse
 import sys
 from pathlib import Path
 
+# Windows-Konsole: UTF-8 erzwingen (sonst crasht Output mit Unicode-Chars wie →, ✓)
+if sys.platform == "win32":
+    sys.stdout.reconfigure(encoding="utf-8")
+    sys.stderr.reconfigure(encoding="utf-8")
+
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from agents.lead_finder import find_leads
