@@ -92,8 +92,17 @@ async def _get_user(client: httpx.AsyncClient, username: str) -> dict:
         return {}
 
 
-async def _find_leads_impl(span_ctx=None) -> list:
-    seen = set()
+def _load_existing_leads() -> tuple[list, set]:
+    """Lädt bestehende leads.csv. Return: (alle_leads, set_der_github_users)."""
+    if not OUTPUT_FILE.exists():
+        return [], set()
+    with open(OUTPUT_FILE, "r", encoding="utf-8") as f:
+        existing = [dict(row) for row in csv.DictReader(f)]
+    return existing, {row["github_user"] for row in existing}
+
+
+async def _find_leads_impl(existing_users: set, span_ctx=None) -> list:
+    seen = set(existing_users)   # bereits bekannte User überspringen
     leads = []
 
     async with httpx.AsyncClient() as client:
@@ -148,30 +157,38 @@ async def find_leads() -> list:
     print("  AgentLens — Lead Finder Agent")
     print("=" * 55)
 
+    existing_leads, existing_users = _load_existing_leads()
+    print(f"  Bestehende Leads in CSV: {len(existing_leads)}")
+
     if TRACING:
         with trace_agent("lead_finder", input=f"{len(SEARCH_QUERIES)} queries") as trace:
             with trace.span("github_search", span_type="tool") as s:
-                leads = await _find_leads_impl()
-                s.set_output(f"{len(leads)} leads gefunden")
-            trace.set_output(f"{len(leads)} leads, {sum(1 for l in leads if l['email'])} mit Email")
+                new_leads = await _find_leads_impl(existing_users)
+                s.set_output(f"{len(new_leads)} neue leads gefunden")
+            trace.set_output(f"{len(new_leads)} neue, {sum(1 for l in new_leads if l['email'])} mit Email")
     else:
-        leads = await _find_leads_impl()
+        new_leads = await _find_leads_impl(existing_users)
 
-    # CSV speichern
-    if leads:
+    # Merge: bestehende Leads behalten ihren Status, neue werden angehängt
+    all_leads = existing_leads + new_leads
+
+    # CSV speichern — bestehende Status (sent/replied/...) bleiben erhalten
+    if all_leads:
         OUTPUT_FILE.parent.mkdir(exist_ok=True)
+        fieldnames = (new_leads[0] if new_leads else existing_leads[0]).keys()
         with open(OUTPUT_FILE, "w", newline="", encoding="utf-8") as f:
-            writer = csv.DictWriter(f, fieldnames=leads[0].keys())
+            writer = csv.DictWriter(f, fieldnames=fieldnames)
             writer.writeheader()
-            writer.writerows(leads)
+            writer.writerows(all_leads)
 
-    with_email = sum(1 for l in leads if l["email"])
+    new_with_email = sum(1 for l in new_leads if l["email"])
     print(f"\n{'=' * 55}")
-    print(f"  Gesamt:      {len(leads)} Leads")
-    print(f"  Mit E-Mail:  {with_email} Leads")
-    print(f"  Gespeichert: {OUTPUT_FILE}")
+    print(f"  Neue Leads:     {len(new_leads)} (davon {new_with_email} mit Email)")
+    print(f"  Gesamt in CSV:  {len(all_leads)}")
+    print(f"  Übersprungen:   {len(existing_users)} bereits bekannte")
+    print(f"  Gespeichert:    {OUTPUT_FILE}")
     print(f"{'=' * 55}\n")
-    return leads
+    return new_leads
 
 
 if __name__ == "__main__":

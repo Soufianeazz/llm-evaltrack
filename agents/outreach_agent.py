@@ -164,18 +164,25 @@ async def run_outreach(dry_run: bool = False):
     client = Anthropic(api_key=ANTHROPIC_API_KEY)
     all_leads = load_leads()
 
-    # Nur Leads mit Email und Status "new"
+    # Safety: nur Leads mit Email + Status in Whitelist ("new" oder "failed" für Retry)
+    # Blockiert: sent, draft, replied, bounced, unsubscribed — niemals doppelt kontaktieren
+    CONTACTABLE_STATUSES = {"new", "failed", ""}
+    skipped_already_contacted = sum(
+        1 for l in all_leads
+        if l.get("email") and l.get("outreach_status", "new") not in CONTACTABLE_STATUSES
+    )
     actionable = [
         l for l in all_leads
-        if l.get("email") and l.get("outreach_status", "new") == "new"
+        if l.get("email") and l.get("outreach_status", "new") in CONTACTABLE_STATUSES
     ][:MAX_LEADS]
 
     print("=" * 55)
     print(f"  AgentLens — Outreach Agent {'(DRY RUN)' if dry_run else ''}")
     print("=" * 55)
-    print(f"  Leads gesamt:     {len(all_leads)}")
-    print(f"  Actionable:       {len(actionable)} (Email + neu)")
-    print(f"  SendGrid:          {'Ja' if SENDGRID_API_KEY else 'Nein (nur Preview)'}")
+    print(f"  Leads gesamt:       {len(all_leads)}")
+    print(f"  Bereits kontaktiert:{skipped_already_contacted} (übersprungen)")
+    print(f"  Actionable:         {len(actionable)} (Email + neu/failed)")
+    print(f"  SendGrid:           {'Ja' if SENDGRID_API_KEY else 'Nein (nur Preview)'}")
     print()
 
     sent_count   = 0
