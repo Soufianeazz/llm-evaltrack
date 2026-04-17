@@ -11,7 +11,7 @@ from __future__ import annotations
 import logging
 from typing import Any
 
-from bugspy.tracker import track_llm_call
+from agentlens.tracker import track_llm_call
 
 logger = logging.getLogger(__name__)
 

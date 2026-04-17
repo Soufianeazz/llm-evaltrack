@@ -14,23 +14,23 @@ stripe.api_key = (os.getenv("STRIPE_SECRET_KEY") or os.getenv("stripe_secret_key
 
 PLANS = {
     "starter": {
-        "name": "BugSpy Starter",
+        "name": "AgentLens Starter",
         "description": "Managed hosting, up to 1M calls/month, 1 project, email support, onboarding call",
         "amount": 29900,  # €299/month
     },
     "team": {
-        "name": "BugSpy Team",
+        "name": "AgentLens Team",
         "description": "Up to 10M calls/month, 5 projects, GDPR DPA included, Slack support, monthly review call",
         "amount": 99900,  # €999/month
     },
     "scale": {
-        "name": "BugSpy Scale",
+        "name": "AgentLens Scale",
         "description": "Up to 50M calls/month, unlimited projects, dedicated cloud instance, 99.9% SLA, security package",
         "amount": 299900,  # €2,999/month
     },
 }
 
-ENTERPRISE_EMAIL = "contact@bugspy.io"
+ENTERPRISE_EMAIL = "contact@agentlens.io"
 
 
 @router.get("/checkout/{plan}")
