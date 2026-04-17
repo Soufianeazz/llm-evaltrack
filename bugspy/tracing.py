@@ -35,7 +35,7 @@ _current_span: contextvars.ContextVar[SpanContext | None] = contextvars.ContextV
 
 
 def _base_url() -> str:
-    from agentlens.tracker import _config
+    from bugspy.tracker import _config
     # Strip /ingest from the api_url to get base
     url = _config["api_url"]
     if url.endswith("/ingest"):
@@ -44,7 +44,7 @@ def _base_url() -> str:
 
 
 def _headers() -> dict:
-    from agentlens.tracker import _config
+    from bugspy.tracker import _config
     headers = {"Content-Type": "application/json"}
     if _config.get("api_key"):
         headers["Authorization"] = f"Bearer {_config['api_key']}"
@@ -53,7 +53,7 @@ def _headers() -> dict:
 
 def _post(path: str, data: dict) -> dict | None:
     """Sync HTTP post to the tracing API."""
-    from agentlens.tracker import _config
+    from bugspy.tracker import _config
     if not _config["enabled"]:
         return None
     try:
@@ -69,7 +69,7 @@ def _post(path: str, data: dict) -> dict | None:
 
 async def _apost(path: str, data: dict) -> dict | None:
     """Async HTTP post to the tracing API."""
-    from agentlens.tracker import _config
+    from bugspy.tracker import _config
     if not _config["enabled"]:
         return None
     try:

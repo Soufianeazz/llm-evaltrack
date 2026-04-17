@@ -19,8 +19,8 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 from anthropic import Anthropic
 
 try:
-    import agentlens
-    from agentlens import trace_agent
+    import bugspy
+    from bugspy import trace_agent
     TRACING = True
 except ImportError:
     TRACING = False
@@ -32,7 +32,7 @@ SENDGRID_API_KEY  = os.getenv("SENDGRID_API_KEY", "")    # SendGrid API Key (SG.
 SENDER_EMAIL      = os.getenv("SENDER_EMAIL", "soufian.azzaoui@icloud.com")  # verifizierte Absender-Email
 
 SENDER_NAME      = "Soufian Azzaoui"
-PRODUCT_NAME     = "AgentLens"
+PRODUCT_NAME     = "BugSpy"
 PRODUCT_URL      = "https://llm-evaltrack-production.up.railway.app/landing.html"
 CASE_STUDY_URL   = "https://llm-evaltrack-production.up.railway.app/case_study.html"
 LEADS_FILE       = Path(__file__).parent / "leads.csv"
@@ -43,9 +43,9 @@ MAX_LEADS        = 15   # Maximale Leads pro Run
 
 def generate_email(client: Anthropic, lead: dict) -> dict:
     """Claude schreibt eine personalisierte E-Mail für den Lead."""
-    prompt = f"""You are writing a cold outreach email for AgentLens — a self-hosted LLM observability tool.
+    prompt = f"""You are writing a cold outreach email for BugSpy — a self-hosted LLM observability tool.
 
-AgentLens key facts:
+BugSpy key facts:
 - Self-hosted (data never leaves your infra) — unlike LangSmith or Helicone
 - Auto quality scoring + hallucination detection on every LLM call (zero config)
 - Agent waterfall debugger: see which step failed, how long, what it cost
@@ -105,7 +105,7 @@ BODY:
 
     # Signatur anhängen (nur falls noch keine drin)
     if "--" not in body[-80:]:
-        body += f"\n\n--\n{SENDER_NAME}\nAgentLens — LLM Observability for EU AI Teams\n{PRODUCT_URL}\nCase study: {CASE_STUDY_URL}"
+        body += f"\n\n--\n{SENDER_NAME}\nBugSpy — LLM Observability for EU AI Teams\n{PRODUCT_URL}\nCase study: {CASE_STUDY_URL}"
 
     tokens_in  = response.usage.input_tokens
     tokens_out = response.usage.output_tokens
@@ -155,7 +155,7 @@ def save_leads(leads: list):
 
 async def run_outreach(dry_run: bool = False):
     if TRACING:
-        agentlens.init(api_url=f"{AGENTLENS_URL}/ingest")
+        bugspy.init(api_url=f"{AGENTLENS_URL}/ingest")
 
     if not ANTHROPIC_API_KEY:
         print("[Fehler] ANTHROPIC_API_KEY nicht gesetzt.")
@@ -171,7 +171,7 @@ async def run_outreach(dry_run: bool = False):
     ][:MAX_LEADS]
 
     print("=" * 55)
-    print(f"  AgentLens — Outreach Agent {'(DRY RUN)' if dry_run else ''}")
+    print(f"  BugSpy — Outreach Agent {'(DRY RUN)' if dry_run else ''}")
     print("=" * 55)
     print(f"  Leads gesamt:     {len(all_leads)}")
     print(f"  Actionable:       {len(actionable)} (Email + neu)")
@@ -246,7 +246,7 @@ async def run_outreach(dry_run: bool = False):
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="AgentLens Outreach Agent")
+    parser = argparse.ArgumentParser(description="BugSpy Outreach Agent")
     parser.add_argument("--dry-run", action="store_true", help="Nur generieren, nicht senden")
     args = parser.parse_args()
     asyncio.run(run_outreach(dry_run=args.dry_run))

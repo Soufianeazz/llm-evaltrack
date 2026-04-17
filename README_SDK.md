@@ -6,7 +6,7 @@ Automatic quality scoring, hallucination detection, cost tracking, and **agent r
 ## Install
 
 ```bash
-pip install agentlens-monitor
+pip install bugspy-monitor
 ```
 
 ## Quick Start

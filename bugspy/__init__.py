@@ -2,15 +2,15 @@
 AgentLens — LLM observability, quality scoring, and agent debugging.
 
 Quick start:
-    import agentlens
+    import bugspy
     agentlens.init(api_url="http://localhost:8000")
     agentlens.patch_openai()    # auto-track all openai calls
     agentlens.patch_anthropic() # auto-track all anthropic calls
 """
-from agentlens.tracker import init, track_llm_call
-from agentlens.integrations.openai import patch as patch_openai
-from agentlens.integrations.anthropic import patch as patch_anthropic
-from agentlens.tracing import trace_agent, span
+from bugspy.tracker import init, track_llm_call
+from bugspy.integrations.openai import patch as patch_openai
+from bugspy.integrations.anthropic import patch as patch_anthropic
+from bugspy.tracing import trace_agent, span
 
 __all__ = [
     "init",
@@ -20,4 +20,4 @@ __all__ = [
     "trace_agent",
     "span",
 ]
-__version__ = "0.1.0"
+__version__ = "0.2.0"
