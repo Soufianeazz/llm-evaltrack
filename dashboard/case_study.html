@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Case Study — How a German AI team cut debugging time by 90% | BugSpy</title>
-  <meta name="description" content="How a 12-person B2B SaaS team caught quality regressions 3x faster, prevented €1,200 in wasted API costs, and passed their GDPR audit — with BugSpy." />
+  <title>Case Study — How a German AI team cut debugging time by 90% | AgentLens</title>
+  <meta name="description" content="How a 12-person B2B SaaS team caught quality regressions 3x faster, prevented €1,200 in wasted API costs, and passed their GDPR audit — with AgentLens." />
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     :root {
@@ -93,7 +93,7 @@
   <a href="/landing.html" class="nav-logo" style="text-decoration:none;">Agent<span>Lens</span></a>
   <div style="display:flex; gap:1rem; align-items:center;">
     <a href="/landing.html" style="font-size:0.875rem; color:var(--muted);">← Back to landing</a>
-    <a href="mailto:contact@bugspy.io?subject=Demo Request" class="btn btn-primary">Book a Demo</a>
+    <a href="mailto:contact@agentlens.io?subject=Demo Request" class="btn btn-primary">Book a Demo</a>
   </div>
 </nav>
 
@@ -154,20 +154,20 @@
   <div class="cs-section">
     <div class="cs-section-label">The Solution</div>
     <h2>Self-hosted observability in one afternoon</h2>
-    <p>The team deployed BugSpy on their own infrastructure — a single Railway instance in the EU region. No data leaves their environment. The integration with their existing OpenAI setup took two lines of code:</p>
+    <p>The team deployed AgentLens on their own infrastructure — a single Railway instance in the EU region. No data leaves their environment. The integration with their existing OpenAI setup took two lines of code:</p>
 
     <div class="code-block">
-      <div><span class="code-key">import</span> bugspy</div>
+      <div><span class="code-key">import</span> agentlens</div>
       <div>&nbsp;</div>
       <div><span class="code-comment"># Added to their existing app startup. That's it.</span></div>
-      <div>bugspy.<span class="code-fn">init</span>(<span class="code-str">"https://bugspy.their-infra.eu"</span>)</div>
-      <div>bugspy.<span class="code-fn">patch_openai</span>()  <span class="code-comment"># every GPT-4o call tracked automatically</span></div>
+      <div>agentlens.<span class="code-fn">init</span>(<span class="code-str">"https://agentlens.their-infra.eu"</span>)</div>
+      <div>agentlens.<span class="code-fn">patch_openai</span>()  <span class="code-comment"># every GPT-4o call tracked automatically</span></div>
     </div>
 
     <p>For their multi-step contract analysis agent, they added trace instrumentation to get a full waterfall view of every step:</p>
 
     <div class="code-block">
-      <div><span class="code-key">from</span> bugspy <span class="code-key">import</span> trace_agent, span</div>
+      <div><span class="code-key">from</span> agentlens <span class="code-key">import</span> trace_agent, span</div>
       <div>&nbsp;</div>
       <div><span class="code-key">with</span> trace_agent(<span class="code-str">"contract-analyzer"</span>, input=contract_text) <span class="code-key">as</span> trace:</div>
       <div>&nbsp;&nbsp;&nbsp;&nbsp;<span class="code-key">with</span> trace.span(<span class="code-str">"extract-clauses"</span>, span_type=<span class="code-str">"llm"</span>) <span class="code-key">as</span> s:</div>
@@ -192,7 +192,7 @@
         <div class="result-icon">⚡</div>
         <div class="result-body">
           <h3>Quality regressions caught in minutes, not days</h3>
-          <p>The automatic quality scoring runs on every response. When a prompt change caused a quality drop, BugSpy fired an alert within 87 minutes. The team rolled back before any customers were affected.</p>
+          <p>The automatic quality scoring runs on every response. When a prompt change caused a quality drop, AgentLens fired an alert within 87 minutes. The team rolled back before any customers were affected.</p>
           <div class="result-before-after">
             <span class="before">Before: 3 days via support tickets</span>
             <span class="arrow">→</span>
@@ -231,7 +231,7 @@
         <div class="result-icon">🔒</div>
         <div class="result-body">
           <h3>GDPR audit passed with zero findings</h3>
-          <p>Because BugSpy runs entirely within their own infrastructure, contract data never leaves their EU environment. The auditor reviewed the setup and closed the audit without a single corrective action.</p>
+          <p>Because AgentLens runs entirely within their own infrastructure, contract data never leaves their EU environment. The auditor reviewed the setup and closed the audit without a single corrective action.</p>
           <div class="result-before-after">
             <span class="before">Before: blocked by legal on all cloud tools</span>
             <span class="arrow">→</span>
@@ -244,24 +244,24 @@
 
   <!-- Quote -->
   <div class="quote">
-    <p>"We had a prompt change tank quality by 22% on a Friday afternoon. We found out on Monday morning via support tickets. With BugSpy, we would have caught it in under 90 minutes — automatically, without any manual evaluation setup. And since everything runs on our own server, our legal team actually approved it."</p>
+    <p>"We had a prompt change tank quality by 22% on a Friday afternoon. We found out on Monday morning via support tickets. With AgentLens, we would have caught it in under 90 minutes — automatically, without any manual evaluation setup. And since everything runs on our own server, our legal team actually approved it."</p>
     <div class="quote-attribution"><strong>CTO</strong> · German Legal Tech SaaS · 12-person team</div>
   </div>
 
   <!-- CTA -->
   <div class="cs-cta">
     <h2>Ready to see this in your stack?</h2>
-    <p>20-minute demo. We connect BugSpy to your LLM app and show you live what it finds.<br/>No data leaves your infrastructure. No long-term commitment.</p>
+    <p>20-minute demo. We connect AgentLens to your LLM app and show you live what it finds.<br/>No data leaves your infrastructure. No long-term commitment.</p>
     <div class="cs-cta-buttons">
-      <a href="mailto:contact@bugspy.io?subject=Demo Request" class="btn btn-primary">Book a 20-min Demo</a>
+      <a href="mailto:contact@agentlens.io?subject=Demo Request" class="btn btn-primary">Book a 20-min Demo</a>
       <a href="/" class="btn btn-outline">See Live Dashboard →</a>
     </div>
-    <p style="margin-top:1rem; font-size:0.75rem; color:var(--muted);">Or start free: <a href="https://github.com/Soufianeazz/bugspy" target="_blank">github.com/Soufianeazz/bugspy</a></p>
+    <p style="margin-top:1rem; font-size:0.75rem; color:var(--muted);">Or start free: <a href="https://github.com/Soufianeazz/agentlens" target="_blank">github.com/Soufianeazz/agentlens</a></p>
   </div>
 </div>
 
 <footer>
-  <p>BugSpy · <a href="/landing.html">Back to landing page</a> · <a href="mailto:contact@bugspy.io">contact@bugspy.io</a></p>
+  <p>AgentLens · <a href="/landing.html">Back to landing page</a> · <a href="mailto:contact@agentlens.io">contact@agentlens.io</a></p>
   <p style="margin-top:0.5rem; font-size:0.72rem;">
     Case study based on a real customer engagement. Company details anonymized. Metrics verified by the customer team.
   </p>

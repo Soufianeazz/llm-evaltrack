@@ -1,8 +1,8 @@
-# BugSpy
+# AgentLens
 
 > Drop-in observability for LLM applications — automatic quality scoring, hallucination detection, cost tracking, and agent run debugging.
 
-**Live demo:** [BugSpy-production.up.railway.app](https://BugSpy-production.up.railway.app)
+**Live demo:** [AgentLens-production.up.railway.app](https://AgentLens-production.up.railway.app)
 
 ---
 
@@ -14,14 +14,14 @@
 
 ## Why
 
-Most LLM apps run blind. You don't know which prompts fail, which models waste money, when quality drops — or where exactly a multi-step agent gets stuck. BugSpy fixes that with **2 lines of code**.
+Most LLM apps run blind. You don't know which prompts fail, which models waste money, when quality drops — or where exactly a multi-step agent gets stuck. AgentLens fixes that with **2 lines of code**.
 
 ---
 
 ## Install
 
 ```bash
-pip install bugspy-monitor
+pip install agentlens-monitor
 ```
 
 ---
@@ -120,8 +120,8 @@ Click any trace to see the full execution timeline:
 ## Self-Host
 
 ```bash
-git clone https://github.com/Soufianeazz/bugspy
-cd bugspy
+git clone https://github.com/Soufianeazz/agentlens
+cd agentlens
 pip install -r requirements.txt
 uvicorn api.main:app --reload
 ```

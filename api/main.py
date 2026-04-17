@@ -24,7 +24,7 @@ async def lifespan(app: FastAPI):
     await stop_worker()
 
 
-app = FastAPI(title="BugSpy", lifespan=lifespan)
+app = FastAPI(title="LLM Observability MVP", lifespan=lifespan)
 
 app.add_middleware(
     CORSMiddleware,

@@ -41,7 +41,7 @@ async def list_waitlist(
     db: AsyncSession = Depends(get_session),
 ):
     import os
-    if token != os.environ.get("ADMIN_TOKEN", "bugspy-admin"):
+    if token != os.environ.get("ADMIN_TOKEN", "agentlens-admin"):
         raise HTTPException(status_code=403, detail="Forbidden")
     result = await db.execute(
         select(WaitlistEntry).order_by(WaitlistEntry.timestamp.desc())

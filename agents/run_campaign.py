@@ -24,7 +24,7 @@ from agents.outreach_agent import run_outreach
 
 
 async def main():
-    parser = argparse.ArgumentParser(description="BugSpy Marketing Automation")
+    parser = argparse.ArgumentParser(description="AgentLens Marketing Automation")
     parser.add_argument(
         "--dry-run", action="store_true",
         help="Leads suchen und E-Mails generieren, aber NICHT versenden"
@@ -36,7 +36,7 @@ async def main():
     args = parser.parse_args()
 
     print("\n" + "=" * 55)
-    print("  BugSpy — Marketing Automation")
+    print("  AgentLens — Marketing Automation")
     print("=" * 55 + "\n")
 
     # ── Step 1: Leads finden ──────────────────────────────────
@@ -54,7 +54,7 @@ async def main():
     print("\nFertig! Nächste Schritte:")
     print("  1. agents/outreach_preview.txt öffnen — alle generierten E-Mails prüfen")
     print("  2. agents/leads.csv öffnen — Status 'sent' / 'draft' prüfen")
-    print("  3. BugSpy Dashboard: https://llm-evaltrack-production.up.railway.app/traces.html")
+    print("  3. AgentLens Dashboard: https://llm-evaltrack-production.up.railway.app/traces.html")
     print()
 
 
