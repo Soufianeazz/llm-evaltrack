@@ -6,6 +6,12 @@
 
 ---
 
+## Get Early Access
+
+**[Join the waitlist →](https://llm-evaltrack-production.up.railway.app/waitlist.html)** — early users get 3 months free + direct access to the roadmap.
+
+---
+
 ## Why
 
 Most LLM apps run blind. You don't know which prompts fail, which models waste money, when quality drops — or where exactly a multi-step agent gets stuck. AgentLens fixes that with **2 lines of code**.

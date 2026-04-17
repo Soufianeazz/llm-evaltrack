@@ -93,6 +93,15 @@ class Span(Base):
     trace = relationship("Trace", back_populates="spans")
 
 
+class WaitlistEntry(Base):
+    __tablename__ = "waitlist"
+
+    id = Column(String, primary_key=True)
+    email = Column(String, nullable=False, unique=True, index=True)
+    source = Column(String, nullable=True)  # "readme", "landing", "hn", etc.
+    timestamp = Column(Float, nullable=False, index=True)
+
+
 class Evaluation(Base):
     __tablename__ = "evaluations"
 

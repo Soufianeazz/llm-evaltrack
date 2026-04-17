@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AgentLens — Early Access</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: #0a0a0f;
+      color: #e2e8f0;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem;
+    }
+
+    .card {
+      max-width: 520px;
+      width: 100%;
+      text-align: center;
+    }
+
+    .badge {
+      display: inline-block;
+      background: rgba(99, 102, 241, 0.15);
+      border: 1px solid rgba(99, 102, 241, 0.4);
+      color: #a5b4fc;
+      font-size: 0.75rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      padding: 0.3rem 0.8rem;
+      border-radius: 999px;
+      margin-bottom: 1.5rem;
+    }
+
+    h1 {
+      font-size: 2.4rem;
+      font-weight: 700;
+      line-height: 1.15;
+      margin-bottom: 1rem;
+      background: linear-gradient(135deg, #fff 40%, #a5b4fc);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    p.sub {
+      color: #94a3b8;
+      font-size: 1.05rem;
+      line-height: 1.6;
+      margin-bottom: 2rem;
+    }
+
+    .perks {
+      display: flex;
+      flex-direction: column;
+      gap: 0.6rem;
+      margin-bottom: 2.5rem;
+      text-align: left;
+    }
+
+    .perk {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      color: #cbd5e1;
+      font-size: 0.95rem;
+    }
+
+    .perk-icon {
+      width: 20px;
+      height: 20px;
+      background: rgba(99, 102, 241, 0.2);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      font-size: 0.65rem;
+    }
+
+    .form-row {
+      display: flex;
+      gap: 0.5rem;
+    }
+
+    input[type="email"] {
+      flex: 1;
+      padding: 0.85rem 1rem;
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 8px;
+      color: #fff;
+      font-size: 0.95rem;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    input[type="email"]::placeholder { color: #64748b; }
+    input[type="email"]:focus { border-color: #6366f1; }
+
+    button {
+      padding: 0.85rem 1.5rem;
+      background: #6366f1;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.2s, transform 0.1s;
+      white-space: nowrap;
+    }
+
+    button:hover { background: #4f46e5; }
+    button:active { transform: scale(0.98); }
+    button:disabled { background: #374151; cursor: not-allowed; }
+
+    .msg {
+      margin-top: 1rem;
+      font-size: 0.9rem;
+      min-height: 1.2em;
+    }
+    .msg.success { color: #34d399; }
+    .msg.error   { color: #f87171; }
+    .msg.dupe    { color: #fbbf24; }
+
+    .count {
+      margin-top: 2rem;
+      color: #475569;
+      font-size: 0.8rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div class="badge">Early Access</div>
+    <h1>Stop flying blind with your LLM app</h1>
+    <p class="sub">AgentLens gives you quality scores, hallucination detection, cost tracking, and agent run debugging — in 2 lines of code.</p>
+
+    <div class="perks">
+      <div class="perk"><div class="perk-icon">✓</div> 3 months free for early users</div>
+      <div class="perk"><div class="perk-icon">✓</div> Direct input on the roadmap</div>
+      <div class="perk"><div class="perk-icon">✓</div> Works with OpenAI, Anthropic, any LLM</div>
+    </div>
+
+    <div class="form-row">
+      <input type="email" id="email" placeholder="you@company.com" />
+      <button id="btn" onclick="submit()">Get Early Access</button>
+    </div>
+    <div class="msg" id="msg"></div>
+
+    <p class="count">No spam. Unsubscribe anytime.</p>
+  </div>
+
+  <script>
+    async function submit() {
+      const email = document.getElementById("email").value.trim();
+      const msg = document.getElementById("msg");
+      const btn = document.getElementById("btn");
+
+      if (!email) { msg.textContent = "Please enter your email."; msg.className = "msg error"; return; }
+
+      btn.disabled = true;
+      btn.textContent = "Joining...";
+      msg.textContent = "";
+
+      try {
+        const res = await fetch("/waitlist", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email, source: "waitlist-page" }),
+        });
+        const data = await res.json();
+
+        if (data.status === "ok") {
+          msg.textContent = "You're in! We'll be in touch soon.";
+          msg.className = "msg success";
+          document.getElementById("email").value = "";
+          btn.textContent = "Joined ✓";
+        } else if (data.status === "already_registered") {
+          msg.textContent = "You're already on the list!";
+          msg.className = "msg dupe";
+          btn.disabled = false;
+          btn.textContent = "Get Early Access";
+        } else {
+          throw new Error();
+        }
+      } catch {
+        msg.textContent = "Something went wrong. Please try again.";
+        msg.className = "msg error";
+        btn.disabled = false;
+        btn.textContent = "Get Early Access";
+      }
+    }
+
+    document.getElementById("email").addEventListener("keydown", e => {
+      if (e.key === "Enter") submit();
+    });
+  </script>
+</body>
+</html>

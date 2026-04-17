@@ -11,6 +11,7 @@ from api.routes.debug import router as debug_router
 from api.routes.compliance import router as compliance_router
 from api.routes.traces import router as traces_router
 from api.routes.billing import router as billing_router
+from api.routes.waitlist import router as waitlist_router
 from pipeline.worker import start_worker, stop_worker
 from storage.database import init_db
 
@@ -39,6 +40,7 @@ app.include_router(debug_router)
 app.include_router(compliance_router)
 app.include_router(traces_router)
 app.include_router(billing_router)
+app.include_router(waitlist_router)
 
 # Serve the static dashboard
 app.mount("/", StaticFiles(directory="dashboard", html=True), name="dashboard")

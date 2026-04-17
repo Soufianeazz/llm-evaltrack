@@ -4,12 +4,12 @@ build-backend = "hatchling.build"
 
 [project]
 name = "agentlens-monitor"
-version = "0.1.0"
+version = "0.2.0"
 description = "LLM observability, quality scoring, hallucination detection, cost tracking, and agent run debugging — in 2 lines of code."
 readme = "README_SDK.md"
 requires-python = ">=3.10"
 license = { text = "MIT" }
-keywords = ["llm", "observability", "monitoring", "openai", "anthropic", "evaluation"]
+keywords = ["llm", "observability", "monitoring", "openai", "anthropic", "evaluation", "langsmith-alternative", "langsmith", "helicone", "llm-monitoring", "llm-observability", "agent-monitoring", "mlops", "llm-tracing"]
 classifiers = [
     "Development Status :: 3 - Alpha",
     "Intended Audience :: Developers",
