@@ -3,7 +3,10 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
+from slowapi import _rate_limit_exceeded_handler
+from slowapi.errors import RateLimitExceeded
 
+from api.limiter import limiter
 from api.routes.ingest import router as ingest_router
 from api.routes.dashboard import router as dashboard_router
 from api.routes.alerts import router as alerts_router
@@ -25,6 +28,8 @@ async def lifespan(app: FastAPI):
 
 
 app = FastAPI(title="LLM Observability MVP", lifespan=lifespan)
+app.state.limiter = limiter
+app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 
 app.add_middleware(
     CORSMiddleware,

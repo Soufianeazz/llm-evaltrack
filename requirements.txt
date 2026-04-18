@@ -8,3 +8,4 @@ anthropic>=0.40
 stripe>=8.0
 python-dotenv>=1.0
 sendgrid>=6.11
+slowapi>=0.1.9
