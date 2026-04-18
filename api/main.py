@@ -76,5 +76,36 @@ async def dashboard_page():
     return FileResponse("dashboard/index.html")
 
 
+# Clean-URL SEO comparison pages (no .html suffix — better for sharing + rankings)
+@app.get("/vs/langsmith", include_in_schema=False)
+async def vs_langsmith():
+    return FileResponse("dashboard/vs/langsmith.html")
+
+
+@app.get("/vs/langfuse", include_in_schema=False)
+async def vs_langfuse():
+    return FileResponse("dashboard/vs/langfuse.html")
+
+
+@app.get("/vs/helicone", include_in_schema=False)
+async def vs_helicone():
+    return FileResponse("dashboard/vs/helicone.html")
+
+
+@app.get("/alternatives/datadog-llm", include_in_schema=False)
+async def alt_datadog_llm():
+    return FileResponse("dashboard/alternatives/datadog-llm.html")
+
+
+@app.get("/sitemap.xml", include_in_schema=False)
+async def sitemap():
+    return FileResponse("dashboard/sitemap.xml", media_type="application/xml")
+
+
+@app.get("/robots.txt", include_in_schema=False)
+async def robots():
+    return FileResponse("dashboard/robots.txt", media_type="text/plain")
+
+
 # Serve all other static files (debug.html, traces.html, compliance.html, assets)
 app.mount("/", StaticFiles(directory="dashboard"), name="dashboard")

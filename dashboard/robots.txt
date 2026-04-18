@@ -1,0 +1,12 @@
+User-agent: *
+Allow: /
+Disallow: /ingest
+Disallow: /requests/
+Disallow: /debug/
+Disallow: /compliance/
+Disallow: /traces/
+Disallow: /alerts/
+Disallow: /billing/
+Disallow: /waitlist/
+
+Sitemap: https://www.agentlens.one/sitemap.xml
