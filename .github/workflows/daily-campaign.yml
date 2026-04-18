@@ -1,0 +1,61 @@
+name: Daily Marketing Campaign
+
+# Läuft täglich um 07:00 UTC (09:00 Europe/Berlin im Sommer, 08:00 im Winter).
+# Findet neue Leads auf GitHub und sendet max. 15 Cold-Emails pro Tag.
+# Schreibt leads.csv zurück ins Repo, damit Duplikat-Schutz über Runs hinweg funktioniert.
+
+on:
+  schedule:
+    - cron: '0 7 * * *'
+  workflow_dispatch:  # manuell triggerbar über GitHub UI
+
+permissions:
+  contents: write   # um leads.csv zurück zu commiten
+
+jobs:
+  campaign:
+    runs-on: ubuntu-latest
+    concurrency:
+      group: daily-campaign
+      cancel-in-progress: false
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: 'pip'
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Find new leads
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          AGENTLENS_URL: https://llm-evaltrack-production.up.railway.app
+        run: python agents/lead_finder.py
+
+      - name: Send outreach emails
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          SENDGRID_API_KEY: ${{ secrets.SENDGRID_API_KEY }}
+          SENDER_EMAIL: ${{ secrets.SENDER_EMAIL }}
+          AGENTLENS_URL: https://llm-evaltrack-production.up.railway.app
+        run: pip install sendgrid && python agents/outreach_agent.py
+
+      - name: Commit updated leads.csv
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add agents/leads.csv agents/outreach_preview.txt || true
+          if git diff --cached --quiet; then
+            echo "No changes to leads.csv"
+          else
+            git commit -m "chore: daily campaign — update leads.csv [skip ci]"
+            git push
+          fi

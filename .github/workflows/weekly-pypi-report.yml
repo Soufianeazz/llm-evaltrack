@@ -1,0 +1,52 @@
+name: Weekly PyPI Download Report
+
+# Jeden Montag 08:00 UTC (10:00 Europe/Berlin Sommer, 09:00 Winter).
+# Erstellt ein GitHub Issue mit den PyPI-Download-Zahlen der letzten 7 Tage.
+
+on:
+  schedule:
+    - cron: '0 8 * * 1'
+  workflow_dispatch:
+
+permissions:
+  issues: write
+
+jobs:
+  report:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Fetch PyPI stats
+        id: stats
+        run: |
+          DATA=$(curl -sf https://pypistats.org/api/packages/agentlens-monitor/recent || echo '{}')
+          echo "Raw response: $DATA"
+          LAST_DAY=$(echo "$DATA" | python -c "import sys,json; print(json.load(sys.stdin).get('data',{}).get('last_day','?'))")
+          LAST_WEEK=$(echo "$DATA" | python -c "import sys,json; print(json.load(sys.stdin).get('data',{}).get('last_week','?'))")
+          LAST_MONTH=$(echo "$DATA" | python -c "import sys,json; print(json.load(sys.stdin).get('data',{}).get('last_month','?'))")
+          {
+            echo "last_day=$LAST_DAY"
+            echo "last_week=$LAST_WEEK"
+            echo "last_month=$LAST_MONTH"
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Create report issue
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const today = new Date().toISOString().slice(0,10);
+            const body = [
+              `# agentlens-monitor PyPI Downloads — Wochenreport ${today}`,
+              '',
+              `- **Letzter Tag:** ${{ steps.stats.outputs.last_day }}`,
+              `- **Letzte Woche:** ${{ steps.stats.outputs.last_week }}`,
+              `- **Letzter Monat:** ${{ steps.stats.outputs.last_month }}`,
+              '',
+              `Quelle: https://pypistats.org/packages/agentlens-monitor`,
+            ].join('\n');
+            await github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: `PyPI Report ${today}`,
+              body,
+              labels: ['metrics','automation'],
+            });
