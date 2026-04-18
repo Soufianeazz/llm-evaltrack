@@ -2,6 +2,7 @@ from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 from slowapi import _rate_limit_exceeded_handler
 from slowapi.errors import RateLimitExceeded
@@ -47,5 +48,17 @@ app.include_router(traces_router)
 app.include_router(billing_router)
 app.include_router(waitlist_router)
 
-# Serve the static dashboard
+
+# Public entry point: landing page. Dashboard moves to /dashboard.
+@app.get("/", include_in_schema=False)
+async def root():
+    return FileResponse("dashboard/landing.html")
+
+
+@app.get("/dashboard", include_in_schema=False)
+async def dashboard_page():
+    return FileResponse("dashboard/index.html")
+
+
+# Serve all other static files (debug.html, traces.html, compliance.html, assets)
 app.mount("/", StaticFiles(directory="dashboard", html=True), name="dashboard")
