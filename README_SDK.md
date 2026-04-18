@@ -21,6 +21,28 @@ agentlens.patch_anthropic()  # auto-track all Anthropic calls
 
 That's it. Your existing code is unchanged. Every `chat.completions.create()` and `messages.create()` is now automatically tracked.
 
+## LangChain (v0.3.0)
+
+Drop-in callback handler — attach it once and every chain, LLM call, tool, and retriever shows up as a span in the AgentLens trace view.
+
+```python
+import llm_observe
+from llm_observe.integrations.langchain import AgentLensCallbackHandler
+
+llm_observe.init(api_url="https://www.agentlens.one/ingest")
+handler = AgentLensCallbackHandler(trace_name="my_qa_chain")
+
+# Works with any LangChain runnable, chain, or agent
+chain.invoke({"input": "..."}, config={"callbacks": [handler]})
+```
+
+What gets captured per run:
+- Top-level chain → one AgentLens trace
+- Nested chains, LLM calls, tool calls, retriever calls → spans (with parent/child)
+- Models, prompts, outputs, token counts, errors — all wired through automatically
+
+Requires `langchain-core` (or the full `langchain` package) installed.
+
 ## Agent Debugging (v0.2.0)
 
 Trace multi-step agent runs to see every step, find where things break, and measure cost per span:
@@ -102,6 +124,11 @@ Pair with the self-hosted server for:
 **Self-host:** [github.com/Soufianeazz/llm-evaltrack](https://github.com/Soufianeazz/llm-evaltrack)
 
 ## Changelog
+
+### v0.3.0
+- Added `AgentLensCallbackHandler` for LangChain — one callback captures every chain, LLM call, tool call, and retriever call as a waterfall span tree
+- Supports nested chains via LangChain `run_id` / `parent_run_id`
+- Graceful import fallback if `langchain-core` isn't installed
 
 ### v0.2.0
 - Added `trace_agent()` context manager for agent run tracing
