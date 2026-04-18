@@ -141,7 +141,7 @@ def send_email(to_email: str, to_name: str, subject: str, body: str) -> bool:
 
     try:
         from sendgrid import SendGridAPIClient
-        from sendgrid.helpers.mail import Mail, Email, To, Content
+        from sendgrid.helpers.mail import Mail, Email, To, Content, ReplyTo
 
         message = Mail(
             from_email=Email(SENDER_EMAIL, SENDER_NAME),
@@ -149,6 +149,7 @@ def send_email(to_email: str, to_name: str, subject: str, body: str) -> bool:
             subject=subject,
             plain_text_content=Content("text/plain", body),
         )
+        message.reply_to = ReplyTo(SENDER_EMAIL, SENDER_NAME)
         sg = SendGridAPIClient(SENDGRID_API_KEY)
         response = sg.send(message)
         return response.status_code in (200, 202)
