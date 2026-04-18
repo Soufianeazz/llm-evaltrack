@@ -5,7 +5,7 @@ Arize-ai,Arize AI,support@arize.com,arizeai,,,Unified AI engineering and evaluat
 ayushi-agarwall,Ayushi Agarwal,,,,,,,8,graphagent,https://github.com/ayushi-agarwall/graphagent,"Hyper minimal AI agent framework: 6kb, < 100 lines, zero dependencies, graph-based orchestration, built-in tracing.",11,Python,new,,
 weivwang,weiwei Wang,,,Tencent,"Wuhan, Hubei Province, China","software engineering, Wuhan University
 ",weivwang.github.io,37,trace-wave,https://github.com/weivwang/trace-wave,"Datadog for AI Agents — Distributed tracing & observability for multi-agent systems. Trace every LLM call, tool use, and agent decision   with 2 lines",8,Python,new,,
-future-agi,Future AGI,,futureagi_,,,World’s first comprehensive evaluation and optimization platform to help enterprises achieve 99% accuracy in AI applicat,https://futureagi.com,90,traceAI,https://github.com/future-agi/traceAI,Open Source AI Tracing Framework built on Opentelemetry for AI Applications and Frameworks,151,Python,new,,
+future-agi,Future AGI,,futureagi_,,,World’s first comprehensive evaluation and optimization platform to help enterprises achieve 99% accuracy in AI applicat,https://futureagi.com,90,traceAI,https://github.com/future-agi/traceAI,Open Source AI Tracing Framework built on Opentelemetry for AI Applications and Frameworks,151,Python,competitor_skipped,,
 CURSED-ME,Varad Khoriya,,,LexOculus ,India,"Building LexOculus (AI Compliance) by day.
 Shipping AgentTrace (LLM Observability) on weekends.
 I like making tools th",,0,agent_trace,https://github.com/CURSED-ME/agent_trace,"Zero-config visual debugging and auto-evaluation for LLM agents. Local-first tracing with a beautiful dashboard for OpenAI, LangChain, CrewAI, and mor",4,Python,new,,
@@ -58,11 +58,37 @@ johnnichev,John Nichev,,,NichevLabs,Brazil,,skills.nichevlabs.com,47,selectools,
 smigolsmigol,f3d1__,,f3d1__,,"Trento, Italy","AI engineer with builder syndrome. came from blockchain nd physics, now deep in agentic systems. building @llmkit. truff",https://llmkit.sh,22,llmkit,https://github.com/smigolsmigol/llmkit,"Know what your AI agents cost. API gateway with budget enforcement, session tracking, and MCP tools.",8,TypeScript,new,,
 tomerhakak,luna,,,,,,https://apex-ai-platform.web.app/,1,agentprobe,https://github.com/tomerhakak/agentprobe,"pytest for AI Agents — Record, test, and secure AI agents. 35+ assertions, prompt injection fuzzing, cost tracking. Local-first.",8,Python,new,,
 vstorm-co,Vstorm,info@vstorm.co,,,Poland,We are the Leading Agentic AI Engineering Consultancy Boutique,vstorm.co,86,pydantic-ai-shields,https://github.com/vstorm-co/pydantic-ai-shields,"Guardrail capabilities for Pydantic AI — cost tracking, prompt injection detection, PII filtering, secret redaction, tool permissions, and async guard",43,Python,sent,,
-AgentOps-AI,AgentOps-AI,,,,,,,0,agentops,https://github.com/AgentOps-AI/agentops,"Python SDK for AI agent monitoring, LLM cost tracking, benchmarking, and more. Integrates with most LLMs and agent frameworks including CrewAI, Agno, ",5475,Python,new,,
+AgentOps-AI,AgentOps-AI,,,,,,,0,agentops,https://github.com/AgentOps-AI/agentops,"Python SDK for AI agent monitoring, LLM cost tracking, benchmarking, and more. Integrates with most LLMs and agent frameworks including CrewAI, Agno, ",5475,Python,competitor_skipped,,
 sattyamjjain,sattyamjjain,,,,,,,0,agent-airlock,https://github.com/sattyamjjain/agent-airlock,"Open-source security firewall for AI agents — validates tool calls, strips ghost arguments, enforces type safety, PII masking, RBAC, cost tracking & s",5,Python,new,,
 aegra,aegra,,,,,,,0,aegra,https://github.com/aegra/aegra,Open source alternative to LangGraph Platform (now LangSmith Deployments) - Self-hosted AI agent backend with FastAPI and PostgreSQL. Zero vendor lock,797,Python,new,,
 caiovicentino,Caio Vicentino,,,,,,,83,polymarket-mcp-server,https://github.com/caiovicentino/polymarket-mcp-server,"🤖 AI-Powered MCP Server for Polymarket - Enable Claude to trade prediction markets with 45 tools, real-time monitoring, and enterprise-grade safety fe",397,Python,new,,
-airblackbox,AIR Blackbox,jason@airblackbox.ai,,,United States of America,"The flight recorder for autonomous AI agents — record, replay, enforce, audit",https://github.com/airblackbox/air-platform,4,airblackbox,https://github.com/airblackbox/airblackbox,"EU AI Act compliance scanner — 39 checks, 7 framework trust layers. pip install air-blackbox",13,Python,new,,
+airblackbox,AIR Blackbox,jason@airblackbox.ai,,,United States of America,"The flight recorder for autonomous AI agents — record, replay, enforce, audit",https://github.com/airblackbox/air-platform,4,airblackbox,https://github.com/airblackbox/airblackbox,"EU AI Act compliance scanner — 39 checks, 7 framework trust layers. pip install air-blackbox",13,Python,sent,airblackbox + agent observability,"Hey,
+
+Your EU AI Act compliance scanner caught my eye—especially the audit layer. If you're building agents that need to prove what happened at each step, AgentLens does exactly that for LLM calls: auto hallucination detection, cost tracking, and full waterfall debugging. Everything self-hosted.
+
+A German legal tech team cut debugging time by 90% this way: https://llm-evaltrack-production.up.railway.app/case_study.html
+
+Worth a quick 20-min demo?
+
+--
+Soufian Azzaoui
+AgentLens — LLM Observability for EU AI Teams
+https://llm-evaltrack-production.up.railway.app/landing.html
+Case study: https://llm-evaltrack-production.up.railway.app/case_study.html"
 sivang,Sivan Grünberg,,,Vitakka Consulting,," iOS, Android , web, system development & administration; Ansible, Puppet , Vagrant, AWS, boto, celery, Debian /  Ubuntu",vitakka.co,37,bedsheet,https://github.com/sivang/bedsheet,"Cloud Agnostic Semi-Declarative Python framework for AI agents. Build single agents or multi-agent teams with streaming events, parallel execution, an",6,Python,new,,
-langfuse,Langfuse,contact@langfuse.com,langfuse,,,"Open source LLM engineering platform. Debug, analyze and iterate together.",https://langfuse.com,873,langfuse-python,https://github.com/langfuse/langfuse-python,🪢 Langfuse Python SDK - Instrument your LLM app with decorators or low-level SDK and get detailed tracing/observability. Works with any LLM or framewo,378,Python,new,,
+langfuse,Langfuse,contact@langfuse.com,langfuse,,,"Open source LLM engineering platform. Debug, analyze and iterate together.",https://langfuse.com,873,langfuse-python,https://github.com/langfuse/langfuse-python,🪢 Langfuse Python SDK - Instrument your LLM app with decorators or low-level SDK and get detailed tracing/observability. Works with any LLM or framewo,378,Python,competitor_skipped,Agent debugging for langfuse-python users,"Hey,
+
+Saw langfuse-python's tracing approach—solid foundation. We built AgentLens specifically for teams debugging multi-step agents: auto hallucination detection, waterfall debugger showing exactly which step failed and what it cost.
+
+A German legal tech team cut debugging time by 90% this way.
+
+Self-hosted, so data stays in your infra. Worth 20 minutes?
+
+https://llm-evaltrack-production.up.railway.app/case_study.html
+
+--
+Soufian Azzaoui
+AgentLens — LLM Observability for EU AI Teams
+https://llm-evaltrack-production.up.railway.app/landing.html
+Case study: https://llm-evaltrack-production.up.railway.app/case_study.html"
 he-yufeng,Yufeng He,,,Moonshot AI,Hong Kong,"AI Researcher @ Moonshot AI (Kimi) | MS CS @ HKU | Champion, Shanghai Global AI Contest | 3× ACM-ICPC Silver | Former In",www.linkedin.com/in/yufenghe,269,TokenTracker,https://github.com/he-yufeng/TokenTracker,"Drop-in LLM cost tracker — change one import line, see where your money goes. Supports OpenAI, OpenRouter, Azure, Ollama.",20,Python,new,,
