@@ -39,14 +39,33 @@ OUTPUT_FILE     = Path(__file__).parent / "leads.csv"
 
 # Was suchen wir? Repos die LLM-Frameworks nutzen
 SEARCH_QUERIES = [
+    # Bestehende
     "langchain openai tracing language:python stars:>3",
     "anthropic claude monitoring language:python stars:>3",
     "llm observability python stars:>3",
     "openai cost tracking python stars:>3",
     "langsmith alternative python stars:>3",
+    # LLM-Frameworks die Observability brauchen
+    "llamaindex rag language:python stars:>10",
+    "crewai agent language:python stars:>5",
+    "autogen multi-agent language:python stars:>10",
+    "pydantic-ai language:python stars:>5",
+    "dspy language:python stars:>10",
+    # Agent-Builder / MLOps Teams
+    "ai agent framework language:python stars:>10 pushed:>2026-01-01",
+    "rag production language:python stars:>10 pushed:>2026-01-01",
+    "llm gateway language:python stars:>5",
+    "prompt engineering tool language:python stars:>10",
+    # TypeScript/JS Ökosystem (viele LLM-Apps sind TS)
+    "langchain typescript tracing stars:>5",
+    "ai agent language:typescript stars:>20 pushed:>2026-01-01",
+    # Branchen-spezifisch (EU-Fokus, GDPR-Sensible)
+    "legal tech llm language:python stars:>3",
+    "healthcare llm language:python stars:>3",
+    "fintech ai agent stars:>5",
 ]
 
-LEADS_PER_QUERY = 8   # GitHub-Ergebnisse pro Query
+LEADS_PER_QUERY = 10   # GitHub-Ergebnisse pro Query
 # ───────────────────────────────────────────────────────────────
 
 
