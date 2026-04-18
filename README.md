@@ -1,14 +1,14 @@
 # AgentLens
 
+[![PyPI](https://img.shields.io/pypi/v/agentlens-monitor.svg)](https://pypi.org/project/agentlens-monitor/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/)
+
 > Drop-in observability for LLM applications — automatic quality scoring, hallucination detection, cost tracking, and agent run debugging.
 
-**Live demo:** [www.agentlens.one](https://www.agentlens.one)
+**Live demo:** [www.agentlens.one](https://www.agentlens.one) · **Agent Debugger:** [/traces.html](https://www.agentlens.one/traces.html)
 
----
-
-## Get Early Access
-
-**[Join the waitlist →](https://www.agentlens.one/waitlist.html)** — early users get 3 months free + direct access to the roadmap.
+![AgentLens Dashboard](docs/dashboard.png)
 
 ---
 
@@ -33,10 +33,12 @@ Auto-track every OpenAI or Anthropic call — zero changes to your existing code
 ```python
 import llm_observe
 
-llm_observe.init(api_url="https://your-server.com/ingest")
+llm_observe.init(api_url="https://www.agentlens.one/ingest")
 llm_observe.patch_openai()     # intercepts all client.chat.completions.create()
 llm_observe.patch_anthropic()  # intercepts all client.messages.create()
 ```
+
+Head to [www.agentlens.one](https://www.agentlens.one) to see your traces appear in real time.
 
 Or track manually:
 
@@ -178,4 +180,10 @@ Push to `main` → Railway auto-deploys. No manual steps.
 
 ## License
 
-MIT
+[MIT](LICENSE)
+
+---
+
+## Hosted version
+
+Prefer not to self-host? The hosted version at [www.agentlens.one](https://www.agentlens.one) is free to try while we're in beta. Paid plans start at €299/month for teams that need managed hosting, higher limits, and a GDPR DPA.
