@@ -10,7 +10,8 @@ from fastapi.responses import RedirectResponse
 
 router = APIRouter(prefix="/billing")
 
-stripe.api_key = (os.getenv("STRIPE_SECRET_KEY") or os.getenv("stripe_secret_key", "")).strip()
+def _load_stripe_key() -> str:
+    return (os.getenv("STRIPE_SECRET_KEY") or os.getenv("stripe_secret_key", "")).strip()
 
 PLANS = {
     "starter": {
@@ -45,6 +46,7 @@ async def checkout(plan: str):
     if plan not in PLANS:
         raise HTTPException(status_code=404, detail="Plan not found")
 
+    stripe.api_key = _load_stripe_key()
     if not stripe.api_key:
         raise HTTPException(status_code=503, detail="Stripe not configured. Set STRIPE_SECRET_KEY.")
 

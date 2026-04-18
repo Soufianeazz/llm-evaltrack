@@ -1,11 +1,25 @@
 from contextlib import asynccontextmanager
 
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import FileResponse
+from fastapi.responses import FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 from slowapi import _rate_limit_exceeded_handler
 from slowapi.errors import RateLimitExceeded
+from starlette.middleware.base import BaseHTTPMiddleware
+
+MAX_BODY_BYTES = 256 * 1024  # 256 KB
+
+
+class BodySizeLimitMiddleware(BaseHTTPMiddleware):
+    async def dispatch(self, request: Request, call_next):
+        cl = request.headers.get("content-length")
+        if cl and cl.isdigit() and int(cl) > MAX_BODY_BYTES:
+            return JSONResponse(
+                status_code=413,
+                content={"detail": f"Request body exceeds {MAX_BODY_BYTES} bytes"},
+            )
+        return await call_next(request)
 
 from api.limiter import limiter
 from api.routes.ingest import router as ingest_router
@@ -31,6 +45,8 @@ async def lifespan(app: FastAPI):
 app = FastAPI(title="LLM Observability MVP", lifespan=lifespan)
 app.state.limiter = limiter
 app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
+
+app.add_middleware(BodySizeLimitMiddleware)
 
 app.add_middleware(
     CORSMiddleware,
@@ -61,4 +77,4 @@ async def dashboard_page():
 
 
 # Serve all other static files (debug.html, traces.html, compliance.html, assets)
-app.mount("/", StaticFiles(directory="dashboard", html=True), name="dashboard")
+app.mount("/", StaticFiles(directory="dashboard"), name="dashboard")

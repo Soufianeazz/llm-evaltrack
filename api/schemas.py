@@ -3,10 +3,10 @@ from pydantic import BaseModel, Field
 
 
 class LLMCallPayload(BaseModel):
-    input: str = Field(..., min_length=1)
-    output: str
-    prompt: str = Field(..., min_length=0)
-    model: str = Field(..., min_length=1)
+    input: str = Field(..., min_length=1, max_length=50_000)
+    output: str = Field(..., max_length=50_000)
+    prompt: str = Field(..., min_length=0, max_length=50_000)
+    model: str = Field(..., min_length=1, max_length=200)
     metadata: dict[str, Any] = Field(default_factory=dict)
     timestamp: float | None = None  # unix epoch; server sets it if absent
 

@@ -11,12 +11,16 @@ import httpx
 
 logger = logging.getLogger(__name__)
 
-_queue: asyncio.Queue[dict[str, Any]] = asyncio.Queue()
+_queue: asyncio.Queue[dict[str, Any]] = asyncio.Queue(maxsize=1000)
 _task: asyncio.Task | None = None
+_semaphore: asyncio.Semaphore = asyncio.Semaphore(8)
 
 
 async def enqueue(message: dict[str, Any]) -> None:
-    await _queue.put(message)
+    try:
+        _queue.put_nowait(message)
+    except asyncio.QueueFull:
+        logger.warning("Evaluation queue full — dropping message %s", message.get("request_id"))
 
 
 async def _process(message: dict[str, Any]) -> None:
@@ -98,11 +102,18 @@ async def _check_budget_alert(db) -> None:
         logger.exception("Budget alert check failed")
 
 
+async def _process_bounded(message: dict[str, Any]) -> None:
+    async with _semaphore:
+        try:
+            await _process(message)
+        finally:
+            _queue.task_done()
+
+
 async def _worker_loop() -> None:
     while True:
         message = await _queue.get()
-        asyncio.create_task(_process(message))
-        _queue.task_done()
+        asyncio.create_task(_process_bounded(message))
 
 
 async def start_worker() -> None:
@@ -113,4 +124,12 @@ async def start_worker() -> None:
 
 async def stop_worker() -> None:
     if _task:
+        try:
+            await asyncio.wait_for(_queue.join(), timeout=10.0)
+        except asyncio.TimeoutError:
+            logger.warning("Worker shutdown: queue drain timed out")
         _task.cancel()
+        try:
+            await _task
+        except asyncio.CancelledError:
+            pass
