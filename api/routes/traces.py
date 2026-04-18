@@ -1,19 +1,29 @@
 """
 Agent debugging endpoints — traces and spans for multi-step agent runs.
 """
+import os
 import time
 import uuid
 
-from fastapi import APIRouter, Depends, Query
+from fastapi import APIRouter, Depends, HTTPException, Query, Request
 from pydantic import BaseModel, Field
 from sqlalchemy import select, func
 from sqlalchemy.ext.asyncio import AsyncSession
 from typing import Any
 
+from api.limiter import limiter
 from storage.database import get_session
 from storage.models import Span, Trace
 
 router = APIRouter(prefix="/traces")
+
+
+def _require_admin(token: str | None):
+    admin_token = os.environ.get("ADMIN_TOKEN")
+    if not admin_token:
+        raise HTTPException(status_code=503, detail="ADMIN_TOKEN not configured")
+    if token != admin_token:
+        raise HTTPException(status_code=403, detail="Forbidden")
 
 
 # ── Schemas ───────────────────────────────────────────────────────────────────
@@ -50,7 +60,8 @@ class EndSpanPayload(BaseModel):
 # ── Trace CRUD ────────────────────────────────────────────────────────────────
 
 @router.post("")
-async def create_trace(payload: CreateTracePayload, db: AsyncSession = Depends(get_session)):
+@limiter.limit("60/minute")
+async def create_trace(request: Request, payload: CreateTracePayload, db: AsyncSession = Depends(get_session)):
     trace_id = str(uuid.uuid4())
     trace = Trace(
         id=trace_id,
@@ -66,11 +77,12 @@ async def create_trace(payload: CreateTracePayload, db: AsyncSession = Depends(g
 
 
 @router.post("/{trace_id}/end")
-async def end_trace(trace_id: str, payload: EndTracePayload, db: AsyncSession = Depends(get_session)):
+@limiter.limit("120/minute")
+async def end_trace(request: Request, trace_id: str, payload: EndTracePayload, db: AsyncSession = Depends(get_session)):
     result = await db.execute(select(Trace).where(Trace.id == trace_id))
     trace = result.scalar_one_or_none()
     if not trace:
-        return {"error": "trace not found"}
+        raise HTTPException(status_code=404, detail="trace not found")
 
     now = time.time()
     trace.status = payload.status
@@ -92,7 +104,8 @@ async def end_trace(trace_id: str, payload: EndTracePayload, db: AsyncSession = 
 # ── Span CRUD ─────────────────────────────────────────────────────────────────
 
 @router.post("/{trace_id}/spans")
-async def create_span(trace_id: str, payload: CreateSpanPayload, db: AsyncSession = Depends(get_session)):
+@limiter.limit("300/minute")
+async def create_span(request: Request, trace_id: str, payload: CreateSpanPayload, db: AsyncSession = Depends(get_session)):
     span_id = str(uuid.uuid4())
     span = Span(
         id=span_id,
@@ -112,11 +125,12 @@ async def create_span(trace_id: str, payload: CreateSpanPayload, db: AsyncSessio
 
 
 @router.post("/{trace_id}/spans/{span_id}/end")
-async def end_span(trace_id: str, span_id: str, payload: EndSpanPayload, db: AsyncSession = Depends(get_session)):
+@limiter.limit("300/minute")
+async def end_span(request: Request, trace_id: str, span_id: str, payload: EndSpanPayload, db: AsyncSession = Depends(get_session)):
     result = await db.execute(select(Span).where(Span.id == span_id, Span.trace_id == trace_id))
     span = result.scalar_one_or_none()
     if not span:
-        return {"error": "span not found"}
+        raise HTTPException(status_code=404, detail="span not found")
 
     now = time.time()
     span.status = payload.status
@@ -194,11 +208,12 @@ async def list_traces(
 
 
 @router.delete("/{trace_id}")
-async def delete_trace(trace_id: str, db: AsyncSession = Depends(get_session)):
+async def delete_trace(trace_id: str, token: str = Query(...), db: AsyncSession = Depends(get_session)):
+    _require_admin(token)
     result = await db.execute(select(Trace).where(Trace.id == trace_id))
     trace = result.scalar_one_or_none()
     if not trace:
-        return {"error": "trace not found"}
+        raise HTTPException(status_code=404, detail="trace not found")
 
     spans_result = await db.execute(select(Span).where(Span.trace_id == trace_id))
     spans = spans_result.scalars().all()
@@ -215,7 +230,7 @@ async def get_trace_detail(trace_id: str, db: AsyncSession = Depends(get_session
     result = await db.execute(select(Trace).where(Trace.id == trace_id))
     trace = result.scalar_one_or_none()
     if not trace:
-        return {"error": "trace not found"}
+        raise HTTPException(status_code=404, detail="trace not found")
 
     spans_result = await db.execute(
         select(Span).where(Span.trace_id == trace_id).order_by(Span.started_at)

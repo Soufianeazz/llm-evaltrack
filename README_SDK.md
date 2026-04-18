@@ -12,11 +12,11 @@ pip install agentlens-monitor
 ## Quick Start
 
 ```python
-import llm_observe
+import agentlens
 
-llm_observe.init(api_url="https://your-server.com/ingest")
-llm_observe.patch_openai()     # auto-track all OpenAI calls
-llm_observe.patch_anthropic()  # auto-track all Anthropic calls
+agentlens.init(api_url="https://www.agentlens.one/ingest")
+agentlens.patch_openai()     # auto-track all OpenAI calls
+agentlens.patch_anthropic()  # auto-track all Anthropic calls
 ```
 
 That's it. Your existing code is unchanged. Every `chat.completions.create()` and `messages.create()` is now automatically tracked.
@@ -26,7 +26,7 @@ That's it. Your existing code is unchanged. Every `chat.completions.create()` an
 Trace multi-step agent runs to see every step, find where things break, and measure cost per span:
 
 ```python
-from llm_observe import trace_agent
+from agentlens import trace_agent
 
 with trace_agent("research_agent", input="Research renewable energy trends") as trace:
 
@@ -66,7 +66,7 @@ Errors inside a `with` block are automatically caught and marked as `failed`.
 ## Manual Tracking
 
 ```python
-llm_observe.track_llm_call(
+agentlens.track_llm_call(
     input="What is the capital of France?",
     output="Paris.",
     prompt="You are a helpful assistant.",
@@ -78,8 +78,8 @@ llm_observe.track_llm_call(
 ## Configuration
 
 ```python
-llm_observe.init(
-    api_url="https://your-server.com/ingest",
+agentlens.init(
+    api_url="https://www.agentlens.one/ingest",
     api_key="your-secret",   # optional bearer token
     max_retries=3,
     timeout=5.0,

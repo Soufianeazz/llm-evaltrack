@@ -31,11 +31,11 @@ pip install agentlens-monitor
 Auto-track every OpenAI or Anthropic call — zero changes to your existing code:
 
 ```python
-import llm_observe
+import agentlens
 
-llm_observe.init(api_url="https://www.agentlens.one/ingest")
-llm_observe.patch_openai()     # intercepts all client.chat.completions.create()
-llm_observe.patch_anthropic()  # intercepts all client.messages.create()
+agentlens.init(api_url="https://www.agentlens.one/ingest")
+agentlens.patch_openai()     # intercepts all client.chat.completions.create()
+agentlens.patch_anthropic()  # intercepts all client.messages.create()
 ```
 
 Head to [www.agentlens.one](https://www.agentlens.one) to see your traces appear in real time.
@@ -43,7 +43,7 @@ Head to [www.agentlens.one](https://www.agentlens.one) to see your traces appear
 Or track manually:
 
 ```python
-llm_observe.track_llm_call(
+agentlens.track_llm_call(
     input="What is the capital of France?",
     output="Paris.",
     prompt="You are a helpful assistant.",
@@ -70,7 +70,7 @@ llm_observe.track_llm_call(
 Trace multi-step agent runs to see every step, find where things break, and measure cost per span:
 
 ```python
-from llm_observe import trace_agent
+from agentlens import trace_agent
 
 with trace_agent("research_agent", input="Research renewable energy trends") as trace:
 

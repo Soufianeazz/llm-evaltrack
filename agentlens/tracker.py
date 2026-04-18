@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import asyncio
 import logging
+import threading
 import time
 from typing import Any
 
@@ -100,4 +101,25 @@ def track_llm_call(
         loop = asyncio.get_running_loop()
         loop.create_task(_send(payload))
     except RuntimeError:
-        asyncio.run(_send(payload))
+        threading.Thread(target=_send_sync, args=(payload,), daemon=True).start()
+
+
+def _send_sync(payload: dict[str, Any]) -> None:
+    """Synchronous sender for non-async callers. Runs in a background thread."""
+    headers = {}
+    if _config["api_key"]:
+        headers["Authorization"] = f"Bearer {_config['api_key']}"
+    try:
+        with httpx.Client(timeout=_config["timeout"]) as client:
+            for attempt in range(1, _config["max_retries"] + 1):
+                try:
+                    r = client.post(_config["api_url"], json=payload, headers=headers)
+                    r.raise_for_status()
+                    return
+                except Exception as exc:
+                    if attempt == _config["max_retries"]:
+                        logger.error("agentlens: failed after %d attempts: %s", attempt, exc)
+                    else:
+                        time.sleep(attempt * 1.0)
+    except Exception:
+        logger.exception("agentlens: sync send crashed")

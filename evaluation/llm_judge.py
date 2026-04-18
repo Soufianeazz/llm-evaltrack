@@ -13,7 +13,7 @@ import os
 
 logger = logging.getLogger(__name__)
 
-_JUDGE_MODEL = "claude-opus-4-6"
+_JUDGE_MODEL = os.environ.get("JUDGE_MODEL", "claude-opus-4-7")
 
 _SYSTEM_PROMPT = """You are an expert LLM output evaluator.
 Your job is to assess the quality of an AI assistant's response.
