@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>LangSmith Alternative — Self-hosted LLM Observability | AgentLens</title>
+  <meta name="description" content="Looking for a self-hosted LangSmith alternative? AgentLens offers quality scoring, hallucination detection, agent debugging, and GDPR compliance — without sending your prompts to LangChain's cloud." />
+  <link rel="canonical" href="https://www.agentlens.one/vs/langsmith" />
+  <meta property="og:title" content="LangSmith vs AgentLens — Self-hosted LLM Observability" />
+  <meta property="og:description" content="Every LangSmith feature, but self-hosted by default. MIT licensed. GDPR-native. From €299/mo (or free)." />
+  <meta property="og:url" content="https://www.agentlens.one/vs/langsmith" />
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {"@type":"Question","name":"Is AgentLens a drop-in LangSmith replacement?","acceptedAnswer":{"@type":"Answer","text":"AgentLens provides the same core capabilities — tracing, evals, cost tracking, agent debugging — with a 2-line SDK install. It is not API-compatible with LangSmith, but the mental model and dashboard are familiar. Most teams migrate in under an hour."}},
+      {"@type":"Question","name":"Can I self-host LangSmith?","acceptedAnswer":{"@type":"Answer","text":"LangSmith self-hosting is restricted to LangChain's Enterprise plan. AgentLens is self-hosted by default, MIT licensed, and runs on a €5 VPS."}},
+      {"@type":"Question","name":"Does AgentLens work without LangChain?","acceptedAnswer":{"@type":"Answer","text":"Yes. AgentLens is framework-agnostic. It works with plain OpenAI/Anthropic SDKs, LangChain, LlamaIndex, CrewAI, AutoGen, and custom agent code."}},
+      {"@type":"Question","name":"How much does AgentLens cost compared to LangSmith?","acceptedAnswer":{"@type":"Answer","text":"LangSmith Plus starts at $39/seat/month plus usage. AgentLens Starter is €299/month flat for 1M calls (no seat limits), or free when self-hosted."}}
+    ]
+  }
+  </script>
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    :root{--bg:#0f1117;--surface:#1e2130;--border:#2d3148;--purple:#818cf8;--green:#4ade80;--red:#f87171;--text:#e2e8f0;--muted:#64748b}
+    body{font-family:system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--text);line-height:1.6}
+    a{color:var(--purple);text-decoration:none}
+    a:hover{text-decoration:underline}
+    nav{display:flex;justify-content:space-between;align-items:center;padding:1.25rem 2rem;border-bottom:1px solid var(--border);position:sticky;top:0;background:var(--bg);z-index:10}
+    .nav-logo{font-weight:800;font-size:1.1rem;color:var(--text)}
+    .nav-logo span{color:var(--purple)}
+    .nav-links{display:flex;gap:1.5rem;align-items:center;font-size:.875rem}
+    .btn{display:inline-block;padding:.5rem 1.25rem;border-radius:8px;font-weight:600;font-size:.875rem;cursor:pointer;transition:opacity .15s}
+    .btn:hover{opacity:.85;text-decoration:none}
+    .btn-primary{background:var(--purple);color:#0f1117}
+    .btn-outline{border:1px solid var(--border);color:var(--text);background:none}
+    .hero{max-width:820px;margin:0 auto;text-align:center;padding:4rem 2rem 2rem}
+    .badge{display:inline-block;background:#1e2130;border:1px solid var(--border);border-radius:99px;padding:.3rem .9rem;font-size:.75rem;color:var(--purple);margin-bottom:1.5rem}
+    .hero h1{font-size:clamp(2rem,5vw,3rem);font-weight:800;line-height:1.15;margin-bottom:1.25rem}
+    .hero h1 span{color:var(--purple)}
+    .hero p{font-size:1.05rem;color:var(--muted);max-width:620px;margin:0 auto 2rem}
+    .hero-ctas{display:flex;gap:.75rem;justify-content:center;flex-wrap:wrap}
+    .section{padding:3rem 2rem;max-width:1000px;margin:0 auto}
+    .section-label{font-size:.75rem;text-transform:uppercase;letter-spacing:.1em;color:var(--purple);margin-bottom:.75rem}
+    .section h2{font-size:clamp(1.5rem,3vw,2rem);font-weight:700;margin-bottom:1rem}
+    .section > p{color:var(--muted);max-width:620px;margin-bottom:1rem}
+    .compare-table{width:100%;border-collapse:collapse;margin-top:1.5rem;font-size:.9rem}
+    .compare-table th{padding:.75rem 1rem;text-align:left;border-bottom:1px solid var(--border);color:var(--muted);font-weight:600}
+    .compare-table th:not(:first-child){text-align:center}
+    .compare-table td{padding:.75rem 1rem;border-bottom:1px solid #1a1d2e;vertical-align:top}
+    .compare-table td:not(:first-child){text-align:center}
+    .check{color:var(--green);font-size:1rem}
+    .cross{color:var(--red);font-size:1rem}
+    .ours{background:rgba(129,140,248,.06)}
+    .two-col{display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;margin-top:1.5rem}
+    .two-col > div{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:1.5rem}
+    .two-col h3{font-size:1rem;font-weight:700;margin-bottom:.75rem;color:var(--text)}
+    .two-col ul{list-style:none;display:flex;flex-direction:column;gap:.5rem}
+    .two-col li{font-size:.85rem;color:var(--muted);display:flex;gap:.5rem;align-items:flex-start}
+    .two-col li::before{content:"→";color:var(--purple);flex-shrink:0}
+    .faq{margin-top:1.5rem;display:flex;flex-direction:column;gap:.75rem}
+    .faq details{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:1rem 1.25rem}
+    .faq summary{cursor:pointer;font-weight:600;font-size:.95rem;color:var(--text)}
+    .faq p{margin-top:.75rem;color:var(--muted);font-size:.88rem}
+    .code-block{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:1rem 1.25rem;font-family:'Menlo','Consolas',monospace;font-size:.82rem;line-height:1.7;margin-top:1rem;overflow-x:auto}
+    .code-comment{color:var(--muted)}
+    .code-key{color:#a5b4fc}
+    .code-str{color:#86efac}
+    .code-fn{color:#f9a8d4}
+    .cta-box{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:2rem;text-align:center;margin-top:2rem}
+    .cta-box h3{font-size:1.15rem;font-weight:700;margin-bottom:.5rem}
+    .cta-box p{color:var(--muted);font-size:.9rem;margin-bottom:1.25rem}
+    footer{border-top:1px solid var(--border);padding:2rem;text-align:center;color:var(--muted);font-size:.8rem;margin-top:3rem}
+    @media(max-width:700px){.two-col{grid-template-columns:1fr}nav{padding:1rem}.nav-links a:not(.btn){display:none}}
+  </style>
+</head>
+<body>
+
+<nav>
+  <a href="/" class="nav-logo">Agent<span>Lens</span></a>
+  <div class="nav-links">
+    <a href="/#features">Features</a>
+    <a href="/#pricing">Pricing</a>
+    <a href="https://github.com/Soufianeazz/agentlens" target="_blank">GitHub</a>
+    <a href="/dashboard" class="btn btn-outline">Live Demo</a>
+    <a href="mailto:contact@agentlens.one?subject=Demo Request" class="btn btn-primary">Book a Demo</a>
+  </div>
+</nav>
+
+<section class="hero">
+  <div class="badge">LangSmith Alternative · Self-hosted · MIT Licensed</div>
+  <h1>AgentLens vs LangSmith<br/><span>Same visibility. Your infrastructure.</span></h1>
+  <p>LangSmith is powerful — but self-hosting is locked behind Enterprise, and every prompt your users send flows through LangChain's US cloud. AgentLens gives you the same tracing, evals, and agent debugging, self-hosted by default.</p>
+  <div class="hero-ctas">
+    <a href="mailto:contact@agentlens.one?subject=Migrating from LangSmith" class="btn btn-primary">Book a Migration Call</a>
+    <a href="/dashboard" class="btn btn-outline">See Live Demo →</a>
+  </div>
+</section>
+
+<section class="section">
+  <div class="section-label">Quick Comparison</div>
+  <h2>Feature-by-feature</h2>
+  <table class="compare-table">
+    <thead>
+      <tr>
+        <th>Capability</th>
+        <th class="ours" style="color:var(--purple)">AgentLens</th>
+        <th>LangSmith</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td>Self-hosted (free tier)</td><td class="ours"><span class="check">✓</span> default, MIT</td><td style="color:var(--muted);font-size:.85rem">Enterprise plan only</td></tr>
+      <tr><td>EU data residency / GDPR DPA</td><td class="ours"><span class="check">✓</span> Team+ plan</td><td style="color:var(--muted);font-size:.85rem">Enterprise plan only</td></tr>
+      <tr><td>Automatic quality scoring</td><td class="ours"><span class="check">✓</span> zero config</td><td style="color:var(--muted);font-size:.85rem">Manual eval setup</td></tr>
+      <tr><td>Hallucination detection</td><td class="ours"><span class="check">✓</span> built-in</td><td><span class="cross">✗</span></td></tr>
+      <tr><td>Agent waterfall debugger</td><td class="ours"><span class="check">✓</span></td><td><span class="check">✓</span></td></tr>
+      <tr><td>Framework-agnostic SDK</td><td class="ours"><span class="check">✓</span> any Python</td><td style="color:var(--muted);font-size:.85rem">LangChain-native</td></tr>
+      <tr><td>Cost tracking + budget alerts</td><td class="ours"><span class="check">✓</span></td><td><span class="check">✓</span></td></tr>
+      <tr><td>2-line integration</td><td class="ours"><span class="check">✓</span></td><td><span class="check">✓</span></td></tr>
+      <tr><td>Starting price (managed)</td><td class="ours" style="color:var(--green);font-weight:700">€299 / mo flat</td><td style="color:var(--muted);font-size:.85rem">$39 / seat / mo + usage</td></tr>
+      <tr><td>Starting price (self-hosted)</td><td class="ours" style="color:var(--green);font-weight:700">Free (MIT)</td><td style="color:var(--muted);font-size:.85rem">Enterprise contract</td></tr>
+    </tbody>
+  </table>
+  <p style="margin-top:1rem;font-size:.75rem;color:var(--muted)">Based on public LangSmith pricing as of April 2026. Verify at <a href="https://www.langchain.com/pricing" target="_blank" rel="noopener">langchain.com/pricing</a>.</p>
+</section>
+
+<section class="section">
+  <div class="section-label">When to choose what</div>
+  <h2>Honest recommendation</h2>
+  <div class="two-col">
+    <div>
+      <h3>Choose LangSmith if…</h3>
+      <ul>
+        <li>Your team is deeply invested in the LangChain ecosystem</li>
+        <li>You're fine with data flowing through US cloud</li>
+        <li>You have budget for Enterprise self-hosting (~$5k+/mo)</li>
+        <li>You need tight coupling with LangChain Hub + LangGraph tooling</li>
+      </ul>
+    </div>
+    <div>
+      <h3>Choose AgentLens if…</h3>
+      <ul>
+        <li>Your prompts contain user data that can't leave EU / your VPC</li>
+        <li>You want self-hosting without a 5-figure contract</li>
+        <li>You want quality scoring + hallucination detection out of the box</li>
+        <li>You use multiple frameworks (LangChain + raw OpenAI + custom)</li>
+        <li>You want flat pricing — no per-seat billing</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="section-label">Migration</div>
+  <h2>Switching from LangSmith takes ~30 minutes</h2>
+  <p>Both tools use a decorator/patch model. The SDK surface is different, but the migration is mechanical.</p>
+  <div class="code-block">
+    <div><span class="code-comment"># Before (LangSmith)</span></div>
+    <div><span class="code-key">import</span> os</div>
+    <div>os.environ[<span class="code-str">"LANGCHAIN_TRACING_V2"</span>] = <span class="code-str">"true"</span></div>
+    <div>os.environ[<span class="code-str">"LANGCHAIN_API_KEY"</span>] = <span class="code-str">"..."</span></div>
+    <div>&nbsp;</div>
+    <div><span class="code-comment"># After (AgentLens)</span></div>
+    <div><span class="code-key">import</span> llm_observe</div>
+    <div>llm_observe.<span class="code-fn">init</span>(<span class="code-str">"https://agentlens.your-company.com"</span>)</div>
+    <div>llm_observe.<span class="code-fn">patch_openai</span>()  <span class="code-comment"># or patch_anthropic()</span></div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="section-label">FAQ</div>
+  <h2>Common questions</h2>
+  <div class="faq">
+    <details><summary>Is AgentLens a drop-in LangSmith replacement?</summary><p>Not API-compatible — but the mental model (traces, spans, evals) is identical and the dashboard is familiar. Most teams migrate in under an hour.</p></details>
+    <details><summary>Can I self-host LangSmith?</summary><p>LangSmith self-hosting is restricted to LangChain's Enterprise plan. AgentLens is self-hosted by default and MIT licensed — you can run it on a €5 VPS.</p></details>
+    <details><summary>Does AgentLens work without LangChain?</summary><p>Yes. Framework-agnostic. Works with plain OpenAI/Anthropic SDKs, LangChain, LlamaIndex, CrewAI, AutoGen, and custom agents.</p></details>
+    <details><summary>How much does AgentLens cost compared to LangSmith?</summary><p>LangSmith Plus starts at $39/seat/month plus usage. AgentLens Starter is €299/month flat for 1M calls (no seat limits), or free when self-hosted.</p></details>
+    <details><summary>Is there a GDPR DPA available?</summary><p>Yes, included on Team plan (€999/mo) and above. LangSmith's DPA is Enterprise-tier only.</p></details>
+  </div>
+</section>
+
+<section class="section">
+  <div class="cta-box">
+    <h3>Ready to own your LLM data?</h3>
+    <p>15-minute migration call. We'll map your LangSmith setup to AgentLens and get you running.</p>
+    <div class="hero-ctas">
+      <a href="mailto:contact@agentlens.one?subject=Migrating from LangSmith" class="btn btn-primary">Book a Migration Call</a>
+      <a href="https://github.com/Soufianeazz/agentlens" target="_blank" class="btn btn-outline">Self-host on GitHub</a>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <p>AgentLens · MIT License · <a href="https://github.com/Soufianeazz/agentlens">GitHub</a> · <a href="https://pypi.org/project/agentlens-monitor">PyPI</a> · <a href="mailto:contact@agentlens.one">contact@agentlens.one</a></p>
+  <p style="margin-top:.5rem"><a href="/impressum.html">Impressum</a> · <a href="/datenschutz.html">Datenschutz</a> · <a href="/nutzungsbedingungen.html">Nutzungsbedingungen</a></p>
+</footer>
+
+</body>
+</html>
