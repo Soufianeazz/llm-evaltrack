@@ -48,6 +48,15 @@ CASE_STUDY_URL   = "https://llm-evaltrack-production.up.railway.app/case_study.h
 LEADS_FILE       = Path(__file__).parent / "leads.csv"
 PREVIEW_FILE     = Path(__file__).parent / "outreach_preview.txt"
 MAX_LEADS        = 15   # Maximale Leads pro Run
+
+# Direkte Konkurrenten — NIEMALS anschreiben (Spam- und Reputations-Risiko).
+# GitHub-Usernames, case-insensitive.
+COMPETITOR_BLACKLIST = {
+    "langfuse", "langchain-ai", "helicone", "arize-ai", "traceloop",
+    "comet-ml", "openlit", "tensorzero", "agentops-ai", "future-agi",
+    "portkey-ai", "braintrustdata", "phoenix-ai", "weights-biases",
+    "wandb", "openai", "anthropic",
+}
 # ───────────────────────────────────────────────────────────────
 
 
@@ -176,14 +185,30 @@ async def run_outreach(dry_run: bool = False):
 
     # Safety: nur Leads mit Email + Status in Whitelist ("new" oder "failed" für Retry)
     # Blockiert: sent, draft, replied, bounced, unsubscribed — niemals doppelt kontaktieren
-    CONTACTABLE_STATUSES = {"new", "failed", ""}
+    # "draft" = vom dry-run generiert, darf echt gesendet werden
+    CONTACTABLE_STATUSES = {"new", "failed", "draft", ""}
+
+    def _is_competitor(lead: dict) -> bool:
+        return lead.get("github_user", "").lower() in COMPETITOR_BLACKLIST
+
     skipped_already_contacted = sum(
         1 for l in all_leads
         if l.get("email") and l.get("outreach_status", "new") not in CONTACTABLE_STATUSES
     )
+    skipped_competitors = sum(
+        1 for l in all_leads
+        if l.get("email") and l.get("outreach_status", "new") in CONTACTABLE_STATUSES and _is_competitor(l)
+    )
+    # Mark competitors so they're never re-evaluated
+    for l in all_leads:
+        if _is_competitor(l) and l.get("outreach_status", "new") in CONTACTABLE_STATUSES:
+            l["outreach_status"] = "competitor_skipped"
+
     actionable = [
         l for l in all_leads
-        if l.get("email") and l.get("outreach_status", "new") in CONTACTABLE_STATUSES
+        if l.get("email")
+        and l.get("outreach_status", "new") in CONTACTABLE_STATUSES
+        and not _is_competitor(l)
     ][:MAX_LEADS]
 
     print("=" * 55)
@@ -191,7 +216,8 @@ async def run_outreach(dry_run: bool = False):
     print("=" * 55)
     print(f"  Leads gesamt:       {len(all_leads)}")
     print(f"  Bereits kontaktiert:{skipped_already_contacted} (übersprungen)")
-    print(f"  Actionable:         {len(actionable)} (Email + neu/failed)")
+    print(f"  Konkurrenten:       {skipped_competitors} (blacklist)")
+    print(f"  Actionable:         {len(actionable)} (Email + neu/failed, nicht-Konkurrent)")
     print(f"  SendGrid:           {'Ja' if SENDGRID_API_KEY else 'Nein (nur Preview)'}")
     print()
 
