@@ -34,7 +34,7 @@ except ImportError:
 
 # ── Konfiguration ──────────────────────────────────────────────
 GITHUB_TOKEN    = os.getenv("GITHUB_TOKEN", "")          # Optional — erhöht Rate Limit auf 5000/h
-AGENTLENS_URL   = os.getenv("AGENTLENS_URL", "https://llm-evaltrack-production.up.railway.app")
+AGENTLENS_URL   = os.getenv("AGENTLENS_URL", "https://www.agentlens.one")
 OUTPUT_FILE     = Path(__file__).parent / "leads.csv"
 
 # Was suchen wir? Repos die LLM-Frameworks nutzen

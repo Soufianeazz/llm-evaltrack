@@ -59,7 +59,7 @@ async def main():
     print("\nFertig! Nächste Schritte:")
     print("  1. agents/outreach_preview.txt öffnen — alle generierten E-Mails prüfen")
     print("  2. agents/leads.csv öffnen — Status 'sent' / 'draft' prüfen")
-    print("  3. AgentLens Dashboard: https://llm-evaltrack-production.up.railway.app/traces.html")
+    print("  3. AgentLens Dashboard: https://www.agentlens.one/traces.html")
     print()
 
 

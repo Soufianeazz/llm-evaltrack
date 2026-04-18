@@ -4,10 +4,10 @@
 LLM Observability & Monitoring Tool. Self-hosted, framework-agnostic alternative to LangSmith/Helicone. Built with FastAPI + SQLite. Live on Railway.
 
 ## Live URLs
-- Dashboard: https://llm-evaltrack-production.up.railway.app
-- Agent Debugger: https://llm-evaltrack-production.up.railway.app/traces.html
-- Prompt Debugger: https://llm-evaltrack-production.up.railway.app/debug.html
-- Compliance: https://llm-evaltrack-production.up.railway.app/compliance.html
+- Dashboard: https://www.agentlens.one
+- Agent Debugger: https://www.agentlens.one/traces.html
+- Prompt Debugger: https://www.agentlens.one/debug.html
+- Compliance: https://www.agentlens.one/compliance.html
 - GitHub: https://github.com/Soufianeazz/llm-evaltrack
 - PyPI: `pip install llm-evaltrack` (v0.1.0)
 
@@ -88,7 +88,7 @@ storage/
 import llm_observe
 
 # Basic setup
-llm_observe.init(api_url="https://llm-evaltrack-production.up.railway.app/ingest")
+llm_observe.init(api_url="https://www.agentlens.one/ingest")
 llm_observe.patch_openai()     # auto-track all OpenAI calls
 llm_observe.patch_anthropic()  # auto-track all Anthropic calls
 

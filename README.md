@@ -2,13 +2,13 @@
 
 > Drop-in observability for LLM applications — automatic quality scoring, hallucination detection, cost tracking, and agent run debugging.
 
-**Live demo:** [AgentLens-production.up.railway.app](https://AgentLens-production.up.railway.app)
+**Live demo:** [www.agentlens.one](https://www.agentlens.one)
 
 ---
 
 ## Get Early Access
 
-**[Join the waitlist →](https://llm-evaltrack-production.up.railway.app/waitlist.html)** — early users get 3 months free + direct access to the roadmap.
+**[Join the waitlist →](https://www.agentlens.one/waitlist.html)** — early users get 3 months free + direct access to the roadmap.
 
 ---
 

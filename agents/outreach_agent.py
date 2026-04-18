@@ -36,15 +36,15 @@ except ImportError:
     TRACING = False
 
 # ── Konfiguration ──────────────────────────────────────────────
-AGENTLENS_URL     = os.getenv("AGENTLENS_URL", "https://llm-evaltrack-production.up.railway.app")
+AGENTLENS_URL     = os.getenv("AGENTLENS_URL", "https://www.agentlens.one")
 ANTHROPIC_API_KEY = os.getenv("ANTHROPIC_API_KEY", "")
 SENDGRID_API_KEY  = os.getenv("SENDGRID_API_KEY", "")    # SendGrid API Key (SG.xxx...)
 SENDER_EMAIL      = os.getenv("SENDER_EMAIL", "soufian.azzaoui@icloud.com")  # verifizierte Absender-Email
 
 SENDER_NAME      = "Soufian Azzaoui"
 PRODUCT_NAME     = "AgentLens"
-PRODUCT_URL      = "https://llm-evaltrack-production.up.railway.app/landing.html"
-CASE_STUDY_URL   = "https://llm-evaltrack-production.up.railway.app/case_study.html"
+PRODUCT_URL      = "https://www.agentlens.one/landing.html"
+CASE_STUDY_URL   = "https://www.agentlens.one/case_study.html"
 LEADS_FILE       = Path(__file__).parent / "leads.csv"
 PREVIEW_FILE     = Path(__file__).parent / "outreach_preview.txt"
 MAX_LEADS        = 15   # Maximale Leads pro Run

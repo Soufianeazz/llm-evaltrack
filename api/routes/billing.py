@@ -49,7 +49,7 @@ async def checkout(plan: str):
         raise HTTPException(status_code=503, detail="Stripe not configured. Set STRIPE_SECRET_KEY.")
 
     p = PLANS[plan]
-    base_url = os.getenv("BASE_URL", "https://llm-evaltrack-production.up.railway.app")
+    base_url = os.getenv("BASE_URL", "https://www.agentlens.one")
 
     try:
         session = await asyncio.to_thread(

@@ -37,7 +37,7 @@ jobs:
       - name: Find new leads
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          AGENTLENS_URL: https://llm-evaltrack-production.up.railway.app
+          AGENTLENS_URL: https://www.agentlens.one
         run: python agents/lead_finder.py
 
       - name: Send outreach emails
@@ -45,7 +45,7 @@ jobs:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
           SENDGRID_API_KEY: ${{ secrets.SENDGRID_API_KEY }}
           SENDER_EMAIL: ${{ secrets.SENDER_EMAIL }}
-          AGENTLENS_URL: https://llm-evaltrack-production.up.railway.app
+          AGENTLENS_URL: https://www.agentlens.one
         run: python agents/outreach_agent.py
 
       - name: Commit updated leads.csv

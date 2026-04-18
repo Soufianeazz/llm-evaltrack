@@ -97,7 +97,7 @@ Pair with the self-hosted server for:
 - Regression alerts
 - **Agent Debugger** — waterfall timeline of every span in a trace
 
-**Live demo:** [llm-evaltrack-production.up.railway.app](https://llm-evaltrack-production.up.railway.app)
+**Live demo:** [www.agentlens.one](https://www.agentlens.one)
 
 **Self-host:** [github.com/Soufianeazz/llm-evaltrack](https://github.com/Soufianeazz/llm-evaltrack)
 
