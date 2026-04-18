@@ -1,0 +1,28 @@
+name: Demo Dashboard Top-up
+
+# Sends a handful of synthetic traces to the live dashboard every day so it
+# never looks "empty" to first-time visitors (the live demo is a sales tool).
+# Runs daily at 10:00 UTC (~12:00 Europe/Berlin summer).
+
+on:
+  schedule:
+    - cron: '0 10 * * *'
+  workflow_dispatch:
+
+jobs:
+  topup:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install httpx
+        run: pip install httpx
+
+      - name: Send demo traces
+        run: python scripts/seed_demo.py --count 5
