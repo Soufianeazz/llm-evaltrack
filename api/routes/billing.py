@@ -30,7 +30,7 @@ PLANS = {
     },
 }
 
-ENTERPRISE_EMAIL = "contact@agentlens.io"
+ENTERPRISE_EMAIL = "contact@agentlens.one"
 
 
 @router.get("/checkout/{plan}")
