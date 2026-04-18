@@ -255,7 +255,14 @@ async def run_outreach(dry_run: bool = False):
                     body=result["body"],
                 )
 
-            status = "sent" if email_sent else ("draft" if dry_run else "no_smtp")
+            if email_sent:
+                status = "sent"
+            elif dry_run:
+                status = "draft"
+            elif not SENDGRID_API_KEY:
+                status = "no_smtp"
+            else:
+                status = "failed"
             print(f"  Status: {status}")
             if email_sent:
                 sent_count += 1

@@ -204,9 +204,16 @@ async def find_leads() -> list:
     # CSV speichern — bestehende Status (sent/replied/...) bleiben erhalten
     if all_leads:
         OUTPUT_FILE.parent.mkdir(exist_ok=True)
-        fieldnames = (new_leads[0] if new_leads else existing_leads[0]).keys()
+        # Union aller Feldnamen, damit Schema-Erweiterungen keine Daten verlieren
+        fieldnames = []
+        seen_fields = set()
+        for lead in all_leads:
+            for k in lead.keys():
+                if k not in seen_fields:
+                    seen_fields.add(k)
+                    fieldnames.append(k)
         with open(OUTPUT_FILE, "w", newline="", encoding="utf-8") as f:
-            writer = csv.DictWriter(f, fieldnames=fieldnames)
+            writer = csv.DictWriter(f, fieldnames=fieldnames, extrasaction="ignore")
             writer.writeheader()
             writer.writerows(all_leads)
 
