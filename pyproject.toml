@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "agentlens-monitor"
-version = "0.4.0"
+version = "0.4.1"
 description = "LLM observability, quality scoring, hallucination detection, cost tracking, agent run debugging, and drop-in LangChain + LlamaIndex callbacks — in 2 lines of code."
 readme = "README_SDK.md"
 requires-python = ">=3.10"
