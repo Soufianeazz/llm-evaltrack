@@ -60,9 +60,22 @@ COMPETITOR_BLACKLIST = {
 # ───────────────────────────────────────────────────────────────
 
 
+def _ascii_safe(value: str) -> str:
+    """GitHub-Bio-Felder enthalten manchmal Unicode-Chars (→, ✓, emojis),
+    die später in HTTP-Headern landen können und dort nicht erlaubt sind.
+    Normalisieren auf ASCII, Rest durch '?' ersetzen."""
+    if not value:
+        return ""
+    replacements = {"→": "->", "←": "<-", "⇒": "=>", "⇐": "<=", "✓": "v", "✔": "v", "✗": "x", "—": "-", "–": "-", "…": "..."}
+    for k, v in replacements.items():
+        value = value.replace(k, v)
+    return value.encode("ascii", errors="replace").decode("ascii")
+
+
 def generate_email(client: Anthropic, lead: dict) -> dict:
     """Claude schreibt eine personalisierte E-Mail für den Lead."""
-    prompt = f"""You are writing a cold outreach email for AgentLens — a self-hosted LLM observability tool.
+    safe_lead = {k: _ascii_safe(v) if isinstance(v, str) else v for k, v in lead.items()}
+    prompt = f"""You are writing a cold outreach email for AgentLens - a self-hosted LLM observability tool.
 
 AgentLens key facts:
 - Self-hosted (data never leaves your infra) — unlike LangSmith or Helicone
@@ -73,12 +86,12 @@ AgentLens key facts:
 - Case study: a German legal tech team cut debugging time by 90% and prevented €1,200 in wasted API costs
 
 Lead info:
-- Name: {lead['name']}
-- GitHub: {lead['github_user']}
-- Repo: {lead['repo_name']} — {lead['repo_description']}
-- Stars: {lead['repo_stars']}
-- Bio: {lead['bio']}
-- Company: {lead['company']}
+- Name: {safe_lead['name']}
+- GitHub: {safe_lead['github_user']}
+- Repo: {safe_lead['repo_name']} - {safe_lead['repo_description']}
+- Stars: {safe_lead['repo_stars']}
+- Bio: {safe_lead['bio']}
+- Company: {safe_lead['company']}
 
 Write a short, personal cold email (max 90 words). Rules:
 - Reference their specific repo or work naturally in the first sentence
@@ -232,8 +245,13 @@ async def run_outreach(dry_run: bool = False):
         for lead in actionable:
             print(f"Bearbeite: {lead['name']} ({lead['github_user']})...")
 
-            # E-Mail generieren
-            result = generate_email(client, lead)
+            # E-Mail generieren — per-Lead isoliert, damit ein defekter Lead nicht den ganzen Run killt
+            try:
+                result = generate_email(client, lead)
+            except Exception as e:
+                print(f"  [generate_email Fehler fuer {lead.get('github_user')}: {type(e).__name__}: {e}]")
+                lead["outreach_status"] = "failed"
+                continue
             total_cost += result["cost_usd"]
             print(f"  Betreff: {result['subject']}")
 
