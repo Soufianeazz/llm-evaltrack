@@ -1,3 +1,4 @@
+import os
 from collections.abc import AsyncGenerator
 from contextlib import asynccontextmanager
 
@@ -5,7 +6,9 @@ from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_asyn
 
 from storage.models import Base
 
-DATABASE_URL = "sqlite+aiosqlite:///./observability.db"
+# Prod: DATABASE_URL aus Env (z.B. sqlite+aiosqlite:////data/llm_observe.db auf Railway-Volume)
+# Local: fällt auf Arbeitsverzeichnis zurück.
+DATABASE_URL = os.getenv("DATABASE_URL", "sqlite+aiosqlite:///./observability.db")
 
 engine = create_async_engine(DATABASE_URL, echo=False)
 SessionFactory = async_sessionmaker(engine, expire_on_commit=False)
