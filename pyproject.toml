@@ -4,12 +4,12 @@ build-backend = "hatchling.build"
 
 [project]
 name = "agentlens-monitor"
-version = "0.3.0"
-description = "LLM observability, quality scoring, hallucination detection, cost tracking, agent run debugging, and a drop-in LangChain callback — in 2 lines of code."
+version = "0.4.0"
+description = "LLM observability, quality scoring, hallucination detection, cost tracking, agent run debugging, and drop-in LangChain + LlamaIndex callbacks — in 2 lines of code."
 readme = "README_SDK.md"
 requires-python = ">=3.10"
 license = { text = "MIT" }
-keywords = ["llm", "observability", "monitoring", "openai", "anthropic", "langchain", "langchain-callback", "evaluation", "langsmith-alternative", "langsmith", "langfuse", "langfuse-alternative", "helicone", "helicone-alternative", "llm-monitoring", "llm-observability", "agent-monitoring", "mlops", "llm-tracing"]
+keywords = ["llm", "observability", "monitoring", "openai", "anthropic", "langchain", "langchain-callback", "llamaindex", "llama-index", "rag", "evaluation", "langsmith-alternative", "langsmith", "langfuse", "langfuse-alternative", "helicone", "helicone-alternative", "llm-monitoring", "llm-observability", "agent-monitoring", "mlops", "llm-tracing"]
 classifiers = [
     "Development Status :: 3 - Alpha",
     "Intended Audience :: Developers",
@@ -23,8 +23,9 @@ dependencies = [
 [project.optional-dependencies]
 openai    = ["openai>=1.0"]
 anthropic = ["anthropic>=0.40"]
-langchain = ["langchain-core>=0.1"]
-all       = ["openai>=1.0", "anthropic>=0.40", "langchain-core>=0.1"]
+langchain  = ["langchain-core>=0.1"]
+llamaindex = ["llama-index-core>=0.10"]
+all        = ["openai>=1.0", "anthropic>=0.40", "langchain-core>=0.1", "llama-index-core>=0.10"]
 
 [tool.hatch.build.targets.wheel]
 packages = ["agentlens"]

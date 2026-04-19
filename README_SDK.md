@@ -21,6 +21,24 @@ agentlens.patch_anthropic()  # auto-track all Anthropic calls
 
 That's it. Your existing code is unchanged. Every `chat.completions.create()` and `messages.create()` is now automatically tracked.
 
+## LlamaIndex (v0.4.0)
+
+Drop-in callback handler for RAG pipelines built with LlamaIndex — every query, retrieval, LLM call, and agent step shows up as a span.
+
+```python
+import llm_observe
+from llm_observe.integrations.llama_index import AgentLensLlamaIndexHandler
+from llama_index.core import Settings
+from llama_index.core.callbacks import CallbackManager
+
+llm_observe.init(api_url="https://www.agentlens.one/ingest")
+Settings.callback_manager = CallbackManager([AgentLensLlamaIndexHandler()])
+
+# Any LlamaIndex query is now traced automatically
+```
+
+Requires `llama-index-core` installed.
+
 ## LangChain (v0.3.0)
 
 Drop-in callback handler — attach it once and every chain, LLM call, tool, and retriever shows up as a span in the AgentLens trace view.
@@ -124,6 +142,10 @@ Pair with the self-hosted server for:
 **Self-host:** [github.com/Soufianeazz/llm-evaltrack](https://github.com/Soufianeazz/llm-evaltrack)
 
 ## Changelog
+
+### v0.4.0
+- Added `AgentLensLlamaIndexHandler` for LlamaIndex — one callback captures queries, retrievals, LLM calls, agent steps, and function calls as spans
+- Parent/child span tree built automatically from LlamaIndex event tree
 
 ### v0.3.0
 - Added `AgentLensCallbackHandler` for LangChain — one callback captures every chain, LLM call, tool call, and retriever call as a waterfall span tree
