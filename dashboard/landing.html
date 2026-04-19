@@ -120,9 +120,9 @@
 
 <!-- Hero -->
 <section class="hero">
-  <div class="badge">For EU AI Engineering Teams · GDPR-native · Self-hosted</div>
+  <div class="badge">Native MCP Support · GDPR-native · Self-hosted · Free</div>
   <h1>LLM Observability<br/><span>that stays in your cloud</span></h1>
-  <p>Catch quality drops before users do, debug agent failures in seconds, and control costs — without prompts ever leaving your infrastructure.</p>
+  <p>The only LLM observability tool with native MCP support — self-hosted, free, with built-in audit trails.</p>
   <div class="hero-ctas">
     <a href="mailto:contact@agentlens.one?subject=Demo Request" class="btn btn-primary">Book a Demo</a>
     <a href="/dashboard" class="btn btn-outline" style="font-weight:400; color:var(--muted);">See it live →</a>
@@ -130,11 +130,11 @@
   <p class="hero-sub">Self-hosted · MIT License · GDPR Article 28 ready · <strong style="color:var(--text)">2-line integration</strong></p>
 
   <div class="code-block">
-    <div><span class="code-key">import</span> llm_observe</div>
+    <div><span class="code-key">import</span> agentlens</div>
     <div>&nbsp;</div>
     <div><span class="code-comment"># Full setup. Nothing else needed.</span></div>
-    <div>llm_observe.<span class="code-fn">init</span>(<span class="code-str">"https://agentlens.your-company.com"</span>)</div>
-    <div>llm_observe.<span class="code-fn">patch_openai</span>()  <span class="code-comment"># every call tracked automatically</span></div>
+    <div>agentlens.<span class="code-fn">init</span>(<span class="code-str">"https://agentlens.your-company.com"</span>)</div>
+    <div>agentlens.<span class="code-fn">patch_openai</span>()  <span class="code-comment"># every call tracked automatically</span></div>
   </div>
 </section>
 
@@ -189,7 +189,6 @@
       <p>Per-call cost calculated from token counts. Daily budget alerts via webhook or email before you overspend.</p>
     </div>
     <div class="feature">
-      <span class="feature-tag new">New v0.2</span>
       <h3>Agent Debugger</h3>
       <p>Waterfall timeline of every agent step. See which span is slow, expensive, or failing — at a glance.</p>
     </div>
