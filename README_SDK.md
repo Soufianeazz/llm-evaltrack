@@ -1,4 +1,4 @@
-# llm-evaltrack
+# agentlens-monitor
 
 Drop-in observability for LLM applications.
 Automatic quality scoring, hallucination detection, cost tracking, and **agent run debugging** — with 2 lines of code.
@@ -26,12 +26,12 @@ That's it. Your existing code is unchanged. Every `chat.completions.create()` an
 Drop-in callback handler for RAG pipelines built with LlamaIndex — every query, retrieval, LLM call, and agent step shows up as a span.
 
 ```python
-import llm_observe
-from llm_observe.integrations.llama_index import AgentLensLlamaIndexHandler
+import agentlens
+from agentlens.integrations.llama_index import AgentLensLlamaIndexHandler
 from llama_index.core import Settings
 from llama_index.core.callbacks import CallbackManager
 
-llm_observe.init(api_url="https://www.agentlens.one/ingest")
+agentlens.init(api_url="https://www.agentlens.one/ingest")
 Settings.callback_manager = CallbackManager([AgentLensLlamaIndexHandler()])
 
 # Any LlamaIndex query is now traced automatically
@@ -44,10 +44,10 @@ Requires `llama-index-core` installed.
 Drop-in callback handler — attach it once and every chain, LLM call, tool, and retriever shows up as a span in the AgentLens trace view.
 
 ```python
-import llm_observe
-from llm_observe.integrations.langchain import AgentLensCallbackHandler
+import agentlens
+from agentlens.integrations.langchain import AgentLensCallbackHandler
 
-llm_observe.init(api_url="https://www.agentlens.one/ingest")
+agentlens.init(api_url="https://www.agentlens.one/ingest")
 handler = AgentLensCallbackHandler(trace_name="my_qa_chain")
 
 # Works with any LangChain runnable, chain, or agent
@@ -139,7 +139,7 @@ Pair with the self-hosted server for:
 
 **Live demo:** [www.agentlens.one](https://www.agentlens.one)
 
-**Self-host:** [github.com/Soufianeazz/llm-evaltrack](https://github.com/Soufianeazz/llm-evaltrack)
+**Self-host:** [github.com/Soufianeazz/agentlens](https://github.com/Soufianeazz/agentlens)
 
 ## Changelog
 

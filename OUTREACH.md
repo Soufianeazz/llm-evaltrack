@@ -14,7 +14,7 @@ Target: Developers / CTOs / Founding Engineers bei Startups die OpenAI/Anthropic
 >
 > Self-hosted, MIT License, läuft auf Railway. Live Demo: AgentLens-production.up.railway.app
 >
-> Wärst du offen für 15 Min Feedback? Oder falls du es ausprobieren willst — Early Adopter Preis ist €99/Monat (die ersten 10 Kunden).
+> Wärst du offen für 15 Min Feedback? Oder falls du es ausprobieren willst — Early Adopter Preis ist €199/Monat statt €299 (die ersten 10 Kunden, forever).
 
 ---
 
@@ -31,8 +31,8 @@ Target: Developers / CTOs / Founding Engineers bei Startups die OpenAI/Anthropic
 > Ich hab AgentLens gebaut — eine self-hosted Alternative zu LangSmith, in 2 Zeilen integriert:
 >
 > ```python
-> llm_observe.init("https://dein-server.com")
-> llm_observe.patch_openai()
+> agentlens.init("https://dein-server.com")
+> agentlens.patch_openai()
 > ```
 >
 > Was du bekommst:
@@ -44,7 +44,7 @@ Target: Developers / CTOs / Founding Engineers bei Startups die OpenAI/Anthropic
 >
 > Live Demo (kein Login): AgentLens-production.up.railway.app
 >
-> Ich gebe den ersten 10 Kunden 50% Rabatt forever — €99/Monat statt €199.
+> Ich gebe den ersten 10 Kunden 33% Rabatt forever — €199/Monat statt €299.
 >
 > Hättest du 15 Minuten für einen kurzen Call diese Woche?
 >
@@ -65,8 +65,8 @@ Target: Developers / CTOs / Founding Engineers bei Startups die OpenAI/Anthropic
 >
 > **2-line integration:**
 > ```python
-> llm_observe.init("https://your-server.com")
-> llm_observe.patch_openai()  # that's it
+> agentlens.init("https://your-server.com")
+> agentlens.patch_openai()  # that's it
 > ```
 >
 > **What it does:**
@@ -122,7 +122,7 @@ Target: Developers / CTOs / Founding Engineers bei Startups die OpenAI/Anthropic
 > So I built AgentLens — self-hosted observability in 2 lines:
 >
 > ```python
-> llm_observe.patch_openai()
+> agentlens.patch_openai()
 > ```
 >
 > Quality scoring, hallucination detection, cost tracking. All automatic. Thread 👇

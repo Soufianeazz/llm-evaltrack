@@ -125,9 +125,9 @@
     <div>client = <span class="code-fn">OpenAI</span>(base_url=<span class="code-str">"https://oai.helicone.ai/v1"</span>, ...)</div>
     <div>&nbsp;</div>
     <div><span class="code-comment"># AgentLens — SDK patch, your OpenAI calls stay untouched</span></div>
-    <div><span class="code-key">import</span> llm_observe</div>
-    <div>llm_observe.<span class="code-fn">init</span>(<span class="code-str">"https://agentlens.your-company.com"</span>)</div>
-    <div>llm_observe.<span class="code-fn">patch_openai</span>()  <span class="code-comment"># fire-and-forget, zero latency added to requests</span></div>
+    <div><span class="code-key">import</span> agentlens</div>
+    <div>agentlens.<span class="code-fn">init</span>(<span class="code-str">"https://agentlens.your-company.com"</span>)</div>
+    <div>agentlens.<span class="code-fn">patch_openai</span>()  <span class="code-comment"># fire-and-forget, zero latency added to requests</span></div>
   </div>
   <p style="margin-top:1rem;font-size:.85rem">Why this matters: if Helicone's proxy has an outage, your app's LLM calls fail. If AgentLens has an outage, your LLM calls succeed — you just lose telemetry for that window.</p>
 </section>

@@ -2,11 +2,11 @@
 Example: how a developer integrates llm-observe into their existing app.
 Two lines added at the top — zero changes to the rest of the code.
 """
-import llm_observe
+import agentlens
 
 # ── 2 lines to add ───────────────────────────────────────────────────────────
-llm_observe.init(api_url="http://localhost:8000/ingest")
-llm_observe.patch_openai()     # or patch_anthropic() — or both
+agentlens.init(api_url="http://localhost:8000/ingest")
+agentlens.patch_openai()     # or patch_anthropic() — or both
 # ─────────────────────────────────────────────────────────────────────────────
 
 # Everything below is the developer's existing code — UNCHANGED

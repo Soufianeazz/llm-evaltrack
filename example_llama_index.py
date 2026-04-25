@@ -12,12 +12,12 @@ from __future__ import annotations
 
 import os
 
-import llm_observe
-from llm_observe.integrations.llama_index import AgentLensLlamaIndexHandler
+import agentlens
+from agentlens.integrations.llama_index import AgentLensLlamaIndexHandler
 
 
 def main() -> None:
-    llm_observe.init(
+    agentlens.init(
         api_url=os.getenv("AGENTLENS_URL", "http://localhost:8000/ingest"),
     )
 
