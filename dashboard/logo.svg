@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32" height="32" fill="none">
+  <defs>
+    <linearGradient id="lg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#818cf8"/>
+      <stop offset="100%" stop-color="#c084fc"/>
+    </linearGradient>
+  </defs>
+  <!-- Outer lens ring -->
+  <circle cx="16" cy="16" r="14" stroke="url(#lg)" stroke-width="1.5"/>
+  <!-- Inner iris -->
+  <circle cx="16" cy="16" r="8" stroke="url(#lg)" stroke-width="1.5"/>
+  <!-- Network lines (crosshair) -->
+  <line x1="16" y1="16" x2="16" y2="10" stroke="#818cf8" stroke-width="1.2" opacity="0.8"/>
+  <line x1="16" y1="16" x2="22" y2="16" stroke="#818cf8" stroke-width="1.2" opacity="0.8"/>
+  <line x1="16" y1="16" x2="16" y2="22" stroke="#818cf8" stroke-width="1.2" opacity="0.8"/>
+  <line x1="16" y1="16" x2="10" y2="16" stroke="#818cf8" stroke-width="1.2" opacity="0.8"/>
+  <!-- Outer nodes -->
+  <circle cx="16" cy="9.5" r="1.5" fill="url(#lg)"/>
+  <circle cx="22.5" cy="16" r="1.5" fill="url(#lg)"/>
+  <circle cx="16" cy="22.5" r="1.5" fill="url(#lg)"/>
+  <circle cx="9.5" cy="16" r="1.5" fill="url(#lg)"/>
+  <!-- Center pupil -->
+  <circle cx="16" cy="16" r="2.8" fill="url(#lg)"/>
+  <!-- Subtle lens highlight -->
+  <path d="M 6 11 Q 16 7 26 11" stroke="url(#lg)" stroke-width="0.8" opacity="0.3"/>
+</svg>
