@@ -1,4 +1,4 @@
-# llm-evaltrack — Project Context for Claude
+# agentlens — Project Context for Claude
 
 ## What this is
 LLM Observability & Monitoring Tool. Self-hosted, framework-agnostic alternative to LangSmith/Helicone. Built with FastAPI + SQLite. Live on Railway.
@@ -8,14 +8,14 @@ LLM Observability & Monitoring Tool. Self-hosted, framework-agnostic alternative
 - Agent Debugger: https://www.agentlens.one/traces.html
 - Prompt Debugger: https://www.agentlens.one/debug.html
 - Compliance: https://www.agentlens.one/compliance.html
-- GitHub: https://github.com/Soufianeazz/llm-evaltrack
-- PyPI: `pip install llm-evaltrack` (v0.1.0)
+- GitHub: https://github.com/Soufianeazz/agentlens
+- PyPI: `pip install agentlens-monitor` (v0.4.1)
 
 ## Stack
 - Python 3.13, FastAPI, SQLite (aiosqlite), SQLAlchemy async
 - Dashboard: plain HTML + Chart.js — no frontend build step
 - Deploy: Railway.app (auto-deploys on git push to main)
-- SDK: `llm_observe` package (published on PyPI)
+- SDK: `agentlens` import (published on PyPI as `agentlens-monitor`)
 
 ## Project Structure
 ```
@@ -38,7 +38,7 @@ evaluation/
   engine.py                # LLM Judge (Claude) + heuristic fallback
   quality.py               # Quality heuristics
   hallucination.py         # Hallucination detection
-llm_observe/               # SDK package (published to PyPI)
+agentlens/                 # SDK package (published to PyPI as agentlens-monitor)
   __init__.py              # init, track_llm_call, patch_openai, patch_anthropic, trace_agent, span
   tracker.py               # HTTP fire-and-forget shipping
   tracing.py               # trace_agent() + span() context managers
@@ -85,15 +85,15 @@ storage/
 
 ## SDK Usage
 ```python
-import llm_observe
+import agentlens
 
 # Basic setup
-llm_observe.init(api_url="https://www.agentlens.one/ingest")
-llm_observe.patch_openai()     # auto-track all OpenAI calls
-llm_observe.patch_anthropic()  # auto-track all Anthropic calls
+agentlens.init(api_url="https://www.agentlens.one/ingest")
+agentlens.patch_openai()     # auto-track all OpenAI calls
+agentlens.patch_anthropic()  # auto-track all Anthropic calls
 
 # Agent tracing
-from llm_observe import trace_agent, span
+from agentlens import trace_agent, span
 
 with trace_agent("my_agent", input="user question") as trace:
     with trace.span("search", span_type="retrieval") as s:

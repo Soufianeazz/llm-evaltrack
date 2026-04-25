@@ -18,13 +18,13 @@ from __future__ import annotations
 
 import os
 
-import llm_observe
-from llm_observe.integrations.langchain import AgentLensCallbackHandler
+import agentlens
+from agentlens.integrations.langchain import AgentLensCallbackHandler
 
 
 def main() -> None:
     # 1. Configure AgentLens (point this at your deployment)
-    llm_observe.init(
+    agentlens.init(
         api_url=os.getenv("AGENTLENS_URL", "http://localhost:8000/ingest"),
     )
 
