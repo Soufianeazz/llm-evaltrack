@@ -70,7 +70,7 @@ async def checkout(plan: str):
                     "quantity": 1,
                 }],
                 success_url=f"{base_url}/success.html?session_id={{CHECKOUT_SESSION_ID}}",
-                cancel_url=f"{base_url}/landing.html",
+                cancel_url=f"{base_url}/",
                 allow_promotion_codes=True,
             )
         )
