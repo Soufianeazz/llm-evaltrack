@@ -4,6 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Datenschutzerklärung — AgentLens</title>
+  <link rel="icon" href="/logo.svg" type="image/svg+xml" />
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     body { font-family: system-ui, sans-serif; background: #0f1117; color: #e2e8f0; padding: 2rem; max-width: 760px; margin: 0 auto; line-height: 1.7; }
@@ -15,12 +16,14 @@
     ul { color: #94a3b8; padding-left: 1.5rem; margin-bottom: 0.75rem; }
     li { margin-bottom: 0.3rem; }
     .nav { margin-bottom: 2rem; }
-    .placeholder { background: #2d1f00; border: 1px solid #92400e; color: #fbbf24; padding: 0.1rem 0.4rem; border-radius: 4px; font-size: 0.85rem; }
     .updated { color: #64748b; font-size: 0.85rem; margin-bottom: 2rem; }
+    table { width: 100%; border-collapse: collapse; margin-bottom: 1rem; font-size: 0.875rem; }
+    th { text-align: left; color: #cbd5e1; padding: 0.5rem 0.75rem; border-bottom: 1px solid #2d3148; }
+    td { color: #94a3b8; padding: 0.5rem 0.75rem; border-bottom: 1px solid #1e2130; vertical-align: top; }
   </style>
 </head>
 <body>
-  <div class="nav"><a href="/landing.html">← Zurück</a></div>
+  <div class="nav"><a href="/">← Zurück</a></div>
   <h1>Datenschutzerklärung</h1>
   <p class="updated">Zuletzt aktualisiert: April 2026</p>
 
@@ -28,7 +31,8 @@
   <p>Verantwortlicher im Sinne der DSGVO ist:<br/>
   Soufian Azzaoui / AgentLens<br/>
   Ankerstraße 18, 52146 Würselen, Deutschland<br/>
-  E-Mail: <a href="mailto:soufian.azzaoui@icloud.com">soufian.azzaoui@icloud.com</a></p>
+  E-Mail: <a href="mailto:soufian.azzaoui@icloud.com">soufian.azzaoui@icloud.com</a><br/>
+  Telefon: <a href="tel:+491782656884">+49 178 2656884</a></p>
 
   <h2>2. Welche Daten wir erheben</h2>
   <h3>2.1 Beim Besuch der Website</h3>
@@ -39,7 +43,7 @@
     <li>Aufgerufene URL</li>
     <li>Browser und Betriebssystem</li>
   </ul>
-  <p>Diese Daten werden ausschließlich zur Sicherstellung des Betriebs verwendet und nicht mit anderen Daten zusammengeführt.</p>
+  <p>Diese Daten werden ausschließlich zur Sicherstellung des Betriebs verwendet und nicht mit anderen Daten zusammengeführt. Wir verwenden keine Tracking-Tools, Analyse-Dienste oder Werbe-Cookies.</p>
 
   <h3>2.2 Beim Abschluss eines Abonnements</h3>
   <p>Bei der Nutzung unseres Zahlungsdienstleisters Stripe werden folgende Daten erhoben:</p>
@@ -48,13 +52,15 @@
     <li>Zahlungsdaten (Kreditkarte oder SEPA)</li>
     <li>Name (sofern für die Zahlung angegeben)</li>
   </ul>
-  <p>Die Zahlungsabwicklung erfolgt ausschließlich über Stripe, Inc. Wir speichern keine Zahlungsdaten auf unseren Servern.</p>
+  <p>Die Zahlungsabwicklung erfolgt ausschließlich über Stripe. Wir speichern keine Zahlungsdaten auf unseren Servern.</p>
 
   <h3>2.3 Bei der Nutzung des AgentLens-Tools</h3>
-  <p>Im Rahmen des Monitoring-Services werden LLM-Anfragen und -Antworten auf dem von Ihnen gebuchten Server gespeichert. Diese Daten verlassen Ihre Infrastruktur nicht (self-hosted).</p>
+  <p>Im Rahmen des Managed-Hosting-Services werden LLM-Anfragen und -Antworten auf Ihrem dedizierten Server gespeichert. Bei der Self-Hosted-Variante (MIT-Lizenz) verbleiben alle Daten ausschließlich in Ihrer eigenen Infrastruktur.</p>
 
-  <h2>3. Zweck der Datenverarbeitung</h2>
-  <p>Wir verarbeiten Ihre Daten zu folgenden Zwecken:</p>
+  <h3>2.4 Kontaktaufnahme per E-Mail</h3>
+  <p>Wenn Sie uns per E-Mail kontaktieren, speichern wir Ihre E-Mail-Adresse und den Inhalt der Nachricht zur Bearbeitung Ihrer Anfrage. Diese Daten werden nicht an Dritte weitergegeben.</p>
+
+  <h2>3. Zweck und Rechtsgrundlage der Datenverarbeitung</h2>
   <ul>
     <li>Bereitstellung und Betrieb des Dienstes (Art. 6 Abs. 1 lit. b DSGVO)</li>
     <li>Abwicklung von Zahlungen (Art. 6 Abs. 1 lit. b DSGVO)</li>
@@ -62,37 +68,52 @@
     <li>Wahrung berechtigter Interessen (Art. 6 Abs. 1 lit. f DSGVO)</li>
   </ul>
 
-  <h2>4. Weitergabe von Daten</h2>
-  <p>Wir geben Ihre Daten nur in folgenden Fällen weiter:</p>
+  <h2>4. Speicherdauer</h2>
   <ul>
-    <li><strong>Stripe, Inc.</strong> — Zahlungsabwicklung. Datenschutzerklärung: <a href="https://stripe.com/de/privacy" target="_blank">stripe.com/de/privacy</a></li>
-    <li><strong>Railway Technologies, Inc. (PaaS)</strong> — Hosting-Infrastruktur, Server-Standort: USA (AWS us-east-1, Virginia). Die Übermittlung in die USA erfolgt auf Basis von Standardvertragsklauseln (Art. 46 Abs. 2 lit. c DSGVO). Datenschutzerklärung: <a href="https://railway.app/legal/privacy" target="_blank">railway.app/legal/privacy</a></li>
-    <li><strong>Cloudflare, Inc.</strong> — DNS, E-Mail-Routing, DDoS-Schutz. Server-Standort: USA/EU (Cloudflare-Netzwerk). Standardvertragsklauseln (Art. 46 Abs. 2 lit. c DSGVO). Datenschutzerklärung: <a href="https://www.cloudflare.com/de-de/privacypolicy/" target="_blank">cloudflare.com/privacypolicy</a></li>
+    <li><strong>Server-Logs</strong> — 30 Tage, danach automatische Löschung</li>
+    <li><strong>Zahlungsdaten</strong> — gemäß gesetzlicher Aufbewahrungspflicht (10 Jahre, § 147 AO)</li>
+    <li><strong>E-Mail-Korrespondenz</strong> — 3 Jahre nach Abschluss des Vorgangs</li>
+    <li><strong>LLM-Monitoring-Daten (Managed)</strong> — konfigurierbar, Standard 90 Tage; auf Anfrage sofortige Löschung möglich</li>
   </ul>
-  <p>Eine Weitergabe an Dritte zu Werbezwecken findet nicht statt.</p>
 
-  <h2>5. Cookies</h2>
-  <p>Unsere Website verwendet keine Tracking-Cookies oder Analyse-Tools. Stripe setzt technisch notwendige Cookies während des Bezahlvorgangs. Diese sind für die Abwicklung der Zahlung erforderlich und werden nach Abschluss des Vorgangs gelöscht.</p>
+  <h2>5. Unterauftragsverarbeiter</h2>
+  <p>Wir setzen folgende Dienstleister ein, die Zugang zu personenbezogenen Daten haben können:</p>
+  <table>
+    <tr><th>Anbieter</th><th>Zweck</th><th>Sitz / Region</th><th>Grundlage</th></tr>
+    <tr><td><a href="https://stripe.com/de/privacy" target="_blank" rel="noopener">Stripe Payments Europe, Ltd.</a></td><td>Zahlungsabwicklung</td><td>Irland / EU</td><td>Art. 6 Abs. 1 lit. b DSGVO</td></tr>
+    <tr><td><a href="https://railway.app/legal/privacy" target="_blank" rel="noopener">Railway Technologies, Inc.</a></td><td>Hosting (PaaS)</td><td>USA (AWS us-east-1)</td><td>SCC Art. 46 Abs. 2 lit. c DSGVO</td></tr>
+    <tr><td><a href="https://www.cloudflare.com/de-de/privacypolicy/" target="_blank" rel="noopener">Cloudflare, Inc.</a></td><td>DNS, E-Mail-Routing, DDoS-Schutz</td><td>USA / EU-Knoten</td><td>SCC Art. 46 Abs. 2 lit. c DSGVO</td></tr>
+  </table>
+  <p>Eine Weitergabe an Dritte zu Werbezwecken findet nicht statt. Wir verwenden keine Newsletter-Tools, CRM-Systeme oder Analyse-Dienste.</p>
 
-  <h2>6. Ihre Rechte</h2>
+  <h2>6. Auftragsverarbeitung (B2B)</h2>
+  <p>Für gewerbliche Kunden schließen wir auf Anfrage einen Auftragsverarbeitungsvertrag (AVV) gemäß Art. 28 DSGVO ab. Anfragen bitte an: <a href="mailto:soufian.azzaoui@icloud.com">soufian.azzaoui@icloud.com</a></p>
+
+  <h2>7. Cookies</h2>
+  <p>Unsere Website verwendet keine Tracking-Cookies oder Analyse-Tools. Stripe setzt technisch notwendige Cookies ausschließlich während des Bezahlvorgangs. Diese sind für die Abwicklung der Zahlung erforderlich (Art. 6 Abs. 1 lit. b DSGVO).</p>
+
+  <h2>8. Ihre Rechte</h2>
   <p>Sie haben gemäß DSGVO folgende Rechte:</p>
   <ul>
     <li><strong>Auskunft</strong> (Art. 15 DSGVO) — Welche Daten wir über Sie haben</li>
     <li><strong>Berichtigung</strong> (Art. 16 DSGVO) — Korrektur falscher Daten</li>
-    <li><strong>Löschung</strong> (Art. 17 DSGVO) — "Recht auf Vergessenwerden"</li>
+    <li><strong>Löschung</strong> (Art. 17 DSGVO) — „Recht auf Vergessenwerden"</li>
     <li><strong>Einschränkung</strong> (Art. 18 DSGVO) — Verarbeitung einschränken</li>
     <li><strong>Datenübertragbarkeit</strong> (Art. 20 DSGVO) — Daten in maschinenlesbarem Format</li>
     <li><strong>Widerspruch</strong> (Art. 21 DSGVO) — Verarbeitung widersprechen</li>
   </ul>
   <p>Zur Ausübung dieser Rechte wenden Sie sich an: <a href="mailto:soufian.azzaoui@icloud.com">soufian.azzaoui@icloud.com</a></p>
 
-  <h2>7. Beschwerderecht</h2>
-  <p>Sie haben das Recht, sich bei einer Datenschutzaufsichtsbehörde zu beschweren. Die zuständige Behörde in Deutschland: <a href="https://www.bfdi.bund.de" target="_blank">Bundesbeauftragter für den Datenschutz</a>.</p>
+  <h2>9. Beschwerderecht</h2>
+  <p>Sie haben das Recht, sich bei einer Datenschutzaufsichtsbehörde zu beschweren. Die zuständige Behörde für unser Unternehmen (Sitz in Nordrhein-Westfalen):</p>
+  <p><strong>Landesbeauftragte für Datenschutz und Informationsfreiheit Nordrhein-Westfalen (LDI NRW)</strong><br/>
+  Kavalleriestraße 2–4, 40213 Düsseldorf<br/>
+  <a href="https://www.ldi.nrw.de" target="_blank" rel="noopener">www.ldi.nrw.de</a></p>
 
-  <h2>8. Datensicherheit</h2>
-  <p>Unsere Website verwendet HTTPS-Verschlüsselung. Die Datenübertragung zwischen Ihrem Browser und unserem Server ist verschlüsselt.</p>
+  <h2>10. Datensicherheit</h2>
+  <p>Unsere Website verwendet HTTPS-Verschlüsselung (TLS). Die Datenübertragung zwischen Ihrem Browser und unserem Server ist vollständig verschlüsselt.</p>
 
-  <h2>9. Änderungen dieser Erklärung</h2>
+  <h2>11. Änderungen dieser Erklärung</h2>
   <p>Wir behalten uns vor, diese Datenschutzerklärung bei Bedarf anzupassen. Die aktuelle Version ist stets auf dieser Seite abrufbar.</p>
 </body>
 </html>
