@@ -97,6 +97,31 @@ async def alt_datadog_llm():
     return FileResponse("dashboard/alternatives/datadog-llm.html")
 
 
+@app.get("/impressum", include_in_schema=False)
+async def impressum():
+    return FileResponse("dashboard/impressum.html")
+
+
+@app.get("/datenschutz", include_in_schema=False)
+async def datenschutz():
+    return FileResponse("dashboard/datenschutz.html")
+
+
+@app.get("/nutzungsbedingungen", include_in_schema=False)
+async def nutzungsbedingungen():
+    return FileResponse("dashboard/nutzungsbedingungen.html")
+
+
+@app.get("/success", include_in_schema=False)
+async def success():
+    return FileResponse("dashboard/success.html")
+
+
+@app.get("/case-study", include_in_schema=False)
+async def case_study():
+    return FileResponse("dashboard/case_study.html")
+
+
 @app.get("/sitemap.xml", include_in_schema=False)
 async def sitemap():
     return FileResponse("dashboard/sitemap.xml", media_type="application/xml")
