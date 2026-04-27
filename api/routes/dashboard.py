@@ -5,6 +5,7 @@ from fastapi import APIRouter, Depends, Query
 from sqlalchemy import select, text
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from api.auth import require_api_key
 from storage.database import get_session
 from storage.models import Evaluation, Request
 
@@ -15,11 +16,12 @@ router = APIRouter()
 async def worst_responses(
     limit: int = Query(20, ge=1, le=100),
     db: AsyncSession = Depends(get_session),
+    api_key: str = Depends(require_api_key),
 ):
-    """Return requests ordered by quality_score ascending (worst first)."""
     result = await db.execute(
         select(Request, Evaluation)
         .join(Evaluation, Evaluation.request_id == Request.id)
+        .where(Request.api_key == api_key)
         .order_by(Evaluation.quality_score.asc())
         .limit(limit)
     )
@@ -41,8 +43,10 @@ async def worst_responses(
 
 
 @router.get("/requests/trend")
-async def quality_trend(db: AsyncSession = Depends(get_session)):
-    """Average quality score bucketed by hour (last 24 h)."""
+async def quality_trend(
+    db: AsyncSession = Depends(get_session),
+    api_key: str = Depends(require_api_key),
+):
     sql = text(
         """
         SELECT
@@ -51,11 +55,12 @@ async def quality_trend(db: AsyncSession = Depends(get_session)):
         FROM requests r
         JOIN evaluations e ON e.request_id = r.id
         WHERE r.timestamp >= strftime('%s','now','-1 day')
+          AND r.api_key = :api_key
         GROUP BY hour
         ORDER BY hour ASC
         """
     )
-    result = await db.execute(sql)
+    result = await db.execute(sql, {"api_key": api_key})
     return [{"hour": row.hour, "avg_quality": row.avg_quality} for row in result]
 
 
@@ -63,13 +68,12 @@ async def quality_trend(db: AsyncSession = Depends(get_session)):
 async def bad_response_clusters(
     quality_threshold: float = Query(0.7, ge=0.0, le=1.0),
     db: AsyncSession = Depends(get_session),
+    api_key: str = Depends(require_api_key),
 ):
-    """
-    Group bad responses (below quality_threshold) by their primary flag.
-    Returns each category with count, avg quality, and avg hallucination score.
-    """
     result = await db.execute(
-        select(Evaluation).where(Evaluation.quality_score < quality_threshold)
+        select(Evaluation)
+        .join(Request, Request.id == Evaluation.request_id)
+        .where(Request.api_key == api_key, Evaluation.quality_score < quality_threshold)
     )
     evaluations = result.scalars().all()
 
@@ -78,12 +82,7 @@ async def bad_response_clusters(
         flags = ev.flags or ["unflagged"]
         primary = flags[0] if flags else "unflagged"
         if primary not in clusters:
-            clusters[primary] = {
-                "category": primary,
-                "count": 0,
-                "total_quality": 0.0,
-                "total_hallucination": 0.0,
-            }
+            clusters[primary] = {"category": primary, "count": 0, "total_quality": 0.0, "total_hallucination": 0.0}
         clusters[primary]["count"] += 1
         clusters[primary]["total_quality"] += ev.quality_score
         clusters[primary]["total_hallucination"] += ev.hallucination_score
@@ -97,7 +96,6 @@ async def bad_response_clusters(
             "avg_quality": round(c["total_quality"] / n, 3),
             "avg_hallucination": round(c["total_hallucination"] / n, 3),
         })
-
     return result_list
 
 
@@ -105,13 +103,12 @@ async def bad_response_clusters(
 async def root_cause_analysis(
     quality_threshold: float = Query(0.6, ge=0.0, le=1.0),
     db: AsyncSession = Depends(get_session),
+    api_key: str = Depends(require_api_key),
 ):
-    """
-    Find which prompts are responsible for the most bad responses.
-    Groups by prompt prefix (first 80 chars) and returns failure rate + avg quality.
-    """
     result = await db.execute(
-        select(Request, Evaluation).join(Evaluation, Evaluation.request_id == Request.id)
+        select(Request, Evaluation)
+        .join(Evaluation, Evaluation.request_id == Request.id)
+        .where(Request.api_key == api_key)
     )
     rows = result.all()
 
@@ -146,10 +143,14 @@ async def root_cause_analysis(
 
 
 @router.get("/requests/cost-quality")
-async def cost_quality_correlation(db: AsyncSession = Depends(get_session)):
-    """Per-model: avg quality score vs avg cost per call."""
+async def cost_quality_correlation(
+    db: AsyncSession = Depends(get_session),
+    api_key: str = Depends(require_api_key),
+):
     result = await db.execute(
-        select(Request, Evaluation).join(Evaluation, Evaluation.request_id == Request.id)
+        select(Request, Evaluation)
+        .join(Evaluation, Evaluation.request_id == Request.id)
+        .where(Request.api_key == api_key)
     )
     rows = result.all()
 
@@ -180,8 +181,10 @@ async def cost_quality_correlation(db: AsyncSession = Depends(get_session)):
 
 
 @router.get("/requests/stats")
-async def overview_stats(db: AsyncSession = Depends(get_session)):
-    """Top-level KPIs for the dashboard header."""
+async def overview_stats(
+    db: AsyncSession = Depends(get_session),
+    api_key: str = Depends(require_api_key),
+):
     sql = text("""
         SELECT
             COUNT(*) AS total_calls,
@@ -191,8 +194,9 @@ async def overview_stats(db: AsyncSession = Depends(get_session)):
         FROM requests r
         JOIN evaluations e ON e.request_id = r.id
         WHERE r.timestamp >= strftime('%s','now','-1 day')
+          AND r.api_key = :api_key
     """)
-    row = (await db.execute(sql)).one()
+    row = (await db.execute(sql, {"api_key": api_key})).one()
     total = row.total_calls or 0
     return {
         "total_calls_24h": total,
@@ -207,11 +211,8 @@ async def regression_detection(
     window_minutes: int = Query(60, ge=5, le=1440),
     threshold: float = Query(0.1, ge=0.01, le=1.0),
     db: AsyncSession = Depends(get_session),
+    api_key: str = Depends(require_api_key),
 ):
-    """
-    Compare quality in the current window vs the previous window of equal length.
-    Returns a regression alert if avg quality dropped by more than `threshold`.
-    """
     sql = text(
         """
         SELECT
@@ -224,11 +225,12 @@ async def regression_detection(
         FROM requests r
         JOIN evaluations e ON e.request_id = r.id
         WHERE r.timestamp >= strftime('%s','now',:neg_double)
+          AND r.api_key = :api_key
         """
     )
     neg_window = f"-{window_minutes} minutes"
     neg_double = f"-{window_minutes * 2} minutes"
-    row = (await db.execute(sql, {"neg_window": neg_window, "neg_double": neg_double})).one()
+    row = (await db.execute(sql, {"neg_window": neg_window, "neg_double": neg_double, "api_key": api_key})).one()
 
     current_avg = row.current_avg
     previous_avg = row.previous_avg

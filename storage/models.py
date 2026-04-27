@@ -6,6 +6,16 @@ class Base(DeclarativeBase):
     pass
 
 
+class ApiKey(Base):
+    __tablename__ = "api_keys"
+
+    key = Column(String, primary_key=True)       # "al_xxxxxxxxxxxx"
+    label = Column(String, nullable=False)        # customer / pilot name
+    plan = Column(String, default="pilot")        # pilot | starter | team | scale
+    created_at = Column(Float, nullable=False)
+    active = Column(Boolean, default=True)
+
+
 class BudgetAlert(Base):
     __tablename__ = "budget_alerts"
 
@@ -21,6 +31,7 @@ class Request(Base):
     __tablename__ = "requests"
 
     id = Column(String, primary_key=True)
+    api_key = Column(String, nullable=True, index=True)
     input = Column(Text, nullable=False)
     output = Column(Text, nullable=False)
     prompt = Column(Text, nullable=False)
@@ -54,6 +65,7 @@ class Trace(Base):
     __tablename__ = "traces"
 
     id = Column(String, primary_key=True)
+    api_key = Column(String, nullable=True, index=True)
     name = Column(String, nullable=False)  # e.g. "research_agent", "booking_flow"
     status = Column(String, nullable=False, default="running")  # running, completed, failed
     input = Column(Text, nullable=True)  # initial user input
