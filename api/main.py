@@ -30,6 +30,7 @@ from api.routes.compliance import router as compliance_router
 from api.routes.traces import router as traces_router
 from api.routes.billing import router as billing_router
 from api.routes.waitlist import router as waitlist_router
+from api.routes.admin import router as admin_router
 from pipeline.worker import start_worker, stop_worker
 from storage.database import init_db
 
@@ -63,6 +64,7 @@ app.include_router(compliance_router)
 app.include_router(traces_router)
 app.include_router(billing_router)
 app.include_router(waitlist_router)
+app.include_router(admin_router)
 
 
 # Public entry point: landing page. Dashboard moves to /dashboard.

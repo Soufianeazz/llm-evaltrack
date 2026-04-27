@@ -5,6 +5,7 @@ from fastapi import APIRouter, Depends, Query
 from sqlalchemy import select, text
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from api.auth import require_api_key
 from storage.database import get_session
 from storage.models import Evaluation, Request
 
@@ -24,11 +25,12 @@ async def search_requests(
     limit: int = Query(50, ge=1, le=200),
     offset: int = Query(0, ge=0),
     db: AsyncSession = Depends(get_session),
+    api_key: str = Depends(require_api_key),
 ):
-    """Search and filter LLM calls for debugging."""
     query = (
         select(Request, Evaluation)
         .outerjoin(Evaluation, Evaluation.request_id == Request.id)
+        .where(Request.api_key == api_key)
         .order_by(Request.timestamp.desc())
     )
 
@@ -50,7 +52,6 @@ async def search_requests(
     result = await db.execute(query.offset(offset).limit(limit))
     rows = result.all()
 
-    # Post-filter by user_id in metadata (JSON field)
     items = []
     for req, ev in rows:
         meta = req.metadata_ or {}
@@ -78,12 +79,12 @@ async def search_requests(
 async def get_request_detail(
     request_id: str,
     db: AsyncSession = Depends(get_session),
+    api_key: str = Depends(require_api_key),
 ):
-    """Full detail view of a single LLM call — for debugging."""
     result = await db.execute(
         select(Request, Evaluation)
         .outerjoin(Evaluation, Evaluation.request_id == Request.id)
-        .where(Request.id == request_id)
+        .where(Request.id == request_id, Request.api_key == api_key)
     )
     row = result.one_or_none()
     if not row:
@@ -113,18 +114,27 @@ async def get_request_detail(
 
 
 @router.get("/models")
-async def list_models(db: AsyncSession = Depends(get_session)):
-    """List all models seen in the data — for filter dropdowns."""
+async def list_models(
+    db: AsyncSession = Depends(get_session),
+    api_key: str = Depends(require_api_key),
+):
     result = await db.execute(
-        text("SELECT DISTINCT model FROM requests ORDER BY model")
+        text("SELECT DISTINCT model FROM requests WHERE api_key = :api_key ORDER BY model"),
+        {"api_key": api_key},
     )
     return [row[0] for row in result]
 
 
 @router.get("/flags")
-async def list_flags(db: AsyncSession = Depends(get_session)):
-    """List all unique flags seen — for filter dropdowns."""
-    result = await db.execute(select(Evaluation.flags))
+async def list_flags(
+    db: AsyncSession = Depends(get_session),
+    api_key: str = Depends(require_api_key),
+):
+    result = await db.execute(
+        select(Evaluation.flags)
+        .join(Request, Request.id == Evaluation.request_id)
+        .where(Request.api_key == api_key)
+    )
     all_flags = set()
     for (flags,) in result:
         if flags:

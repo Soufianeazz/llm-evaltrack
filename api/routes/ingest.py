@@ -4,6 +4,7 @@ import uuid
 from fastapi import APIRouter, Depends, Request
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from api.auth import require_api_key
 from api.limiter import limiter
 from api.schemas import IngestResponse, LLMCallPayload
 from pipeline.worker import enqueue
@@ -19,12 +20,14 @@ async def ingest(
     request: Request,
     payload: LLMCallPayload,
     db: AsyncSession = Depends(get_session),
+    api_key: str = Depends(require_api_key),
 ):
     request_id = str(uuid.uuid4())
     ts = payload.timestamp or time.time()
 
     row = RequestModel(
         id=request_id,
+        api_key=api_key,
         input=payload.input,
         output=payload.output,
         prompt=payload.prompt,
