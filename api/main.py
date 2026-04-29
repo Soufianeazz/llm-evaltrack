@@ -30,7 +30,7 @@ from api.routes.compliance import router as compliance_router
 from api.routes.traces import router as traces_router
 from api.routes.billing import router as billing_router
 from api.routes.waitlist import router as waitlist_router
-from api.routes.admin import router as admin_router
+from api.routes.admin import router as admin_router, seed_demo_on_startup
 from pipeline.worker import start_worker, stop_worker
 from storage.database import init_db
 
@@ -38,6 +38,7 @@ from storage.database import init_db
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     await init_db()
+    await seed_demo_on_startup()
     await start_worker()
     yield
     await stop_worker()
