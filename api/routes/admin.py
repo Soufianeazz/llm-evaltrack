@@ -79,10 +79,12 @@ async def seed_demo(
     """Create demo API key + realistic demo data. Safe to call multiple times."""
     _require_admin(token)
 
-    # Create demo key if not exists
-    result = await db.execute(select(ApiKey).where(ApiKey.key == DEMO_KEY))
-    if not result.scalar_one_or_none():
-        db.add(ApiKey(key=DEMO_KEY, label="Live Demo", plan="demo", created_at=time.time()))
+    # Create demo key (INSERT OR REPLACE so active=1 is always guaranteed)
+    from sqlalchemy import text as _text
+    await db.execute(_text(
+        "INSERT OR REPLACE INTO api_keys (key, label, plan, created_at, active) "
+        "VALUES (:key, 'Live Demo', 'demo', :ts, 1)"
+    ), {"key": DEMO_KEY, "ts": time.time()})
 
     # Skip seeding if data already exists
     count = (await db.execute(
