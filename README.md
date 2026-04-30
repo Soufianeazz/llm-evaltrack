@@ -3,10 +3,11 @@
 [![PyPI](https://img.shields.io/pypi/v/agentlens-monitor.svg)](https://pypi.org/project/agentlens-monitor/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/)
+[![GitHub Stars](https://img.shields.io/github/stars/Soufianeazz/agentlens?style=social)](https://github.com/Soufianeazz/agentlens)
 
 > Drop-in observability for LLM applications — automatic quality scoring, hallucination detection, cost tracking, and agent run debugging.
 
-**Live demo:** [www.agentlens.one](https://www.agentlens.one) · **Agent Debugger:** [/traces.html](https://www.agentlens.one/traces.html)
+**Live demo:** [www.agentlens.one](https://www.agentlens.one?api_key=al_demo_agentlens) · **Agent Debugger:** [/traces.html](https://www.agentlens.one/traces.html?api_key=al_demo_agentlens)
 
 ![AgentLens Dashboard](docs/dashboard.png)
 
@@ -15,6 +16,16 @@
 ## Why
 
 Most LLM apps run blind. You don't know which prompts fail, which models waste money, when quality drops — or where exactly a multi-step agent gets stuck. AgentLens fixes that with **2 lines of code**.
+
+| | AgentLens | LangSmith | Langfuse | Helicone |
+|---|---|---|---|---|
+| Self-hosted | ✅ | ❌ | ✅ | ❌ |
+| GDPR / data on your server | ✅ | ❌ | ✅ | ❌ |
+| Auto quality scoring | ✅ | ❌ | ❌ | ❌ |
+| Hallucination detection | ✅ | ❌ | ❌ | ❌ |
+| Agent trace debugger | ✅ | ✅ | ✅ | ❌ |
+| Open source | ✅ | ❌ | ✅ | ❌ |
+| 2-line integration | ✅ | ✅ | ✅ | ✅ |
 
 ---
 
@@ -33,7 +44,7 @@ Auto-track every OpenAI or Anthropic call — zero changes to your existing code
 ```python
 import agentlens
 
-agentlens.init(api_url="https://www.agentlens.one/ingest")
+agentlens.init(api_url="http://localhost:8000/ingest")  # or your deployed server
 agentlens.patch_openai()     # intercepts all client.chat.completions.create()
 agentlens.patch_anthropic()  # intercepts all client.messages.create()
 ```
@@ -184,6 +195,6 @@ Push to `main` → Railway auto-deploys. No manual steps.
 
 ---
 
-## Hosted version
+## Cloud Option
 
-Prefer not to self-host? The hosted version at [www.agentlens.one](https://www.agentlens.one) is open to try — no login needed. Paid plans start at €299/month for teams that need managed hosting, higher limits, and a GDPR DPA.
+Prefer not to self-host? Try the live demo at [www.agentlens.one](https://www.agentlens.one?api_key=al_demo_agentlens) — no login needed. Paid plans start at €299/month for teams that need managed hosting, higher limits, and a GDPR DPA.
