@@ -186,4 +186,4 @@ Push to `main` → Railway auto-deploys. No manual steps.
 
 ## Hosted version
 
-Prefer not to self-host? The hosted version at [www.agentlens.one](https://www.agentlens.one) is free to try while we're in beta. Paid plans start at €299/month for teams that need managed hosting, higher limits, and a GDPR DPA.
+Prefer not to self-host? The hosted version at [www.agentlens.one](https://www.agentlens.one) is open to try — no login needed. Paid plans start at €299/month for teams that need managed hosting, higher limits, and a GDPR DPA.
