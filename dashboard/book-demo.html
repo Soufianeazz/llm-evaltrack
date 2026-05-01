@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Book a Demo - AgentLens</title>
+  <link rel="icon" href="/logo.svg" type="image/svg+xml" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #0f1117;
+      --surface: #1e2130;
+      --border: #2d3148;
+      --primary: #818cf8;
+      --text: #e2e8f0;
+      --muted: #94a3b8;
+      --ok: #4ade80;
+      --err: #f87171;
+    }
+    body {
+      font-family: system-ui, -apple-system, Segoe UI, sans-serif;
+      background: radial-gradient(circle at top right, #1a1f33 0, transparent 34%), var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      padding: 2rem 1rem;
+    }
+    .card {
+      width: min(700px, 100%);
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 1.4rem;
+    }
+    .back {
+      color: var(--muted);
+      text-decoration: none;
+      font-size: 0.86rem;
+    }
+    h1 {
+      margin-top: 0.8rem;
+      font-size: clamp(1.7rem, 4vw, 2.3rem);
+      line-height: 1.15;
+    }
+    p.sub {
+      margin-top: 0.7rem;
+      color: var(--muted);
+      font-size: 0.95rem;
+      line-height: 1.5;
+    }
+    .grid {
+      margin-top: 1.2rem;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.8rem;
+    }
+    .full { grid-column: 1 / -1; }
+    label {
+      display: block;
+      margin-bottom: 0.35rem;
+      font-size: 0.82rem;
+      color: var(--muted);
+    }
+    input, select, textarea {
+      width: 100%;
+      border-radius: 9px;
+      border: 1px solid #374151;
+      background: #111521;
+      color: var(--text);
+      padding: 0.7rem 0.75rem;
+      font: inherit;
+    }
+    textarea { min-height: 120px; resize: vertical; }
+    .actions {
+      margin-top: 1rem;
+      display: flex;
+      gap: 0.7rem;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+    button {
+      border: none;
+      border-radius: 9px;
+      background: var(--primary);
+      color: #0f1117;
+      font-weight: 700;
+      padding: 0.72rem 1rem;
+      cursor: pointer;
+    }
+    button:disabled { opacity: 0.6; cursor: not-allowed; }
+    .note { color: var(--muted); font-size: 0.85rem; }
+    .msg { margin-top: 0.9rem; min-height: 1.1rem; font-size: 0.9rem; }
+    .msg.ok { color: var(--ok); }
+    .msg.err { color: var(--err); }
+    @media (max-width: 700px) { .grid { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+  <main class="card">
+    <a class="back" href="/">&larr; Back to homepage</a>
+    <h1>Book Your AgentLens Demo</h1>
+    <p class="sub">Tell us about your use case and we will get back to you with a tailored walkthrough.</p>
+
+    <form id="demoForm">
+      <div class="grid">
+        <div>
+          <label for="name">Name</label>
+          <input id="name" name="name" required />
+        </div>
+        <div>
+          <label for="email">Work Email</label>
+          <input id="email" name="email" type="email" required />
+        </div>
+        <div>
+          <label for="company">Company</label>
+          <input id="company" name="company" required />
+        </div>
+        <div>
+          <label for="plan">Interested Plan</label>
+          <select id="plan" name="plan">
+            <option value="">Not sure yet</option>
+            <option value="starter">Starter</option>
+            <option value="team">Team</option>
+            <option value="scale">Scale</option>
+            <option value="enterprise">Enterprise</option>
+          </select>
+        </div>
+        <div class="full">
+          <label for="message">Use case / goals</label>
+          <textarea id="message" name="message" required placeholder="What do you want to monitor, and what problems are you facing?"></textarea>
+        </div>
+      </div>
+      <div class="actions">
+        <button id="submitBtn" type="submit">Send Demo Request</button>
+        <span class="note">Response target: within 24 hours</span>
+      </div>
+      <p id="statusMsg" class="msg"></p>
+    </form>
+  </main>
+
+  <script>
+    const form = document.getElementById("demoForm");
+    const statusMsg = document.getElementById("statusMsg");
+    const submitBtn = document.getElementById("submitBtn");
+    const planSelect = document.getElementById("plan");
+
+    const params = new URLSearchParams(window.location.search);
+    const plan = params.get("plan");
+    if (plan) {
+      const allowed = new Set(["starter", "team", "scale", "enterprise"]);
+      if (allowed.has(plan)) planSelect.value = plan;
+    }
+
+    form.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      statusMsg.textContent = "";
+      statusMsg.className = "msg";
+
+      const payload = {
+        name: form.name.value.trim(),
+        email: form.email.value.trim(),
+        company: form.company.value.trim(),
+        plan: form.plan.value || null,
+        message: form.message.value.trim(),
+        source: params.get("source") || "website-book-demo"
+      };
+
+      if (!payload.name || !payload.email || !payload.company || !payload.message) {
+        statusMsg.textContent = "Please fill all fields.";
+        statusMsg.className = "msg err";
+        return;
+      }
+
+      submitBtn.disabled = true;
+      submitBtn.textContent = "Sending...";
+      try {
+        const response = await fetch("/demo-request", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        });
+        const data = await response.json();
+        if (!response.ok || data.status !== "ok") {
+          throw new Error("request_failed");
+        }
+        statusMsg.textContent = "Thanks, your request was received. We will contact you shortly.";
+        statusMsg.className = "msg ok";
+        form.reset();
+      } catch {
+        statusMsg.textContent = "Could not send your request. Please try again.";
+        statusMsg.className = "msg err";
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.textContent = "Send Demo Request";
+      }
+    });
+  </script>
+</body>
+</html>

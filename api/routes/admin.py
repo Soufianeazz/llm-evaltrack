@@ -1,4 +1,5 @@
 import os
+import random
 import secrets
 import time
 import uuid
@@ -80,15 +81,33 @@ async def _do_seed_demo(db: AsyncSession) -> dict:
         "VALUES (:key, 'Live Demo', 'demo', :ts, 1)"
     ), {"key": DEMO_KEY, "ts": time.time()})
 
-    # Skip data seeding if requests already exist
+    now = time.time()
+
+    # If demo data exists, keep it and only top up recent (last 24h) data if needed.
     count = (await db.execute(
         select(func.count()).select_from(Request).where(Request.api_key == DEMO_KEY)
     )).scalar()
     if count > 0:
-        await db.commit()
-        return {"key": DEMO_KEY, "status": "already_seeded", "requests": count}
+        recent_24h = (await db.execute(
+            select(func.count()).select_from(Request).where(
+                Request.api_key == DEMO_KEY,
+                Request.timestamp >= now - 24 * 3600,
+            )
+        )).scalar() or 0
 
-    now = time.time()
+        if recent_24h < 12:
+            inserted = await _top_up_recent_demo_data(db, now=now, count=int(12 - recent_24h))
+            await db.commit()
+            return {
+                "key": DEMO_KEY,
+                "status": "topup_seeded",
+                "requests_total": int(count) + inserted,
+                "recent_24h": int(recent_24h) + inserted,
+                "inserted": inserted,
+            }
+
+        await db.commit()
+        return {"key": DEMO_KEY, "status": "already_seeded", "requests": count, "recent_24h": int(recent_24h)}
 
     SCENARIOS = [
         {"prompt": "Answer the user's question accurately and concisely.", "input": "What is the capital of France?", "output": "The capital of France is Paris. It has been the country's capital since the 10th century and is home to about 2.1 million people in the city proper.", "model": "gpt-4o", "cost_usd": 0.0012, "hours_ago": 1, "quality": 0.95, "hallucination": 0.02, "flags": [], "explanation": "Accurate, concise, no hallucinations.", "feature": "qa"},
@@ -138,6 +157,84 @@ async def _do_seed_demo(db: AsyncSession) -> dict:
 
     await db.commit()
     return {"key": DEMO_KEY, "status": "seeded", "requests": len(SCENARIOS), "traces": 2}
+
+
+async def _top_up_recent_demo_data(db: AsyncSession, *, now: float, count: int) -> int:
+    if count <= 0:
+        return 0
+
+    samples = [
+        {
+            "prompt": "Answer the user's question accurately and concisely.",
+            "input": "How do I center a div in CSS?",
+            "output": "Use a parent with display:flex; justify-content:center; align-items:center; and define parent height.",
+            "model": "gpt-4o",
+            "cost_usd": 0.0011,
+            "quality": 0.94,
+            "hallucination": 0.02,
+            "flags": [],
+            "explanation": "Accurate and directly actionable answer.",
+            "feature": "code",
+        },
+        {
+            "prompt": "Summarize this user request in one sentence.",
+            "input": "Need a German summary of GDPR retention requirements.",
+            "output": "Der Nutzer mÃ¶chte eine kurze, klare Zusammenfassung von DSGVO-Aufbewahrungsregeln.",
+            "model": "claude-3-haiku",
+            "cost_usd": 0.0005,
+            "quality": 0.91,
+            "hallucination": 0.03,
+            "flags": [],
+            "explanation": "Good one-line summary.",
+            "feature": "summarize",
+        },
+        {
+            "prompt": "Answer with concrete next steps.",
+            "input": "Why did support ticket triage fail?",
+            "output": "ok",
+            "model": "gpt-4o-mini",
+            "cost_usd": 0.0002,
+            "quality": 0.06,
+            "hallucination": 0.0,
+            "flags": ["empty_response"],
+            "explanation": "Response does not answer the question.",
+            "feature": "support",
+        },
+    ]
+
+    inserted = 0
+    for i in range(count):
+        s = samples[i % len(samples)]
+        ts = now - random.uniform(5 * 60, 20 * 3600)
+        req_id = str(uuid.uuid4())
+        db.add(
+            Request(
+                id=req_id,
+                api_key=DEMO_KEY,
+                input=s["input"],
+                output=s["output"],
+                prompt=s["prompt"],
+                model=s["model"],
+                metadata_={
+                    "feature": s["feature"],
+                    "cost_usd": s["cost_usd"],
+                    "input_tokens": max(1, len(s["input"]) // 4),
+                    "output_tokens": max(1, len(s["output"]) // 4),
+                },
+                timestamp=ts,
+            )
+        )
+        db.add(
+            Evaluation(
+                request_id=req_id,
+                quality_score=s["quality"],
+                hallucination_score=s["hallucination"],
+                flags=s["flags"],
+                score_explanation=s["explanation"],
+            )
+        )
+        inserted += 1
+    return inserted
 
 
 async def seed_demo_on_startup() -> None:

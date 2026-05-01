@@ -30,6 +30,7 @@ from api.routes.compliance import router as compliance_router
 from api.routes.traces import router as traces_router
 from api.routes.billing import router as billing_router
 from api.routes.waitlist import router as waitlist_router
+from api.routes.demo import router as demo_router
 from api.routes.admin import router as admin_router, seed_demo_on_startup
 from pipeline.worker import start_worker, stop_worker
 from storage.database import init_db
@@ -57,6 +58,32 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+
+@app.middleware("http")
+async def security_headers(request: Request, call_next):
+    response = await call_next(request)
+    response.headers["X-Content-Type-Options"] = "nosniff"
+    response.headers["X-Frame-Options"] = "DENY"
+    response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
+    response.headers["Permissions-Policy"] = "camera=(), microphone=(), geolocation=()"
+    response.headers["Content-Security-Policy"] = (
+        "default-src 'self'; "
+        "script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; "
+        "style-src 'self' 'unsafe-inline'; "
+        "img-src 'self' data:; "
+        "font-src 'self' data:; "
+        "connect-src 'self'; "
+        "object-src 'none'; "
+        "base-uri 'self'; "
+        "frame-ancestors 'none'; "
+        "form-action 'self'"
+    )
+    response.headers["Strict-Transport-Security"] = "max-age=31536000; includeSubDomains"
+    if response.headers.get("content-type", "").startswith("application/json"):
+        response.headers["Cache-Control"] = "no-store"
+    return response
+
+
 app.include_router(ingest_router)
 app.include_router(dashboard_router)
 app.include_router(alerts_router)
@@ -65,6 +92,7 @@ app.include_router(compliance_router)
 app.include_router(traces_router)
 app.include_router(billing_router)
 app.include_router(waitlist_router)
+app.include_router(demo_router)
 app.include_router(admin_router)
 
 
@@ -118,6 +146,11 @@ async def nutzungsbedingungen():
 @app.get("/success", include_in_schema=False)
 async def success():
     return FileResponse("dashboard/success.html")
+
+
+@app.get("/book-demo", include_in_schema=False)
+async def book_demo():
+    return FileResponse("dashboard/book-demo.html")
 
 
 @app.get("/case-study", include_in_schema=False)

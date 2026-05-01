@@ -114,6 +114,19 @@ class WaitlistEntry(Base):
     timestamp = Column(Float, nullable=False, index=True)
 
 
+class DemoRequest(Base):
+    __tablename__ = "demo_requests"
+
+    id = Column(String, primary_key=True)
+    name = Column(String, nullable=False)
+    email = Column(String, nullable=False, index=True)
+    company = Column(String, nullable=False)
+    plan = Column(String, nullable=True)
+    message = Column(Text, nullable=False)
+    source = Column(String, nullable=True)
+    timestamp = Column(Float, nullable=False, index=True)
+
+
 class Evaluation(Base):
     __tablename__ = "evaluations"
 
