@@ -176,10 +176,32 @@ Push to `main` → Railway auto-deploys. No manual steps.
 | `GET` | `/traces/{id}` | Trace detail with all spans |
 | `DELETE` | `/traces/{id}` | Delete trace and spans |
 | `GET/POST/DELETE` | `/alerts/budget` | Budget alert config |
+| `POST` | `/demo-request` | Public demo request submit (lead capture) |
+| `GET` | `/demo-request` | List demo requests (admin token required) |
+| `GET` | `/demo-request/weekly` | Weekly lead list JSON (admin token required) |
+| `GET` | `/demo-request/weekly.csv` | Weekly lead export CSV download (admin token required) |
+| `POST` | `/demo-request/notify-test` | Send test notification (admin token required) |
 | `GET` | `/compliance/export` | CSV/JSON export |
 | `POST` | `/compliance/retention` | Set retention policy |
 | `DELETE` | `/compliance/requests` | Bulk delete |
 | `GET` | `/compliance/audit-log` | Audit events |
+
+---
+
+## Demo Request Notifications
+
+Optional environment variables for instant lead notifications:
+
+- `DEMO_REQUEST_WEBHOOK_URL`: webhook URL (Slack incoming webhook works)
+- `RESEND_API_KEY`: Resend API key for email notifications
+- `DEMO_REQUEST_NOTIFY_EMAIL`: destination mailbox for new demo requests
+- `DEMO_REQUEST_FROM_EMAIL`: sender identity for Resend (optional)
+
+Spam protection on `/demo-request`:
+
+- Rate limit: `6/minute` per client IP
+- Honeypot field (`website`) ignored for real users, traps bots
+- Duplicate suppression for same email within 10 minutes
 
 ---
 
