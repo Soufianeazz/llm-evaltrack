@@ -3,73 +3,201 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Security Policy - AgentLens</title>
+  <title>Security Trust - AgentLens</title>
+  <meta name="description" content="AgentLens security trust page for enterprise buyers: architecture controls, access model, incident handling, and reporting path." />
   <style>
-    body { margin: 0; padding: 2rem; font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif; background: #0b1020; color: #e6ecff; }
-    .wrap { max-width: 920px; margin: 0 auto; }
-    a { color: #7dd3fc; }
-    h1 { margin: 0 0 0.5rem 0; font-size: 2rem; }
-    h2 { margin-top: 2rem; font-size: 1.15rem; color: #bfdbfe; }
-    p, li { color: #cbd5e1; line-height: 1.6; }
-    .meta { color: #93c5fd; font-size: 0.95rem; margin-bottom: 1.5rem; }
-    .card { background: #111a33; border: 1px solid #243053; border-radius: 10px; padding: 1rem 1.2rem; margin-top: 1rem; }
-    code { background: #1e2a4a; border: 1px solid #2e3e67; padding: 0.12rem 0.35rem; border-radius: 6px; }
+    * { box-sizing: border-box; }
+    :root {
+      --bg: #081021;
+      --bg2: #0f1b36;
+      --surface: #101b34;
+      --surface2: #162647;
+      --border: #2a3f68;
+      --text: #eef3ff;
+      --muted: #a9badb;
+      --accent: #7ea2ff;
+      --ok: #66da9b;
+    }
+    body {
+      margin: 0;
+      font-family: "Segoe UI Variable", "Aptos", "Trebuchet MS", system-ui, sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(1200px 420px at 10% -5%, #1a2d57 0%, rgba(26, 45, 87, 0) 55%),
+        linear-gradient(180deg, var(--bg) 0%, var(--bg2) 100%);
+    }
+    a { color: #b9ccff; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    .wrap { max-width: 1100px; margin: 0 auto; padding: 1.4rem 1.2rem 2.6rem; }
+    .topbar { display: flex; justify-content: space-between; align-items: center; gap: 0.8rem; flex-wrap: wrap; }
+    .brand { font-weight: 800; letter-spacing: 0.2px; }
+    .brand span { color: var(--accent); }
+    .links { display: flex; gap: 0.55rem; flex-wrap: wrap; }
+    .links a {
+      border: 1px solid var(--border);
+      background: rgba(15, 27, 54, 0.75);
+      border-radius: 8px;
+      padding: 0.45rem 0.72rem;
+      font-size: 0.8rem;
+    }
+    .hero {
+      margin-top: 1rem;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      background: linear-gradient(180deg, rgba(16, 27, 52, 0.96), rgba(11, 20, 39, 0.96));
+      padding: 1.2rem;
+    }
+    .tag {
+      display: inline-block;
+      border: 1px solid #3b5485;
+      color: #c5d5f3;
+      border-radius: 999px;
+      padding: 0.18rem 0.62rem;
+      font-size: 0.72rem;
+    }
+    h1 { margin: 0.7rem 0 0.5rem; font-size: clamp(1.5rem, 3.4vw, 2.25rem); line-height: 1.15; }
+    .hero p { margin: 0; color: var(--muted); max-width: 760px; }
+    .meta { margin-top: 0.8rem; font-size: 0.78rem; color: #c0d0ee; }
+    .kpi {
+      margin-top: 1rem;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 0.65rem;
+    }
+    .kpi .box {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 0.7rem;
+    }
+    .kpi .v { font-size: 1.12rem; font-weight: 800; color: var(--ok); }
+    .kpi .l { margin-top: 0.15rem; color: var(--muted); font-size: 0.75rem; }
+    .grid {
+      margin-top: 1rem;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 0.9rem;
+    }
+    .card {
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: var(--surface);
+      padding: 1rem;
+    }
+    .card h2 { margin: 0.05rem 0 0.35rem; font-size: 1rem; }
+    .card p { margin: 0; color: var(--muted); font-size: 0.84rem; line-height: 1.6; }
+    .card ul { margin: 0.55rem 0 0 1rem; padding: 0; }
+    .card li { color: var(--muted); font-size: 0.82rem; line-height: 1.56; }
+    .status { color: var(--ok); font-weight: 700; }
+    .inline-links {
+      margin-top: 1rem;
+      border: 1px solid var(--border);
+      background: rgba(16, 27, 52, 0.82);
+      border-radius: 10px;
+      padding: 0.85rem;
+      display: flex;
+      gap: 0.8rem;
+      flex-wrap: wrap;
+      font-size: 0.82rem;
+    }
+    footer { margin-top: 1.6rem; text-align: center; font-size: 0.78rem; color: var(--muted); }
+    @media (max-width: 560px) {
+      .wrap { padding: 1rem 0.85rem 2rem; }
+    }
   </style>
 </head>
 <body>
   <div class="wrap">
-    <p><a href="/">Back to Dashboard</a></p>
-    <h1>Security Policy</h1>
-    <p class="meta">Last updated: 2026-05-02</p>
-
-    <div class="card">
-      <h2>Authentication and Access</h2>
-      <ul>
-        <li>API endpoints are protected by API keys (<code>X-API-Key</code> or <code>?api_key=</code>).</li>
-        <li>Invalid or inactive keys are rejected with authorization errors.</li>
-        <li>RBAC MVP roles are defined as <code>Admin</code>, <code>Analyst</code>, and <code>Read-only</code>.</li>
-      </ul>
+    <div class="topbar">
+      <div class="brand">Agent<span>Lens</span> Security</div>
+      <div class="links">
+        <a href="/">Home</a>
+        <a href="/enterprise">Enterprise</a>
+        <a href="/subprocessors">Subprocessors</a>
+        <a href="/compliance.html?api_key=al_demo_agentlens">Compliance Console</a>
+      </div>
     </div>
 
-    <div class="card">
-      <h2>Encryption and Transport Security</h2>
-      <ul>
-        <li>TLS is required for hosted traffic.</li>
-        <li>Security headers include HSTS, CSP, X-Frame-Options, and X-Content-Type-Options.</li>
-        <li>Database backups must be encrypted at rest in backup storage.</li>
-      </ul>
+    <section class="hero">
+      <span class="tag">Public Security Trust Page</span>
+      <h1>Security controls built for enterprise procurement and production AI</h1>
+      <p>AgentLens is designed so legal, security, and engineering teams can evaluate controls without back-and-forth. This page summarizes the operating baseline for hosted deployments and enterprise rollouts.</p>
+      <div class="meta">Last updated: 2026-05-02</div>
+      <div class="kpi">
+        <div class="box"><div class="v status">Active</div><div class="l">Security headers enforced</div></div>
+        <div class="box"><div class="v status">Active</div><div class="l">API key auth + RBAC minimum</div></div>
+        <div class="box"><div class="v status">Active</div><div class="l">Audit events for governance actions</div></div>
+        <div class="box"><div class="v status">Active</div><div class="l">Health/readiness endpoints published</div></div>
+      </div>
+    </section>
+
+    <section class="grid">
+      <article class="card">
+        <h2>Identity and Access</h2>
+        <p>API endpoints require valid credentials, with role-based access model and scoped admin actions.</p>
+        <ul>
+          <li>API keys accepted via <code>X-API-Key</code> or <code>?api_key=</code>.</li>
+          <li>RBAC baseline roles: <code>admin</code>, <code>analyst</code>, <code>read_only</code>.</li>
+          <li>Key rotation process is defined with audit evidence.</li>
+        </ul>
+      </article>
+
+      <article class="card">
+        <h2>Network and Application Hardening</h2>
+        <p>Security posture includes transport controls and default response protections on production traffic.</p>
+        <ul>
+          <li>TLS is required for hosted traffic paths.</li>
+          <li>Headers include CSP, HSTS, frame and content-type protections.</li>
+          <li>Request-size limits reduce abuse risk on ingest endpoints.</li>
+        </ul>
+      </article>
+
+      <article class="card">
+        <h2>Data Governance and Auditability</h2>
+        <p>Operational and compliance actions are visible and traceable for legal and regulatory checks.</p>
+        <ul>
+          <li>Export, delete, and retention actions are captured in audit events.</li>
+          <li>Compliance console supports evidence-oriented workflows.</li>
+          <li>Trace records support debugging and incident reconstruction.</li>
+        </ul>
+      </article>
+
+      <article class="card">
+        <h2>Resilience and Recovery</h2>
+        <p>Reliability controls cover runtime checks, backup policy, and incident communication paths.</p>
+        <ul>
+          <li>Health endpoints: <code>/healthz</code>, <code>/readyz</code>, <code>/health</code>.</li>
+          <li>Backup and restore process is documented with drill expectations.</li>
+          <li>Uptime workflow supports proactive alerting.</li>
+        </ul>
+      </article>
+
+      <article class="card">
+        <h2>Vulnerability Reporting</h2>
+        <p>Security reports are reviewed through a documented intake flow.</p>
+        <ul>
+          <li>Report channel: <a href="mailto:security@agentlens.one">security@agentlens.one</a></li>
+          <li>Severity-based response and communication process is defined.</li>
+          <li>Enterprise customers can request direct security review calls.</li>
+        </ul>
+      </article>
+
+      <article class="card">
+        <h2>Scope Note</h2>
+        <p>This trust page represents the operational baseline and public controls summary. Contractual commitments are finalized in customer DPA/SLA documents.</p>
+      </article>
+    </section>
+
+    <div class="inline-links">
+      <a href="/enterprise">Enterprise Trust Center</a>
+      <a href="/subprocessors">Subprocessor List</a>
+      <a href="/compliance.html?api_key=al_demo_agentlens">Compliance Console</a>
+      <a href="mailto:contact@agentlens.one?subject=Security%20Review%20Request">Request Security Review</a>
     </div>
 
-    <div class="card">
-      <h2>Logging and Auditability</h2>
-      <ul>
-        <li>Compliance actions (export, delete, retention changes) are written to the audit log.</li>
-        <li>API key rotation audit event schema is documented for full traceability.</li>
-        <li>Operational traces are available for debugging and post-incident analysis.</li>
-      </ul>
-    </div>
-
-    <div class="card">
-      <h2>Backups and Recovery</h2>
-      <ul>
-        <li>Backup and restore process is documented with RPO/RTO targets.</li>
-        <li>Restore drill evidence is maintained in enterprise documentation.</li>
-      </ul>
-    </div>
-
-    <div class="card">
-      <h2>Vulnerability Reporting</h2>
-      <p>Security issues can be reported to <a href="mailto:security@agentlens.one">security@agentlens.one</a>.
-      Process and SLAs are documented in the vulnerability process document.</p>
-    </div>
-
-    <div class="card">
-      <h2>References</h2>
-      <ul>
-        <li><a href="/subprocessors">Subprocessor List</a></li>
-        <li><a href="/compliance.html">Compliance Controls</a></li>
-      </ul>
-    </div>
+    <footer>
+      AgentLens Security Trust - for review requests contact <a href="mailto:security@agentlens.one">security@agentlens.one</a>
+    </footer>
   </div>
 </body>
 </html>
