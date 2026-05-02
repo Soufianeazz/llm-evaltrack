@@ -12,6 +12,7 @@ from fastapi.responses import StreamingResponse
 from sqlalchemy import delete, select, text
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from api.auth import ApiKeyContext, ensure_role, require_api_key_context
 from storage.database import get_session
 from storage.models import AuditLog, Evaluation, Request, RetentionPolicy
 
@@ -39,11 +40,14 @@ async def export_data(
     format: str = Query("json", pattern="^(json|csv)$"),
     days: int | None = Query(None, ge=1, le=365),
     db: AsyncSession = Depends(get_session),
+    ctx: ApiKeyContext = Depends(require_api_key_context),
 ):
     """Export all LLM call data as JSON or CSV."""
+    ensure_role(ctx, "admin", "analyst")
     query = (
         select(Request, Evaluation)
         .outerjoin(Evaluation, Evaluation.request_id == Request.id)
+        .where(Request.api_key == ctx.key)
         .order_by(Request.timestamp.desc())
     )
     if days:
@@ -199,16 +203,75 @@ async def run_retention_now(token: str = Query(...), db: AsyncSession = Depends(
 @router.get("/audit-log")
 async def get_audit_log(
     limit: int = Query(50, ge=1, le=500),
+    action: str | None = Query(None),
+    from_ts: float | None = Query(None),
+    to_ts: float | None = Query(None),
     db: AsyncSession = Depends(get_session),
+    ctx: ApiKeyContext = Depends(require_api_key_context),
 ):
-    result = await db.execute(
-        select(AuditLog).order_by(AuditLog.timestamp.desc()).limit(limit)
-    )
+    ensure_role(ctx, "admin", "analyst")
+    query = select(AuditLog).order_by(AuditLog.timestamp.desc())
+    if action:
+        query = query.where(AuditLog.action == action)
+    if from_ts is not None:
+        query = query.where(AuditLog.timestamp >= from_ts)
+    if to_ts is not None:
+        query = query.where(AuditLog.timestamp <= to_ts)
+
+    result = await db.execute(query.limit(limit))
     entries = result.scalars().all()
     return [
         {"id": e.id, "action": e.action, "detail": e.detail, "timestamp": e.timestamp}
         for e in entries
     ]
+
+
+@router.get("/audit-log/export")
+async def export_audit_log(
+    format: str = Query("json", pattern="^(json|csv)$"),
+    action: str | None = Query(None),
+    from_ts: float | None = Query(None),
+    to_ts: float | None = Query(None),
+    limit: int = Query(500, ge=1, le=5000),
+    db: AsyncSession = Depends(get_session),
+    ctx: ApiKeyContext = Depends(require_api_key_context),
+):
+    ensure_role(ctx, "admin", "analyst")
+    query = select(AuditLog).order_by(AuditLog.timestamp.desc())
+    if action:
+        query = query.where(AuditLog.action == action)
+    if from_ts is not None:
+        query = query.where(AuditLog.timestamp >= from_ts)
+    if to_ts is not None:
+        query = query.where(AuditLog.timestamp <= to_ts)
+
+    result = await db.execute(query.limit(limit))
+    entries = result.scalars().all()
+    records = [
+        {"id": e.id, "action": e.action, "detail": e.detail, "timestamp": e.timestamp}
+        for e in entries
+    ]
+
+    await _log_action(
+        db,
+        "audit_export",
+        f"Exported {len(records)} audit records as {format}"
+        + (f" action={action}" if action else ""),
+    )
+
+    if format == "csv":
+        output = io.StringIO()
+        if records:
+            writer = csv.DictWriter(output, fieldnames=records[0].keys())
+            writer.writeheader()
+            writer.writerows(records)
+        return StreamingResponse(
+            iter([output.getvalue()]),
+            media_type="text/csv",
+            headers={"Content-Disposition": "attachment; filename=agentlens-audit-log.csv"},
+        )
+
+    return {"records": records, "count": len(records)}
 
 
 # ── Stats ─────────────────────────────────────────────────────────────────────

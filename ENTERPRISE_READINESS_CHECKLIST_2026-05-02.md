@@ -19,27 +19,27 @@ Ziel: Abschlussfähigkeit für Enterprise-Deals in 90 Tagen.
 ## Phase 1 (Tag 1–30) – Foundation
 
 ### Security & Compliance
-- [ ] Finales DPA/AVV Template erstellen (inkl. TOMs, Speicherort, Löschfristen).
-- [ ] Subprocessor-Liste veröffentlichen (inkl. Zweck, Region, Link).
-- [ ] Security-Policy-Seite live: Auth, Verschlüsselung, Logging, Backups.
-- [ ] Vulnerability-Prozess definieren (Intake-Mail, Triage-SLA, Disclosure-Text).
+- [x] Finales DPA/AVV Template erstellen (inkl. TOMs, Speicherort, Löschfristen). (2026-05-02, siehe `enterprise/AVV_DPA_TEMPLATE_V1_FINAL.md`)
+- [x] Subprocessor-Liste veröffentlichen (inkl. Zweck, Region, Link). (2026-05-02, siehe `dashboard/subprocessors.html` + `enterprise/SUBPROCESSOR_LIST_AND_DATA_FLOW_V1.md`)
+- [x] Security-Policy-Seite live: Auth, Verschlüsselung, Logging, Backups. (2026-05-02, siehe `dashboard/security.html`)
+- [x] Vulnerability-Prozess definieren (Intake-Mail, Triage-SLA, Disclosure-Text). (2026-05-02, siehe `enterprise/VULNERABILITY_DISCLOSURE_PROCESS.md`)
 
 ### Produkt (Must-have für Enterprise-Piloten)
-- [ ] RBAC-Minimum live: `Admin`, `Analyst`, `Read-only`.
-- [ ] API-Key-Rotation-Policy + Audit-Log-Einträge für Rotationen.
-- [ ] Tenant/Projekt-Trennung dokumentieren und im UI klar kennzeichnen.
-- [ ] PII-Handling dokumentieren (Maskierung/Retention/Export/Delete-Flows).
+- [x] RBAC-Minimum live: `Admin`, `Analyst`, `Read-only`. (2026-05-02, siehe `enterprise/RBAC_IMPLEMENTATION_STATUS_2026-05-02.md` + Rollen-Enforcement in API)
+- [x] API-Key-Rotation-Policy + Audit-Log-Einträge für Rotationen. (2026-05-02, siehe `enterprise/API_KEY_ROTATION_PROCESS_AND_AUDIT_EVENTS.md` + `api/routes/admin.py`)
+- [x] Tenant/Projekt-Trennung dokumentieren und im UI klar kennzeichnen. (2026-05-02, siehe `enterprise/TENANT_PROJECT_SEPARATION.md` + Scope-Hinweise in Dashboard-Seiten)
+- [x] PII-Handling dokumentieren (Maskierung/Retention/Export/Delete-Flows). (2026-05-02, siehe `enterprise/PII_HANDLING_POLICY.md`)
 
 ### Reliability & Ops
-- [ ] Uptime/Health-Endpunkte + internes Alerting für Ausfälle.
-- [ ] Backup-Strategie schriftlich: Frequenz, Aufbewahrung, Restore-Schritte.
-- [ ] Einmaliger Restore-Test mit Zeitmessung und Protokoll.
-- [ ] Incident-Runbook v1 (Severity, Eskalation, Kommunikationsvorlage).
+- [x] Uptime/Health-Endpunkte + internes Alerting für Ausfälle. (2026-05-02, siehe `/healthz`, `/readyz`, `/health` + `.github/workflows/uptime-health-alert.yml`)
+- [x] Backup-Strategie schriftlich: Frequenz, Aufbewahrung, Restore-Schritte. (2026-05-02, siehe `enterprise/BACKUP_RESTORE_PROCESS.md`)
+- [x] Einmaliger Restore-Test mit Zeitmessung und Protokoll. (2026-05-02, siehe `enterprise/RESTORE_TEST_PROTOCOL_2026-05-02.md`)
+- [x] Incident-Runbook v1 (Severity, Eskalation, Kommunikationsvorlage). (2026-05-02, siehe `enterprise/INCIDENT_RUNBOOK_TEMPLATE.md`)
 
 ### Sales Enablement
-- [ ] Security one-pager (2 Seiten) für IT/InfoSec.
-- [ ] Procurement pack v1: DPA, SLA draft, Security FAQ.
-- [ ] Enterprise-Demo-Skript (20–30 Min) mit Compliance- und Audit-Fokus.
+- [x] Security one-pager (2 Seiten) für IT/InfoSec. (2026-05-02, siehe `enterprise/SECURITY_ONE_PAGER_V1.md`)
+- [x] Procurement pack v1: DPA, SLA draft, Security FAQ. (2026-05-02, siehe `enterprise/PROCUREMENT_PACK_V1.md`)
+- [x] Enterprise-Demo-Skript (20–30 Min) mit Compliance- und Audit-Fokus. (2026-05-02, siehe `enterprise/ENTERPRISE_DEMO_SCRIPT_COMPLIANCE_TRUST_20_30_MIN.md`)
 
 ---
 
@@ -51,20 +51,20 @@ Ziel: Abschlussfähigkeit für Enterprise-Deals in 90 Tagen.
 - [ ] Secret-Management-Härtung (Rotation-Intervalle + Owner).
 
 ### Produkt
-- [ ] SSO-Plan entscheiden: SAML oder OIDC (mind. einer produktiv).
-- [ ] Audit-Log-Export verbessern (CSV/JSON, Filter, Zeiträume).
-- [ ] Data retention controls im UI mit klarer Warnlogik.
-- [ ] Admin-Aktionen vollständig auditieren (wer/was/wann).
+- [x] SSO-Plan entscheiden: SAML oder OIDC (mind. einer produktiv). (2026-05-02, OIDC-first, siehe `enterprise/SSO_DECISION_PLAN_OIDC_FIRST.md`)
+- [x] Audit-Log-Export verbessern (CSV/JSON, Filter, Zeiträume). (2026-05-02, siehe `/compliance/audit-log` Filter + `/compliance/audit-log/export`)
+- [x] Data retention controls im UI mit klarer Warnlogik. (2026-05-02, siehe Warnlogik in `dashboard/compliance.html`)
+- [x] Admin-Aktionen vollständig auditieren (wer/was/wann). (2026-05-02, erweitert in `api/routes/admin.py`, `api/routes/alerts.py`, `api/routes/traces.py`, `api/routes/compliance.py`)
 
 ### Reliability
-- [ ] SLO-Entwurf (z. B. 99.9%) + Error-Budget-Tracking.
-- [ ] Lasttest-Szenario definieren und 1 Benchmark-Lauf protokollieren.
-- [ ] On-call-Minimum etablieren (wer reagiert wann, Kommunikationspfad).
+- [x] SLO-Entwurf (z. B. 99.9%) + Error-Budget-Tracking. (2026-05-02, siehe `enterprise/SLO_ERROR_BUDGET_DRAFT.md`)
+- [x] Lasttest-Szenario definieren und 1 Benchmark-Lauf protokollieren. (2026-05-02, siehe `enterprise/LOAD_TEST_SCENARIO_AND_BENCHMARK_2026-05-02.md`)
+- [x] On-call-Minimum etablieren (wer reagiert wann, Kommunikationspfad). (2026-05-02, siehe `enterprise/ON_CALL_MINIMUM_PLAN.md`)
 
 ### Sales
-- [ ] 2 POC-Designs standardisieren (EU-Compliance Fokus / Cost+Quality Fokus).
-- [ ] ROI-Rechner für Pilot → Jahresvertrag.
-- [ ] Objection-Handling-Dokument (LangSmith/Langfuse/Datadog-Vergleich).
+- [x] 2 POC-Designs standardisieren (EU-Compliance Fokus / Cost+Quality Fokus). (2026-05-02, siehe `enterprise/POC_DESIGNS_V1.md`)
+- [x] ROI-Rechner für Pilot → Jahresvertrag. (2026-05-02, siehe `enterprise/ROI_CALCULATOR_PILOT_TO_ANNUAL.md`)
+- [x] Objection-Handling-Dokument (LangSmith/Langfuse/Datadog-Vergleich). (2026-05-02, siehe `enterprise/OBJECTION_HANDLING_LANGSMITH_LANGFUSE_DATADOG.md`)
 
 ---
 
@@ -107,8 +107,8 @@ Ziel: Abschlussfähigkeit für Enterprise-Deals in 90 Tagen.
 - [x] Enterprise-Demo-Skript auf Compliance/Trust ausrichten. (2026-05-02, siehe `enterprise/ENTERPRISE_DEMO_SCRIPT_COMPLIANCE_TRUST_20_30_MIN.md`)
 
 ### Tag 5
-- [ ] Restore-Test durchführen und Ergebnis protokollieren.
-- [ ] Woche-1 Review: Gaps, Blocker, nächste 2 Wochen priorisieren.
+- [x] Restore-Test durchführen und Ergebnis protokollieren. (2026-05-02, siehe `enterprise/RESTORE_TEST_PROTOCOL_2026-05-02.md`)
+- [x] Woche-1 Review: Gaps, Blocker, nächste 2 Wochen priorisieren. (2026-05-02, siehe `enterprise/WEEK1_REVIEW_2026-05-02.md`)
 
 ---
 

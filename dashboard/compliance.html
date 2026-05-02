@@ -12,6 +12,7 @@
     a:hover { text-decoration: underline; }
     h1 { font-size: 1.5rem; margin-bottom: 0.25rem; }
     .subtitle { color: #64748b; font-size: 0.875rem; margin-bottom: 1.5rem; }
+    .scope-pill { display:inline-block; margin-top:-1rem; margin-bottom:1.2rem; padding:0.25rem 0.6rem; border-radius:999px; border:1px solid #2d3148; color:#93c5fd; font-size:0.75rem; }
     .kpi-bar { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; margin-bottom: 1.5rem; }
     .kpi { background: #1e2130; border: 1px solid #2d3148; border-radius: 8px; padding: 1rem 1.25rem; }
     .kpi-label { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; color: #64748b; margin-bottom: 0.4rem; }
@@ -43,6 +44,10 @@
     .status-badge { display: inline-block; padding: 0.2rem 0.5rem; border-radius: 4px; font-size: 0.75rem; font-weight: 600; }
     .status-badge.active { background: #1a2e1a; color: #4ade80; }
     .status-badge.inactive { background: #2d1b1b; color: #f87171; }
+    .warn-box { margin-top: 0.75rem; font-size: 0.8rem; padding: 0.55rem 0.7rem; border-radius: 6px; border: 1px solid #2d3148; color: #cbd5e1; background: #151a2a; }
+    .warn-box.high { border-color: #f87171; color: #fecaca; background: #2a1212; }
+    .warn-box.medium { border-color: #fb923c; color: #fed7aa; background: #2a1c12; }
+    .warn-box.low { border-color: #4ade80; color: #bbf7d0; background: #132417; }
     @media (max-width: 900px) { .grid { grid-template-columns: 1fr; } .kpi-bar { grid-template-columns: 1fr 1fr; } }
   </style>
 </head>
@@ -50,6 +55,7 @@
   <div style="margin-bottom:1rem;"><a href="/">← Dashboard</a> &nbsp; <a href="/debug.html">Prompt Debugger</a></div>
   <h1>Compliance & Data Management</h1>
   <p class="subtitle">GDPR-ready data export, retention policies, audit logging</p>
+  <div class="scope-pill">Data Scope: API-key isolated project context</div>
 
   <!-- KPI bar -->
   <div class="kpi-bar">
@@ -102,6 +108,7 @@
         </div>
       </div>
       <div id="retentionStatus" style="margin-top:0.5rem; font-size:0.8rem; color:#64748b;"></div>
+      <div id="retentionWarning" class="warn-box">Set a retention period to see impact guidance.</div>
     </div>
   </div>
 
@@ -215,6 +222,29 @@
       loadAudit();
     });
 
+    function updateRetentionWarning() {
+      const el = document.getElementById("retentionWarning");
+      const days = Number(document.getElementById("retentionDays").value || 0);
+      el.className = "warn-box";
+      if (!days) {
+        el.textContent = "Set a retention period to see impact guidance.";
+        return;
+      }
+      if (days <= 30) {
+        el.classList.add("high");
+        el.textContent = `High-impact policy: ${days} days. Data is deleted aggressively and recovery windows are short.`;
+        return;
+      }
+      if (days <= 90) {
+        el.classList.add("medium");
+        el.textContent = `Balanced policy: ${days} days. Suitable for many compliance use cases with moderate history depth.`;
+        return;
+      }
+      el.classList.add("low");
+      el.textContent = `Long-retention policy: ${days} days. Better forensic history, but larger data footprint and storage exposure.`;
+    }
+    document.getElementById("retentionDays").addEventListener("input", updateRetentionWarning);
+
     // ── Delete ───────────────────────────────────────────────────────────────
     document.getElementById("deleteOneBtn").addEventListener("click", async () => {
       const id = document.getElementById("deleteId").value.trim();
@@ -261,6 +291,7 @@
 
     loadStats();
     loadAudit();
+    updateRetentionWarning();
   </script>
 </body>
 </html>

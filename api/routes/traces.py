@@ -11,10 +11,10 @@ from sqlalchemy import select, func
 from sqlalchemy.ext.asyncio import AsyncSession
 from typing import Any
 
-from api.auth import require_api_key
+from api.auth import ApiKeyContext, ensure_role, require_api_key, require_api_key_context
 from api.limiter import limiter
 from storage.database import get_session
-from storage.models import Span, Trace
+from storage.models import AuditLog, Span, Trace
 
 router = APIRouter(prefix="/traces")
 
@@ -66,12 +66,13 @@ async def create_trace(
     request: Request,
     payload: CreateTracePayload,
     db: AsyncSession = Depends(get_session),
-    api_key: str = Depends(require_api_key),
+    ctx: ApiKeyContext = Depends(require_api_key_context),
 ):
+    ensure_role(ctx, "admin", "analyst")
     trace_id = str(uuid.uuid4())
     trace = Trace(
         id=trace_id,
-        api_key=api_key,
+        api_key=ctx.key,
         name=payload.name,
         input=payload.input,
         status="running",
@@ -90,9 +91,10 @@ async def end_trace(
     trace_id: str,
     payload: EndTracePayload,
     db: AsyncSession = Depends(get_session),
-    api_key: str = Depends(require_api_key),
+    ctx: ApiKeyContext = Depends(require_api_key_context),
 ):
-    result = await db.execute(select(Trace).where(Trace.id == trace_id, Trace.api_key == api_key))
+    ensure_role(ctx, "admin", "analyst")
+    result = await db.execute(select(Trace).where(Trace.id == trace_id, Trace.api_key == ctx.key))
     trace = result.scalar_one_or_none()
     if not trace:
         raise HTTPException(status_code=404, detail="trace not found")
@@ -122,10 +124,11 @@ async def create_span(
     trace_id: str,
     payload: CreateSpanPayload,
     db: AsyncSession = Depends(get_session),
-    api_key: str = Depends(require_api_key),
+    ctx: ApiKeyContext = Depends(require_api_key_context),
 ):
+    ensure_role(ctx, "admin", "analyst")
     # Verify trace belongs to this api_key
-    result = await db.execute(select(Trace).where(Trace.id == trace_id, Trace.api_key == api_key))
+    result = await db.execute(select(Trace).where(Trace.id == trace_id, Trace.api_key == ctx.key))
     if not result.scalar_one_or_none():
         raise HTTPException(status_code=404, detail="trace not found")
 
@@ -155,10 +158,11 @@ async def end_span(
     span_id: str,
     payload: EndSpanPayload,
     db: AsyncSession = Depends(get_session),
-    api_key: str = Depends(require_api_key),
+    ctx: ApiKeyContext = Depends(require_api_key_context),
 ):
+    ensure_role(ctx, "admin", "analyst")
     # Verify trace belongs to this api_key
-    result = await db.execute(select(Trace).where(Trace.id == trace_id, Trace.api_key == api_key))
+    result = await db.execute(select(Trace).where(Trace.id == trace_id, Trace.api_key == ctx.key))
     if not result.scalar_one_or_none():
         raise HTTPException(status_code=404, detail="trace not found")
 
@@ -259,6 +263,14 @@ async def delete_trace(
     for span in spans:
         await db.delete(span)
     await db.delete(trace)
+    db.add(
+        AuditLog(
+            id=str(uuid.uuid4()),
+            action="trace_delete",
+            detail=f"trace_id={trace_id} spans_deleted={len(spans)}",
+            timestamp=time.time(),
+        )
+    )
     await db.commit()
     return {"deleted": True, "trace_id": trace_id, "spans_deleted": len(spans)}
 

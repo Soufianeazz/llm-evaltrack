@@ -12,6 +12,7 @@ class ApiKey(Base):
     key = Column(String, primary_key=True)       # "al_xxxxxxxxxxxx"
     label = Column(String, nullable=False)        # customer / pilot name
     plan = Column(String, default="pilot")        # pilot | starter | team | scale
+    role = Column(String, default="admin")        # admin | analyst | read_only
     created_at = Column(Float, nullable=False)
     active = Column(Boolean, default=True)
 
