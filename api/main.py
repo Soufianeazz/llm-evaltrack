@@ -175,6 +175,11 @@ async def enterprise_page():
     return FileResponse("dashboard/enterprise.html")
 
 
+@app.get("/security-questionnaire", include_in_schema=False)
+async def security_questionnaire_page():
+    return FileResponse("dashboard/security-questionnaire.html")
+
+
 @app.get("/sitemap.xml", include_in_schema=False)
 async def sitemap():
     return FileResponse("dashboard/sitemap.xml", media_type="application/xml")
