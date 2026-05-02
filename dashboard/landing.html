@@ -96,6 +96,12 @@
     .demo-box p { color: var(--muted); font-size: 0.875rem; margin-bottom: 1.25rem; }
     .demo-links { display: flex; gap: 0.75rem; justify-content: center; flex-wrap: wrap; }
 
+    .trust-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(240px,1fr)); gap:1rem; margin-top:1.5rem; }
+    .trust-card { background: var(--surface); border:1px solid var(--border); border-radius:10px; padding:1.1rem; }
+    .trust-card h3 { font-size:0.95rem; margin-bottom:0.35rem; }
+    .trust-card p { font-size:0.8rem; color:var(--muted); }
+    .trust-links { margin-top:1.1rem; display:flex; gap:0.8rem; flex-wrap:wrap; font-size:0.85rem; }
+
     /* Footer */
     footer { border-top: 1px solid var(--border); padding: 2rem; text-align: center; color: var(--muted); font-size: 0.8rem; margin-top: 4rem; }
 
@@ -128,6 +134,7 @@
   </div>
   <div class="nav-links">
     <a href="#features">Features</a>
+    <a href="/enterprise">Enterprise</a>
     <a href="#pricing">Pricing</a>
     <a href="https://github.com/Soufianeazz/agentlens" target="_blank">GitHub</a>
     <a href="/dashboard?api_key=al_demo_agentlens" class="btn btn-outline">Live Demo</a>
@@ -152,6 +159,35 @@
     <div><span class="code-comment"># Full setup. Nothing else needed.</span></div>
     <div>agentlens.<span class="code-fn">init</span>(<span class="code-str">"https://agentlens.your-company.com"</span>)</div>
     <div>agentlens.<span class="code-fn">patch_openai</span>()  <span class="code-comment"># every call tracked automatically</span></div>
+  </div>
+</section>
+
+<!-- Enterprise Trust -->
+<section class="section" id="enterprise">
+  <div class="section-label">Enterprise Trust</div>
+  <h2>Built to pass security review without slowing sales cycles</h2>
+  <p>AgentLens now exposes compliance and trust material directly on the website, with clear controls, governance posture, and operational readiness.</p>
+
+  <div class="trust-grid">
+    <div class="trust-card">
+      <h3>Security & Governance</h3>
+      <p>Published security policy, vulnerability intake process, RBAC minimum, and API key rotation governance.</p>
+    </div>
+    <div class="trust-card">
+      <h3>Compliance Lifecycle</h3>
+      <p>Export, retention, delete, and audit-log flows are visible and demoable for procurement and security teams.</p>
+    </div>
+    <div class="trust-card">
+      <h3>Reliability Proof</h3>
+      <p>Health/readiness endpoints, uptime alert workflow, backup strategy, and restore-drill protocol are in place.</p>
+    </div>
+  </div>
+
+  <div class="trust-links">
+    <a href="/enterprise">Enterprise Trust Center</a>
+    <a href="/security">Security Policy</a>
+    <a href="/subprocessors">Subprocessors</a>
+    <a href="/compliance.html?api_key=al_demo_agentlens">Compliance Console</a>
   </div>
 </section>
 
@@ -434,6 +470,9 @@
 <footer>
   <p>AgentLens · MIT License · <a href="https://github.com/Soufianeazz/agentlens">GitHub</a> · <a href="https://pypi.org/project/agentlens-monitor">PyPI</a> · <a href="mailto:contact@agentlens.one">contact@agentlens.one</a></p>
   <p style="margin-top:0.5rem;">
+    <a href="/enterprise">Enterprise Trust Center</a> ·
+    <a href="/security">Security</a> ·
+    <a href="/subprocessors">Subprocessors</a> ·
     <a href="/impressum.html">Impressum</a> ·
     <a href="/datenschutz.html">Datenschutz</a> ·
     <a href="/nutzungsbedingungen.html">Nutzungsbedingungen</a>

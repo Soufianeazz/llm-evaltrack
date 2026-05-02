@@ -3,79 +3,257 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Subprocessors - AgentLens</title>
+  <title>Subprocessors and Data Flow - AgentLens</title>
+  <meta name="description" content="AgentLens enterprise subprocessor registry with purpose, data categories, geography, and operational status." />
   <style>
-    body { margin: 0; padding: 2rem; font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif; background: #0b1020; color: #e6ecff; }
-    .wrap { max-width: 1040px; margin: 0 auto; }
-    a { color: #7dd3fc; }
-    h1 { margin: 0 0 0.5rem 0; font-size: 2rem; }
-    .meta { color: #93c5fd; font-size: 0.95rem; margin-bottom: 1.5rem; }
-    table { width: 100%; border-collapse: collapse; background: #111a33; border: 1px solid #243053; border-radius: 10px; overflow: hidden; }
-    th, td { text-align: left; vertical-align: top; padding: 0.8rem; border-bottom: 1px solid #243053; color: #cbd5e1; }
-    th { color: #bfdbfe; background: #182446; }
+    * { box-sizing: border-box; }
+    :root {
+      --bg: #071020;
+      --bg2: #0e1a32;
+      --surface: #101b34;
+      --surface2: #152543;
+      --border: #2b4169;
+      --text: #eef3ff;
+      --muted: #a9b9d8;
+      --accent: #7ea2ff;
+      --ok: #66da9b;
+      --warn: #f6bf65;
+    }
+    body {
+      margin: 0;
+      color: var(--text);
+      font-family: "Segoe UI Variable", "Aptos", "Trebuchet MS", system-ui, sans-serif;
+      background:
+        radial-gradient(1100px 380px at 10% -8%, #1a2d57 0%, rgba(26, 45, 87, 0) 55%),
+        linear-gradient(180deg, var(--bg) 0%, var(--bg2) 100%);
+    }
+    a { color: #c1d1ff; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    .wrap { max-width: 1160px; margin: 0 auto; padding: 1.35rem 1.15rem 2.5rem; }
+    .topbar { display: flex; justify-content: space-between; align-items: center; gap: 0.8rem; flex-wrap: wrap; }
+    .brand { font-weight: 800; }
+    .brand span { color: var(--accent); }
+    .links { display: flex; gap: 0.55rem; flex-wrap: wrap; }
+    .links a {
+      border: 1px solid var(--border);
+      background: rgba(15, 27, 54, 0.75);
+      border-radius: 8px;
+      padding: 0.45rem 0.72rem;
+      font-size: 0.8rem;
+    }
+    .hero {
+      margin-top: 1rem;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      background: linear-gradient(180deg, rgba(16, 27, 52, 0.96), rgba(11, 20, 39, 0.96));
+      padding: 1.15rem;
+    }
+    .tag {
+      display: inline-block;
+      border: 1px solid #3b5485;
+      color: #c5d5f3;
+      border-radius: 999px;
+      padding: 0.18rem 0.62rem;
+      font-size: 0.72rem;
+    }
+    h1 { margin: 0.7rem 0 0.5rem; font-size: clamp(1.45rem, 3.2vw, 2.2rem); line-height: 1.15; }
+    .hero p { margin: 0; color: var(--muted); max-width: 800px; }
+    .meta { margin-top: 0.8rem; color: #bfd0ef; font-size: 0.78rem; }
+
+    .stat-row {
+      margin-top: 1rem;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 0.65rem;
+    }
+    .stat {
+      border: 1px solid var(--border);
+      background: var(--surface2);
+      border-radius: 10px;
+      padding: 0.68rem;
+    }
+    .stat .v { font-size: 1.1rem; font-weight: 800; }
+    .stat .l { margin-top: 0.15rem; color: var(--muted); font-size: 0.75rem; }
+
+    .panel {
+      margin-top: 1rem;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      border-radius: 12px;
+      overflow: auto;
+    }
+    table { width: 100%; border-collapse: collapse; min-width: 840px; }
+    th, td {
+      text-align: left;
+      vertical-align: top;
+      padding: 0.8rem;
+      border-bottom: 1px solid #2a3d63;
+      font-size: 0.82rem;
+      line-height: 1.5;
+    }
+    th {
+      background: #18284b;
+      color: #d8e4ff;
+      font-size: 0.77rem;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+    }
     tr:last-child td { border-bottom: none; }
-    .note { margin-top: 1rem; color: #94a3b8; }
+    .chip {
+      display: inline-block;
+      border-radius: 999px;
+      padding: 0.14rem 0.55rem;
+      font-size: 0.71rem;
+      border: 1px solid #35517f;
+      color: #c7d7f6;
+      background: #152542;
+      white-space: nowrap;
+    }
+    .chip.active { color: #b8ffd8; border-color: #2f6a50; background: #143225; }
+    .chip.optional { color: #ffe2b3; border-color: #7b5a27; background: #2f2412; }
+
+    .notes {
+      margin-top: 1rem;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 0.85rem;
+    }
+    .note {
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: rgba(16, 27, 52, 0.85);
+      padding: 0.9rem;
+    }
+    .note h2 { margin: 0.05rem 0 0.35rem; font-size: 0.96rem; }
+    .note p, .note li { color: var(--muted); font-size: 0.81rem; line-height: 1.58; }
+    .note ul { margin: 0.5rem 0 0 1rem; padding: 0; }
+    code { background: #1b2b4d; border: 1px solid #304976; border-radius: 6px; padding: 0.08rem 0.34rem; }
+    .inline-links {
+      margin-top: 1rem;
+      border: 1px solid var(--border);
+      background: rgba(16, 27, 52, 0.82);
+      border-radius: 10px;
+      padding: 0.85rem;
+      display: flex;
+      gap: 0.8rem;
+      flex-wrap: wrap;
+      font-size: 0.82rem;
+    }
+    footer { margin-top: 1.5rem; color: var(--muted); font-size: 0.78rem; text-align: center; }
+    @media (max-width: 560px) {
+      .wrap { padding: 1rem 0.85rem 2rem; }
+    }
   </style>
 </head>
 <body>
   <div class="wrap">
-    <p><a href="/">Back to Dashboard</a></p>
-    <h1>Subprocessor List</h1>
-    <p class="meta">Last updated: 2026-05-02</p>
+    <div class="topbar">
+      <div class="brand">Agent<span>Lens</span> Subprocessors</div>
+      <div class="links">
+        <a href="/">Home</a>
+        <a href="/enterprise">Enterprise</a>
+        <a href="/security">Security</a>
+        <a href="/compliance.html?api_key=al_demo_agentlens">Compliance Console</a>
+      </div>
+    </div>
 
-    <table>
-      <thead>
-        <tr>
-          <th>Subprocessor</th>
-          <th>Purpose</th>
-          <th>Data Categories</th>
-          <th>Region</th>
-          <th>Status</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td>Railway</td>
-          <td>Application hosting and persistent runtime storage</td>
-          <td>LLM telemetry payloads, metadata, audit data</td>
-          <td>Per configured project region</td>
-          <td>Active</td>
-        </tr>
-        <tr>
-          <td>Anthropic (optional)</td>
-          <td>LLM-based quality judge for evaluations</td>
-          <td>Truncated input/output/prompt segments for scoring</td>
-          <td>Per configured account region</td>
-          <td>Optional</td>
-        </tr>
-        <tr>
-          <td>Stripe (optional)</td>
-          <td>Checkout and subscription billing</td>
-          <td>Billing and checkout session metadata</td>
-          <td>Per configured account region</td>
-          <td>Optional</td>
-        </tr>
-        <tr>
-          <td>Resend (optional)</td>
-          <td>Demo request notification emails</td>
-          <td>Name, email, company, message payload</td>
-          <td>Per configured account region</td>
-          <td>Optional</td>
-        </tr>
-        <tr>
-          <td>Customer-configured Webhook (optional)</td>
-          <td>Outbound operational notifications</td>
-          <td>Alert and lead event payloads</td>
-          <td>Customer-controlled destination</td>
-          <td>Optional</td>
-        </tr>
-      </tbody>
-    </table>
+    <section class="hero">
+      <span class="tag">Vendor Transparency Registry</span>
+      <h1>Subprocessors and operational data flow visibility</h1>
+      <p>This registry helps legal, procurement, and security teams understand where service data may be processed and why. It is updated as integrations evolve.</p>
+      <div class="meta">Last updated: 2026-05-02</div>
 
-    <p class="note">
-      For detailed data flow and legal-basis notes, refer to
-      <code>enterprise/SUBPROCESSOR_LIST_AND_DATA_FLOW_V1.md</code>.
-    </p>
+      <div class="stat-row">
+        <div class="stat"><div class="v">5</div><div class="l">listed subprocessors</div></div>
+        <div class="stat"><div class="v" style="color:var(--ok)">1 active core</div><div class="l">required to run hosted service</div></div>
+        <div class="stat"><div class="v" style="color:var(--warn)">4 optional</div><div class="l">enabled by customer feature usage</div></div>
+        <div class="stat"><div class="v">Dynamic</div><div class="l">region follows configured account/project</div></div>
+      </div>
+    </section>
+
+    <section class="panel" aria-label="Subprocessor table">
+      <table>
+        <thead>
+          <tr>
+            <th>Subprocessor</th>
+            <th>Purpose</th>
+            <th>Data Categories</th>
+            <th>Region</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Railway</strong></td>
+            <td>Application hosting and persistent runtime storage</td>
+            <td>LLM telemetry payloads, metadata, and audit data</td>
+            <td>Per configured project region</td>
+            <td><span class="chip active">Active</span></td>
+          </tr>
+          <tr>
+            <td><strong>Anthropic</strong> (optional)</td>
+            <td>LLM quality judge for evaluation and scoring workloads</td>
+            <td>Truncated prompt/input/output excerpts used for scoring</td>
+            <td>Per configured account region</td>
+            <td><span class="chip optional">Optional</span></td>
+          </tr>
+          <tr>
+            <td><strong>Stripe</strong> (optional)</td>
+            <td>Checkout and subscription billing operations</td>
+            <td>Billing metadata and checkout session attributes</td>
+            <td>Per configured account region</td>
+            <td><span class="chip optional">Optional</span></td>
+          </tr>
+          <tr>
+            <td><strong>Resend</strong> (optional)</td>
+            <td>Demo request and sales notification emails</td>
+            <td>Name, email, company, and message form payload</td>
+            <td>Per configured account region</td>
+            <td><span class="chip optional">Optional</span></td>
+          </tr>
+          <tr>
+            <td><strong>Customer-configured Webhook</strong> (optional)</td>
+            <td>Outbound operational and alert notifications</td>
+            <td>Alert and lead event payloads</td>
+            <td>Customer-controlled destination</td>
+            <td><span class="chip optional">Optional</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section class="notes">
+      <article class="note">
+        <h2>How to interpret this table</h2>
+        <ul>
+          <li><strong>Active</strong> means required for base hosted runtime.</li>
+          <li><strong>Optional</strong> means processing occurs only if the customer enables that integration.</li>
+          <li>Region is tied to configured deployment or account settings.</li>
+        </ul>
+      </article>
+
+      <article class="note">
+        <h2>Data flow documentation</h2>
+        <p>Detailed legal basis and flow notes are maintained in the enterprise documentation set:</p>
+        <p><code>enterprise/SUBPROCESSOR_LIST_AND_DATA_FLOW_V1.md</code></p>
+      </article>
+
+      <article class="note">
+        <h2>Change notification</h2>
+        <p>Subprocessor changes are reflected in this page and communicated through customer channels in line with contract commitments.</p>
+      </article>
+    </section>
+
+    <div class="inline-links">
+      <a href="/enterprise">Enterprise Trust Center</a>
+      <a href="/security">Security Trust Page</a>
+      <a href="/compliance.html?api_key=al_demo_agentlens">Compliance Console</a>
+      <a href="mailto:contact@agentlens.one?subject=Subprocessor%20Question">Ask legal/security question</a>
+    </div>
+
+    <footer>
+      AgentLens Subprocessor Registry - for review requests contact <a href="mailto:contact@agentlens.one">contact@agentlens.one</a>
+    </footer>
   </div>
 </body>
 </html>
