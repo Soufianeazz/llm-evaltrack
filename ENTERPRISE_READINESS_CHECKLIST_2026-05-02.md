@@ -73,7 +73,7 @@ Ziel: Abschlussfähigkeit für Enterprise-Deals in 90 Tagen.
 ### Compliance & Legal
 - [ ] SLA finalisieren (Supportzeiten, Reaktionszeiten, Verfügbarkeit).
 - [ ] Security Annex + Data Processing Annex final paketieren.
-- [ ] Standard-Antwortpaket für Security Questionnaires vorbereiten.
+- [x] Standard-Antwortpaket für Security Questionnaires vorbereiten. (2026-05-02, siehe `enterprise/SECURITY_QUESTIONNAIRE_RESPONSE_PACK_V1.md` + `dashboard/security-questionnaire.html`)
 
 ### Produkt & Betrieb
 - [ ] SSO/RBAC/Audit-Endzustand live und dokumentiert.
@@ -109,6 +109,10 @@ Ziel: Abschlussfähigkeit für Enterprise-Deals in 90 Tagen.
 ### Tag 5
 - [x] Restore-Test durchführen und Ergebnis protokollieren. (2026-05-02, siehe `enterprise/RESTORE_TEST_PROTOCOL_2026-05-02.md`)
 - [x] Woche-1 Review: Gaps, Blocker, nächste 2 Wochen priorisieren. (2026-05-02, siehe `enterprise/WEEK1_REVIEW_2026-05-02.md`)
+
+### Tag 6
+- [x] Security Questionnaire Response Pack v1 erstellen (Standardantworten für Procurement/InfoSec). (2026-05-02, siehe `enterprise/SECURITY_QUESTIONNAIRE_RESPONSE_PACK_V1.md`)
+- [x] Öffentliche Questionnaire-Seite unter Clean URL veröffentlichen. (2026-05-02, siehe `/security-questionnaire` + `dashboard/security-questionnaire.html`)
 
 ---
 
