@@ -180,6 +180,11 @@ async def security_questionnaire_page():
     return FileResponse("dashboard/security-questionnaire.html")
 
 
+@app.get("/sla", include_in_schema=False)
+async def sla_page():
+    return FileResponse("dashboard/sla.html")
+
+
 @app.get("/sitemap.xml", include_in_schema=False)
 async def sitemap():
     return FileResponse("dashboard/sitemap.xml", media_type="application/xml")

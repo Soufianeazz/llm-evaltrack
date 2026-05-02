@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SLA Commitments - AgentLens</title>
+  <meta name="description" content="AgentLens service level commitments for enterprise buyers: availability, response targets, support coverage, and service credits." />
+  <style>
+    * { box-sizing: border-box; }
+    :root {
+      --bg: #071022;
+      --bg2: #0f1d38;
+      --surface: #112040;
+      --surface2: #182c54;
+      --border: #334f83;
+      --text: #edf3ff;
+      --muted: #aebfde;
+      --accent: #82aaff;
+      --ok: #69dfa3;
+    }
+    body {
+      margin: 0;
+      color: var(--text);
+      font-family: "Segoe UI Variable", "Aptos", "Trebuchet MS", system-ui, sans-serif;
+      background:
+        radial-gradient(1200px 420px at 10% -8%, #1b3466 0%, rgba(27, 52, 102, 0) 56%),
+        linear-gradient(180deg, var(--bg) 0%, var(--bg2) 100%);
+    }
+    a { color: #c7d7ff; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    .wrap { max-width: 1140px; margin: 0 auto; padding: 1.4rem 1.15rem 2.6rem; }
+    .top { display: flex; justify-content: space-between; align-items: center; gap: 0.8rem; flex-wrap: wrap; }
+    .brand { font-weight: 800; }
+    .brand span { color: var(--accent); }
+    .nav { display: flex; gap: 0.55rem; flex-wrap: wrap; }
+    .nav a {
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: rgba(16, 30, 59, 0.8);
+      padding: 0.45rem 0.72rem;
+      font-size: 0.8rem;
+    }
+    .hero {
+      margin-top: 1rem;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 1.2rem;
+      background: linear-gradient(180deg, rgba(17, 32, 64, 0.97), rgba(12, 22, 44, 0.97));
+    }
+    .tag {
+      display: inline-block;
+      border: 1px solid #3f5f98;
+      color: #cad9f7;
+      border-radius: 999px;
+      padding: 0.18rem 0.62rem;
+      font-size: 0.72rem;
+    }
+    h1 { margin: 0.72rem 0 0.5rem; font-size: clamp(1.55rem, 3.4vw, 2.28rem); line-height: 1.14; }
+    .lead { margin: 0; color: var(--muted); max-width: 830px; }
+    .meta { margin-top: 0.78rem; color: #bfd0ef; font-size: 0.78rem; }
+    .kpis {
+      margin-top: 1rem;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 0.7rem;
+    }
+    .kpi {
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: var(--surface2);
+      padding: 0.72rem;
+    }
+    .kpi .v { font-weight: 800; font-size: 1.13rem; color: var(--ok); }
+    .kpi .l { margin-top: 0.15rem; color: var(--muted); font-size: 0.75rem; }
+    .grid {
+      margin-top: 1rem;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 0.9rem;
+    }
+    .card {
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: var(--surface);
+      padding: 0.95rem;
+    }
+    .card h2 { margin: 0.05rem 0 0.4rem; font-size: 0.98rem; }
+    .card p { margin: 0; color: var(--muted); font-size: 0.83rem; line-height: 1.58; }
+    .card ul { margin: 0.55rem 0 0 1rem; padding: 0; }
+    .card li { color: var(--muted); font-size: 0.81rem; line-height: 1.56; }
+    .links {
+      margin-top: 1rem;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: rgba(17, 32, 64, 0.84);
+      padding: 0.85rem;
+      display: flex;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+      font-size: 0.82rem;
+    }
+    footer { margin-top: 1.5rem; text-align: center; color: var(--muted); font-size: 0.78rem; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="top">
+      <div class="brand">Agent<span>Lens</span> SLA</div>
+      <div class="nav">
+        <a href="/">Home</a>
+        <a href="/enterprise">Enterprise</a>
+        <a href="/security">Security</a>
+        <a href="/security-questionnaire">Questionnaire</a>
+      </div>
+    </div>
+
+    <section class="hero">
+      <span class="tag">Service Level Commitments</span>
+      <h1>Enterprise SLA baseline for reliability and support</h1>
+      <p class="lead">This public SLA summary helps procurement and operations teams evaluate service reliability, response targets, escalation behavior, and service-credit structure before contracting.</p>
+      <div class="meta">SLA v2 baseline - Last updated: 2026-05-02</div>
+
+      <div class="kpis">
+        <div class="kpi"><div class="v">99.9%</div><div class="l">monthly availability target</div></div>
+        <div class="kpi"><div class="v"><=1h</div><div class="l">Sev 1 initial response</div></div>
+        <div class="kpi"><div class="v">24/7</div><div class="l">Sev 1 escalation path</div></div>
+        <div class="kpi"><div class="v">RTO <=60m</div><div class="l">recovery target</div></div>
+      </div>
+    </section>
+
+    <section class="grid">
+      <article class="card">
+        <h2>Availability Scope</h2>
+        <ul>
+          <li>Commitment applies to managed hosted service.</li>
+          <li>Measurement window is monthly (UTC).</li>
+          <li>Planned maintenance with 48h notice is excluded from downtime.</li>
+        </ul>
+      </article>
+
+      <article class="card">
+        <h2>Severity and Response</h2>
+        <ul>
+          <li>Sev 1: <= 1 hour initial response.</li>
+          <li>Sev 2: <= 4 hours initial response.</li>
+          <li>Sev 3: <= 1 business day initial response.</li>
+          <li>Sev 4: <= 2 business days initial response.</li>
+        </ul>
+      </article>
+
+      <article class="card">
+        <h2>Support Coverage</h2>
+        <ul>
+          <li>Standard support: Mon-Fri, 09:00-18:00 CET/CEST.</li>
+          <li>Sev 1 incidents use 24/7 emergency on-call escalation.</li>
+          <li>Sev 1 and Sev 2 incidents include recurring status updates.</li>
+        </ul>
+      </article>
+
+      <article class="card">
+        <h2>Incident Communication</h2>
+        <ul>
+          <li>Sev 1 first notice within 60 minutes after confirmation.</li>
+          <li>Sev 2 first notice within 4 hours after confirmation.</li>
+          <li>RCA-style summary provided for Sev 1 and Sev 2 incidents.</li>
+        </ul>
+      </article>
+
+      <article class="card">
+        <h2>Backup and Recovery</h2>
+        <ul>
+          <li>RPO target: <= 24 hours.</li>
+          <li>RTO target: <= 60 minutes.</li>
+          <li>Restore-test protocol and backup process are documented.</li>
+        </ul>
+      </article>
+
+      <article class="card">
+        <h2>Service Credits</h2>
+        <ul>
+          <li>99.0%-99.89%: 10% monthly service credit.</li>
+          <li>95.0%-98.99%: 25% monthly service credit.</li>
+          <li>Below 95.0%: 50% monthly service credit.</li>
+          <li>Claims submitted within 30 calendar days.</li>
+        </ul>
+      </article>
+    </section>
+
+    <div class="links">
+      <a href="/enterprise">Enterprise Trust Center</a>
+      <a href="/security">Security Trust Page</a>
+      <a href="/subprocessors">Subprocessor Registry</a>
+      <a href="/security-questionnaire">Security Questionnaire Pack</a>
+      <a href="mailto:contact@agentlens.one?subject=SLA%20Review">Request SLA Review</a>
+    </div>
+
+    <footer>
+      AgentLens SLA v2 baseline - for commercial review contact <a href="mailto:contact@agentlens.one">contact@agentlens.one</a>
+    </footer>
+  </div>
+</body>
+</html>
