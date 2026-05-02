@@ -185,6 +185,11 @@ async def sla_page():
     return FileResponse("dashboard/sla.html")
 
 
+@app.get("/legal-pack", include_in_schema=False)
+async def legal_pack_page():
+    return FileResponse("dashboard/legal-pack.html")
+
+
 @app.get("/sitemap.xml", include_in_schema=False)
 async def sitemap():
     return FileResponse("dashboard/sitemap.xml", media_type="application/xml")

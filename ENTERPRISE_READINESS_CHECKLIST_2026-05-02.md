@@ -72,7 +72,7 @@ Ziel: Abschlussfähigkeit für Enterprise-Deals in 90 Tagen.
 
 ### Compliance & Legal
 - [x] SLA finalisieren (Supportzeiten, Reaktionszeiten, Verfügbarkeit). (2026-05-02, siehe `enterprise/SLA_V2_FINAL.md` + `dashboard/sla.html`)
-- [ ] Security Annex + Data Processing Annex final paketieren.
+- [x] Security Annex + Data Processing Annex final paketieren. (2026-05-02, siehe `enterprise/SECURITY_ANNEX_V1_FINAL.md` + `enterprise/DATA_PROCESSING_ANNEX_V1_FINAL.md` + `dashboard/legal-pack.html`)
 - [x] Standard-Antwortpaket für Security Questionnaires vorbereiten. (2026-05-02, siehe `enterprise/SECURITY_QUESTIONNAIRE_RESPONSE_PACK_V1.md` + `dashboard/security-questionnaire.html`)
 
 ### Produkt & Betrieb
@@ -117,6 +117,10 @@ Ziel: Abschlussfähigkeit für Enterprise-Deals in 90 Tagen.
 ### Tag 7
 - [x] SLA v2 finalisieren und customer-shareable dokumentieren. (2026-05-02, siehe `enterprise/SLA_V2_FINAL.md`)
 - [x] Öffentliche SLA-Seite unter Clean URL veröffentlichen. (2026-05-02, siehe `/sla` + `dashboard/sla.html`)
+
+### Tag 8
+- [x] Security Annex v1 Final und Data Processing Annex v1 Final paketieren. (2026-05-02, siehe `enterprise/SECURITY_ANNEX_V1_FINAL.md` + `enterprise/DATA_PROCESSING_ANNEX_V1_FINAL.md`)
+- [x] Öffentliche Legal-Pack-Seite unter Clean URL veröffentlichen. (2026-05-02, siehe `/legal-pack` + `dashboard/legal-pack.html`)
 
 ---
 
