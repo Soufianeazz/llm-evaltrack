@@ -71,7 +71,7 @@ Ziel: Abschlussfähigkeit für Enterprise-Deals in 90 Tagen.
 ## Phase 3 (Tag 61–90) – Enterprise Close Readiness
 
 ### Compliance & Legal
-- [ ] SLA finalisieren (Supportzeiten, Reaktionszeiten, Verfügbarkeit).
+- [x] SLA finalisieren (Supportzeiten, Reaktionszeiten, Verfügbarkeit). (2026-05-02, siehe `enterprise/SLA_V2_FINAL.md` + `dashboard/sla.html`)
 - [ ] Security Annex + Data Processing Annex final paketieren.
 - [x] Standard-Antwortpaket für Security Questionnaires vorbereiten. (2026-05-02, siehe `enterprise/SECURITY_QUESTIONNAIRE_RESPONSE_PACK_V1.md` + `dashboard/security-questionnaire.html`)
 
@@ -113,6 +113,10 @@ Ziel: Abschlussfähigkeit für Enterprise-Deals in 90 Tagen.
 ### Tag 6
 - [x] Security Questionnaire Response Pack v1 erstellen (Standardantworten für Procurement/InfoSec). (2026-05-02, siehe `enterprise/SECURITY_QUESTIONNAIRE_RESPONSE_PACK_V1.md`)
 - [x] Öffentliche Questionnaire-Seite unter Clean URL veröffentlichen. (2026-05-02, siehe `/security-questionnaire` + `dashboard/security-questionnaire.html`)
+
+### Tag 7
+- [x] SLA v2 finalisieren und customer-shareable dokumentieren. (2026-05-02, siehe `enterprise/SLA_V2_FINAL.md`)
+- [x] Öffentliche SLA-Seite unter Clean URL veröffentlichen. (2026-05-02, siehe `/sla` + `dashboard/sla.html`)
 
 ---
 
