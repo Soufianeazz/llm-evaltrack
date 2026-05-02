@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Legal Pack - AgentLens</title>
+  <meta name="description" content="AgentLens enterprise legal pack: DPA/AVV, Security Annex, Data Processing Annex, and SLA baseline." />
+  <style>
+    * { box-sizing: border-box; }
+    :root {
+      --bg: #081123;
+      --bg2: #10203d;
+      --surface: #112142;
+      --surface2: #182d56;
+      --border: #355287;
+      --text: #edf3ff;
+      --muted: #afc0df;
+      --accent: #84acff;
+      --ok: #69dfa3;
+    }
+    body {
+      margin: 0;
+      color: var(--text);
+      font-family: "Segoe UI Variable", "Aptos", "Trebuchet MS", system-ui, sans-serif;
+      background:
+        radial-gradient(1200px 430px at 10% -8%, #1d3568 0%, rgba(29, 53, 104, 0) 56%),
+        linear-gradient(180deg, var(--bg) 0%, var(--bg2) 100%);
+    }
+    a { color: #c7d7ff; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    .wrap { max-width: 1140px; margin: 0 auto; padding: 1.4rem 1.15rem 2.6rem; }
+    .top { display: flex; justify-content: space-between; align-items: center; gap: 0.8rem; flex-wrap: wrap; }
+    .brand { font-weight: 800; }
+    .brand span { color: var(--accent); }
+    .nav { display: flex; gap: 0.55rem; flex-wrap: wrap; }
+    .nav a {
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: rgba(16, 31, 61, 0.8);
+      padding: 0.45rem 0.72rem;
+      font-size: 0.8rem;
+    }
+    .hero {
+      margin-top: 1rem;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 1.2rem;
+      background: linear-gradient(180deg, rgba(17, 33, 66, 0.97), rgba(12, 23, 45, 0.97));
+    }
+    .tag {
+      display: inline-block;
+      border: 1px solid #3f6099;
+      color: #cad9f7;
+      border-radius: 999px;
+      padding: 0.18rem 0.62rem;
+      font-size: 0.72rem;
+    }
+    h1 { margin: 0.72rem 0 0.5rem; font-size: clamp(1.55rem, 3.4vw, 2.28rem); line-height: 1.14; }
+    .lead { margin: 0; color: var(--muted); max-width: 840px; }
+    .meta { margin-top: 0.78rem; color: #bfd0ef; font-size: 0.78rem; }
+    .kpis {
+      margin-top: 1rem;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 0.7rem;
+    }
+    .kpi {
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: var(--surface2);
+      padding: 0.72rem;
+    }
+    .kpi .v { font-weight: 800; font-size: 1.13rem; color: var(--ok); }
+    .kpi .l { margin-top: 0.15rem; color: var(--muted); font-size: 0.75rem; }
+    .grid {
+      margin-top: 1rem;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 0.9rem;
+    }
+    .card {
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: var(--surface);
+      padding: 0.95rem;
+    }
+    .card h2 { margin: 0.05rem 0 0.4rem; font-size: 0.98rem; }
+    .card p { margin: 0; color: var(--muted); font-size: 0.83rem; line-height: 1.58; }
+    .card ul { margin: 0.55rem 0 0 1rem; padding: 0; }
+    .card li { color: var(--muted); font-size: 0.81rem; line-height: 1.56; }
+    .links {
+      margin-top: 1rem;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: rgba(17, 33, 66, 0.84);
+      padding: 0.85rem;
+      display: flex;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+      font-size: 0.82rem;
+    }
+    footer { margin-top: 1.5rem; text-align: center; color: var(--muted); font-size: 0.78rem; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="top">
+      <div class="brand">Agent<span>Lens</span> Legal Pack</div>
+      <div class="nav">
+        <a href="/">Home</a>
+        <a href="/enterprise">Enterprise</a>
+        <a href="/security">Security</a>
+        <a href="/sla">SLA</a>
+      </div>
+    </div>
+
+    <section class="hero">
+      <span class="tag">Enterprise Contracting Pack</span>
+      <h1>Final legal and security baseline documents for procurement</h1>
+      <p class="lead">This page consolidates the core contract-side enterprise documents to accelerate legal and InfoSec review cycles: DPA/AVV, Security Annex, Data Processing Annex, and SLA commitments.</p>
+      <div class="meta">Version baseline - Last updated: 2026-05-02</div>
+
+      <div class="kpis">
+        <div class="kpi"><div class="v">4</div><div class="l">core legal artifacts</div></div>
+        <div class="kpi"><div class="v">Final</div><div class="l">security annex baseline</div></div>
+        <div class="kpi"><div class="v">Final</div><div class="l">data processing annex baseline</div></div>
+        <div class="kpi"><div class="v">Live</div><div class="l">public trust references</div></div>
+      </div>
+    </section>
+
+    <section class="grid">
+      <article class="card">
+        <h2>DPA/AVV Template</h2>
+        <p>Baseline processing agreement template with data handling and TOM orientation.</p>
+        <ul>
+          <li>Reference: <code>enterprise/AVV_DPA_TEMPLATE_V1_FINAL.md</code></li>
+          <li>Supports contract kickoff and legal redline workflow.</li>
+        </ul>
+      </article>
+
+      <article class="card">
+        <h2>Security Annex v1 Final</h2>
+        <p>Technical and organizational security controls baseline for managed hosted service.</p>
+        <ul>
+          <li>Reference: <code>enterprise/SECURITY_ANNEX_V1_FINAL.md</code></li>
+          <li>Covers governance, access, logging, resilience, and incident handling references.</li>
+        </ul>
+      </article>
+
+      <article class="card">
+        <h2>Data Processing Annex v1 Final</h2>
+        <p>Data processing scope, roles, categories, retention behavior, and subprocessor references.</p>
+        <ul>
+          <li>Reference: <code>enterprise/DATA_PROCESSING_ANNEX_V1_FINAL.md</code></li>
+          <li>Aligned for procurement and privacy review workflows.</li>
+        </ul>
+      </article>
+
+      <article class="card">
+        <h2>SLA Commitments</h2>
+        <p>Service reliability, support response, recovery targets, and service credit baseline.</p>
+        <ul>
+          <li>Public route: <a href="/sla">/sla</a></li>
+          <li>Document reference: <code>enterprise/SLA_V2_FINAL.md</code></li>
+        </ul>
+      </article>
+    </section>
+
+    <div class="links">
+      <a href="/enterprise">Enterprise Trust Center</a>
+      <a href="/security">Security Trust Page</a>
+      <a href="/security-questionnaire">Security Questionnaire</a>
+      <a href="/subprocessors">Subprocessors</a>
+      <a href="mailto:contact@agentlens.one?subject=Legal%20Pack%20Review">Request Legal Pack Review</a>
+    </div>
+
+    <footer>
+      AgentLens Legal Pack baseline - for legal review contact <a href="mailto:contact@agentlens.one">contact@agentlens.one</a>
+    </footer>
+  </div>
+</body>
+</html>
