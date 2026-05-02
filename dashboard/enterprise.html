@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Enterprise Trust Center - AgentLens</title>
+  <meta name="description" content="AgentLens Enterprise Trust Center: security posture, compliance controls, subprocessors, operational reliability, and procurement package." />
+  <style>
+    * { box-sizing: border-box; }
+    :root {
+      --bg:#0a0f1d; --surface:#11182f; --surface2:#131e38; --border:#263556;
+      --text:#e7ecff; --muted:#9aa8c6; --accent:#7c9bff; --good:#4ade80;
+    }
+    body { margin:0; font-family: ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,sans-serif; background:radial-gradient(1200px 500px at 20% -5%, #1a2650 0%, #0a0f1d 50%); color:var(--text); }
+    a { color:#a8beff; text-decoration:none; }
+    a:hover { text-decoration:underline; }
+    .wrap { max-width:1080px; margin:0 auto; padding:2rem 1.2rem 3rem; }
+    .top { display:flex; justify-content:space-between; align-items:center; gap:1rem; margin-bottom:1rem; flex-wrap:wrap; }
+    .brand { font-weight:800; font-size:1.05rem; color:#fff; }
+    .brand span { color:var(--accent); }
+    .nav { display:flex; gap:0.8rem; flex-wrap:wrap; }
+    .nav a { border:1px solid var(--border); background:rgba(15,22,43,.7); padding:.45rem .75rem; border-radius:8px; font-size:.82rem; }
+    .hero { border:1px solid var(--border); background:linear-gradient(180deg, rgba(19,30,56,.95), rgba(12,18,36,.95)); border-radius:14px; padding:1.5rem; margin-top:1rem; }
+    .badge { display:inline-block; border:1px solid #3a4f7b; color:#b9c8ef; border-radius:999px; padding:.2rem .65rem; font-size:.72rem; }
+    h1 { margin:.8rem 0 .55rem; font-size:clamp(1.6rem,3.5vw,2.35rem); line-height:1.15; }
+    .lead { color:var(--muted); max-width:760px; margin:0 0 1.2rem; }
+    .cta { display:flex; gap:.75rem; flex-wrap:wrap; }
+    .btn { display:inline-block; border-radius:9px; padding:.55rem .95rem; font-weight:700; font-size:.84rem; border:1px solid var(--border); }
+    .btn.primary { background:var(--accent); color:#091127; border-color:transparent; }
+    .grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(240px,1fr)); gap:1rem; margin-top:1.2rem; }
+    .card { border:1px solid var(--border); background:var(--surface); border-radius:12px; padding:1rem; }
+    .card h3 { margin:.05rem 0 .35rem; font-size:.95rem; }
+    .card p, .card li { color:var(--muted); font-size:.83rem; line-height:1.6; }
+    .stack { display:grid; grid-template-columns:1fr; gap:1rem; margin-top:1rem; }
+    .stack h2 { margin:.1rem 0 .45rem; font-size:1.08rem; }
+    .mini { font-size:.76rem; color:#bac7e6; margin-top:.45rem; }
+    ul { margin:.45rem 0 0 1rem; padding:0; }
+    .kpi { display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:.7rem; margin-top:1rem; }
+    .kpi .box { border:1px solid var(--border); background:var(--surface2); border-radius:10px; padding:.75rem; }
+    .kpi .v { font-size:1.25rem; font-weight:800; color:#dbe4ff; }
+    .kpi .l { color:var(--muted); font-size:.75rem; }
+    .status { color:var(--good); font-weight:700; }
+    footer { margin-top:2rem; color:var(--muted); font-size:.78rem; text-align:center; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="top">
+      <div class="brand">Agent<span>Lens</span> Enterprise</div>
+      <div class="nav">
+        <a href="/">Home</a>
+        <a href="/security">Security</a>
+        <a href="/subprocessors">Subprocessors</a>
+        <a href="/compliance.html?api_key=al_demo_agentlens">Compliance Console</a>
+      </div>
+    </div>
+
+    <section class="hero">
+      <span class="badge">Enterprise Trust Center</span>
+      <h1>Security, Compliance, and Operational Trust for production AI</h1>
+      <p class="lead">This page is designed for CTOs, InfoSec, Legal, and Procurement stakeholders evaluating AgentLens for enterprise rollout. It consolidates controls, governance evidence, and procurement-ready materials in one place.</p>
+      <div class="cta">
+        <a class="btn primary" href="/book-demo?plan=enterprise&source=trust-center">Book Enterprise Demo</a>
+        <a class="btn" href="mailto:contact@agentlens.one?subject=Enterprise%20Security%20Review">Contact Security & Sales</a>
+      </div>
+      <div class="kpi">
+        <div class="box"><div class="v status">Live</div><div class="l">Security Policy page</div></div>
+        <div class="box"><div class="v status">Live</div><div class="l">Subprocessor page</div></div>
+        <div class="box"><div class="v status">Live</div><div class="l">Health/Readiness endpoints</div></div>
+        <div class="box"><div class="v status">Live</div><div class="l">Compliance console flows</div></div>
+      </div>
+    </section>
+
+    <section class="grid">
+      <article class="card">
+        <h3>Security Posture</h3>
+        <p>Auth, transport hardening, API-key governance, and vulnerability disclosure process are documented and externally accessible.</p>
+        <div class="mini"><a href="/security">Open Security Policy</a></div>
+      </article>
+      <article class="card">
+        <h3>Data Lifecycle Controls</h3>
+        <p>Export, retention, delete, and audit-log workflows are available through the compliance console for governance operations.</p>
+        <div class="mini"><a href="/compliance.html?api_key=al_demo_agentlens">Open Compliance Console</a></div>
+      </article>
+      <article class="card">
+        <h3>Vendor Transparency</h3>
+        <p>Subprocessor list and data-flow context are published to support legal/security questionnaires and procurement checks.</p>
+        <div class="mini"><a href="/subprocessors">Open Subprocessor List</a></div>
+      </article>
+      <article class="card">
+        <h3>Operational Reliability</h3>
+        <p>Health endpoints and uptime workflow are implemented, with backup/restore protocol and restore-test evidence in place.</p>
+        <div class="mini">Endpoints: <code>/healthz</code>, <code>/readyz</code>, <code>/health</code></div>
+      </article>
+    </section>
+
+    <section class="stack">
+      <article class="card">
+        <h2>Procurement Package (v1)</h2>
+        <p>Initial package includes AVV/DPA template, SLA draft, security FAQ, runbook, subprocessors, and governance controls. Available for security/legal review kickoff.</p>
+        <ul>
+          <li>Data processing and TOM baseline</li>
+          <li>SLA response and availability targets</li>
+          <li>Incident communication and recovery process</li>
+        </ul>
+      </article>
+
+      <article class="card">
+        <h2>Governance Maturity (Current)</h2>
+        <ul>
+          <li>RBAC minimum implemented: <code>admin</code>, <code>analyst</code>, <code>read_only</code></li>
+          <li>Key rotation and admin action auditing expanded</li>
+          <li>Retention warning logic in UI to prevent unsafe policy choices</li>
+          <li>OIDC-first SSO decision path documented</li>
+        </ul>
+      </article>
+
+      <article class="card">
+        <h2>Enterprise Sales Motion</h2>
+        <p>Standardized POC designs and ROI model support pilot-to-contract conversion with clear compliance-first and cost+quality tracks.</p>
+        <ul>
+          <li>POC A: EU Compliance Focus</li>
+          <li>POC B: Cost + Quality Focus</li>
+          <li>Objection handling for LangSmith / Langfuse / Datadog</li>
+        </ul>
+      </article>
+    </section>
+
+    <footer>
+      AgentLens Trust Center · For formal reviews contact <a href="mailto:contact@agentlens.one">contact@agentlens.one</a>
+    </footer>
+  </div>
+</body>
+</html>

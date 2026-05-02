@@ -170,6 +170,11 @@ async def subprocessors_page():
     return FileResponse("dashboard/subprocessors.html")
 
 
+@app.get("/enterprise", include_in_schema=False)
+async def enterprise_page():
+    return FileResponse("dashboard/enterprise.html")
+
+
 @app.get("/sitemap.xml", include_in_schema=False)
 async def sitemap():
     return FileResponse("dashboard/sitemap.xml", media_type="application/xml")
