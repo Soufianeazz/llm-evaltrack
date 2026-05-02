@@ -22,6 +22,7 @@ async def init_db() -> None:
         for table, col_def in [
             ("requests", "api_key TEXT"),
             ("traces", "api_key TEXT"),
+            ("api_keys", "role TEXT DEFAULT 'admin'"),
         ]:
             try:
                 await conn.execute(text(f"ALTER TABLE {table} ADD COLUMN {col_def}"))

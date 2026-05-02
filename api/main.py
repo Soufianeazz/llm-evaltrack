@@ -24,6 +24,7 @@ class BodySizeLimitMiddleware(BaseHTTPMiddleware):
 from api.limiter import limiter
 from api.routes.ingest import router as ingest_router
 from api.routes.dashboard import router as dashboard_router
+from api.routes.health import router as health_router
 from api.routes.alerts import router as alerts_router
 from api.routes.debug import router as debug_router
 from api.routes.compliance import router as compliance_router
@@ -85,6 +86,7 @@ async def security_headers(request: Request, call_next):
 
 
 app.include_router(ingest_router)
+app.include_router(health_router)
 app.include_router(dashboard_router)
 app.include_router(alerts_router)
 app.include_router(debug_router)
@@ -156,6 +158,16 @@ async def book_demo():
 @app.get("/case-study", include_in_schema=False)
 async def case_study():
     return FileResponse("dashboard/case_study.html")
+
+
+@app.get("/security", include_in_schema=False)
+async def security_page():
+    return FileResponse("dashboard/security.html")
+
+
+@app.get("/subprocessors", include_in_schema=False)
+async def subprocessors_page():
+    return FileResponse("dashboard/subprocessors.html")
 
 
 @app.get("/sitemap.xml", include_in_schema=False)

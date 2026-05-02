@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Subprocessors - AgentLens</title>
+  <style>
+    body { margin: 0; padding: 2rem; font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif; background: #0b1020; color: #e6ecff; }
+    .wrap { max-width: 1040px; margin: 0 auto; }
+    a { color: #7dd3fc; }
+    h1 { margin: 0 0 0.5rem 0; font-size: 2rem; }
+    .meta { color: #93c5fd; font-size: 0.95rem; margin-bottom: 1.5rem; }
+    table { width: 100%; border-collapse: collapse; background: #111a33; border: 1px solid #243053; border-radius: 10px; overflow: hidden; }
+    th, td { text-align: left; vertical-align: top; padding: 0.8rem; border-bottom: 1px solid #243053; color: #cbd5e1; }
+    th { color: #bfdbfe; background: #182446; }
+    tr:last-child td { border-bottom: none; }
+    .note { margin-top: 1rem; color: #94a3b8; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <p><a href="/">Back to Dashboard</a></p>
+    <h1>Subprocessor List</h1>
+    <p class="meta">Last updated: 2026-05-02</p>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Subprocessor</th>
+          <th>Purpose</th>
+          <th>Data Categories</th>
+          <th>Region</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Railway</td>
+          <td>Application hosting and persistent runtime storage</td>
+          <td>LLM telemetry payloads, metadata, audit data</td>
+          <td>Per configured project region</td>
+          <td>Active</td>
+        </tr>
+        <tr>
+          <td>Anthropic (optional)</td>
+          <td>LLM-based quality judge for evaluations</td>
+          <td>Truncated input/output/prompt segments for scoring</td>
+          <td>Per configured account region</td>
+          <td>Optional</td>
+        </tr>
+        <tr>
+          <td>Stripe (optional)</td>
+          <td>Checkout and subscription billing</td>
+          <td>Billing and checkout session metadata</td>
+          <td>Per configured account region</td>
+          <td>Optional</td>
+        </tr>
+        <tr>
+          <td>Resend (optional)</td>
+          <td>Demo request notification emails</td>
+          <td>Name, email, company, message payload</td>
+          <td>Per configured account region</td>
+          <td>Optional</td>
+        </tr>
+        <tr>
+          <td>Customer-configured Webhook (optional)</td>
+          <td>Outbound operational notifications</td>
+          <td>Alert and lead event payloads</td>
+          <td>Customer-controlled destination</td>
+          <td>Optional</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <p class="note">
+      For detailed data flow and legal-basis notes, refer to
+      <code>enterprise/SUBPROCESSOR_LIST_AND_DATA_FLOW_V1.md</code>.
+    </p>
+  </div>
+</body>
+</html>
