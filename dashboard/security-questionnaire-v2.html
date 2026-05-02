@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Security Questionnaire v2 - AgentLens</title>
+  <meta name="description" content="AgentLens Top-30 enterprise security questionnaire responses for procurement and InfoSec review." />
+  <style>
+    * { box-sizing: border-box; }
+    :root {
+      --bg: #081124;
+      --bg2: #102140;
+      --surface: #112244;
+      --surface2: #18305c;
+      --border: #37568f;
+      --text: #edf4ff;
+      --muted: #b0c2e1;
+      --accent: #86afff;
+      --ok: #6ae1a6;
+    }
+    body {
+      margin: 0;
+      color: var(--text);
+      font-family: "Segoe UI Variable", "Aptos", "Trebuchet MS", system-ui, sans-serif;
+      background:
+        radial-gradient(1200px 430px at 10% -8%, #1d376c 0%, rgba(29, 55, 108, 0) 56%),
+        linear-gradient(180deg, var(--bg) 0%, var(--bg2) 100%);
+    }
+    a { color: #c9d9ff; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    .wrap { max-width: 1160px; margin: 0 auto; padding: 1.4rem 1.15rem 2.6rem; }
+    .top { display: flex; justify-content: space-between; align-items: center; gap: 0.8rem; flex-wrap: wrap; }
+    .brand { font-weight: 800; }
+    .brand span { color: var(--accent); }
+    .nav { display: flex; gap: 0.55rem; flex-wrap: wrap; }
+    .nav a { border: 1px solid var(--border); border-radius: 8px; background: rgba(16, 32, 63, 0.8); padding: 0.45rem 0.72rem; font-size: 0.8rem; }
+    .hero { margin-top: 1rem; border: 1px solid var(--border); border-radius: 14px; padding: 1.2rem; background: linear-gradient(180deg, rgba(17, 34, 68, 0.97), rgba(12, 23, 46, 0.97)); }
+    .tag { display: inline-block; border: 1px solid #42639e; color: #cedcf9; border-radius: 999px; padding: 0.18rem 0.62rem; font-size: 0.72rem; }
+    h1 { margin: 0.72rem 0 0.5rem; font-size: clamp(1.55rem, 3.4vw, 2.28rem); line-height: 1.14; }
+    .lead { margin: 0; color: var(--muted); max-width: 860px; }
+    .meta { margin-top: 0.78rem; color: #bfd1f1; font-size: 0.78rem; }
+    .kpis { margin-top: 1rem; display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 0.7rem; }
+    .kpi { border: 1px solid var(--border); border-radius: 10px; background: var(--surface2); padding: 0.72rem; }
+    .kpi .v { font-weight: 800; font-size: 1.13rem; color: var(--ok); }
+    .kpi .l { margin-top: 0.15rem; color: var(--muted); font-size: 0.75rem; }
+    .stack { margin-top: 1rem; display: grid; gap: 0.9rem; }
+    .section { border: 1px solid var(--border); border-radius: 12px; background: var(--surface); padding: 0.95rem; }
+    .section h2 { margin: 0.05rem 0 0.5rem; font-size: 1rem; }
+    .qa { margin: 0.6rem 0 0; display: grid; gap: 0.6rem; }
+    .item { border: 1px solid #2d4675; border-radius: 10px; padding: 0.7rem; background: rgba(15, 30, 58, 0.7); }
+    .q { font-size: 0.82rem; font-weight: 700; }
+    .a { margin-top: 0.3rem; color: var(--muted); font-size: 0.81rem; line-height: 1.55; }
+    .links { margin-top: 1rem; border: 1px solid var(--border); border-radius: 10px; background: rgba(17, 34, 68, 0.84); padding: 0.85rem; display: flex; gap: 0.75rem; flex-wrap: wrap; font-size: 0.82rem; }
+    footer { margin-top: 1.5rem; text-align: center; color: var(--muted); font-size: 0.78rem; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="top">
+      <div class="brand">Agent<span>Lens</span> Questionnaire v2</div>
+      <div class="nav">
+        <a href="/">Home</a>
+        <a href="/enterprise">Enterprise</a>
+        <a href="/security">Security</a>
+        <a href="/legal-pack">Legal Pack</a>
+      </div>
+    </div>
+
+    <section class="hero">
+      <span class="tag">Top-30 Security Questionnaire Responses</span>
+      <h1>Enterprise-ready baseline answers for procurement and InfoSec teams</h1>
+      <p class="lead">This v2 page answers the most common 30 security questionnaire prompts in concise format to accelerate first-pass security and legal review cycles.</p>
+      <div class="meta">Version 2.0 - Last updated: 2026-05-02</div>
+      <div class="kpis">
+        <div class="kpi"><div class="v">30</div><div class="l">standardized Q&A responses</div></div>
+        <div class="kpi"><div class="v">6</div><div class="l">question categories</div></div>
+        <div class="kpi"><div class="v">Public</div><div class="l">cross-referenced trust artifacts</div></div>
+        <div class="kpi"><div class="v">Fast</div><div class="l">first-pass buyer review support</div></div>
+      </div>
+    </section>
+
+    <section class="stack">
+      <article class="section">
+        <h2>Governance and Program (Q1-Q5)</h2>
+        <div class="qa">
+          <div class="item"><div class="q">Q1. Formal security policy?</div><div class="a">Yes. Public baseline is available at <a href="/security">/security</a>.</div></div>
+          <div class="item"><div class="q">Q2. Security contact channel?</div><div class="a">Yes: <a href="mailto:security@agentlens.one">security@agentlens.one</a>.</div></div>
+          <div class="item"><div class="q">Q3. Incident response process?</div><div class="a">Yes. Severity, escalation, and communication process is documented.</div></div>
+          <div class="item"><div class="q">Q4. Vulnerability disclosure process?</div><div class="a">Yes. Intake and triage are formally defined.</div></div>
+          <div class="item"><div class="q">Q5. Security control review cadence?</div><div class="a">Controls are maintained through a versioned enterprise readiness roadmap.</div></div>
+        </div>
+      </article>
+
+      <article class="section">
+        <h2>Identity and Access (Q6-Q10)</h2>
+        <div class="qa">
+          <div class="item"><div class="q">Q6. Role-based access?</div><div class="a">Yes. Baseline roles: <code>admin</code>, <code>analyst</code>, <code>read_only</code>.</div></div>
+          <div class="item"><div class="q">Q7. API authentication?</div><div class="a">API access requires valid API key credentials.</div></div>
+          <div class="item"><div class="q">Q8. Privileged action tracking?</div><div class="a">Yes. Governance-critical actions are audit logged.</div></div>
+          <div class="item"><div class="q">Q9. SSO support path?</div><div class="a">OIDC-first SSO direction is documented for enterprise rollout.</div></div>
+          <div class="item"><div class="q">Q10. Least privilege baseline?</div><div class="a">Role boundaries are defined and used as enforcement baseline.</div></div>
+        </div>
+      </article>
+
+      <article class="section">
+        <h2>Platform Security and Encryption (Q11-Q15)</h2>
+        <div class="qa">
+          <div class="item"><div class="q">Q11. Encryption in transit?</div><div class="a">Yes. TLS is required for hosted service traffic.</div></div>
+          <div class="item"><div class="q">Q12. Security headers?</div><div class="a">Yes. CSP, HSTS, frame/content protections and related headers are applied.</div></div>
+          <div class="item"><div class="q">Q13. Backup encryption?</div><div class="a">Backup storage follows encryption-at-rest expectations.</div></div>
+          <div class="item"><div class="q">Q14. Abuse controls?</div><div class="a">Request-size and defensive protections are applied on relevant endpoints.</div></div>
+          <div class="item"><div class="q">Q15. Health endpoints?</div><div class="a">Yes: <code>/healthz</code>, <code>/readyz</code>, <code>/health</code>.</div></div>
+        </div>
+      </article>
+
+      <article class="section">
+        <h2>Audit, Monitoring, and Reliability (Q16-Q20, Q26-Q28)</h2>
+        <div class="qa">
+          <div class="item"><div class="q">Q16-Q18. Audit exports and traces?</div><div class="a">Audit logs are exportable (CSV/JSON) and trace records support investigations.</div></div>
+          <div class="item"><div class="q">Q19-Q20. Monitoring and incident updates?</div><div class="a">Uptime monitoring and SLA-based communication cadence are in place.</div></div>
+          <div class="item"><div class="q">Q26-Q27. Recovery and restore testing?</div><div class="a">Baseline targets: RPO <= 24h, RTO <= 60m; restore drill protocol exists.</div></div>
+          <div class="item"><div class="q">Q28. SLA availability?</div><div class="a">Public SLA summary is available at <a href="/sla">/sla</a>.</div></div>
+        </div>
+      </article>
+
+      <article class="section">
+        <h2>Data Processing and Privacy (Q21-Q25)</h2>
+        <div class="qa">
+          <div class="item"><div class="q">Q21-Q23. PII, retention, deletion/export controls?</div><div class="a">Documented PII policy and compliance workflows support retention and governance operations.</div></div>
+          <div class="item"><div class="q">Q24-Q25. Subprocessor transparency and data flow?</div><div class="a">Public subprocessor register and detailed flow notes are maintained.</div></div>
+        </div>
+      </article>
+
+      <article class="section">
+        <h2>Procurement and Contracting (Q29-Q30)</h2>
+        <div class="qa">
+          <div class="item"><div class="q">Q29. Legal/security procurement package?</div><div class="a">Yes. Consolidated at <a href="/legal-pack">/legal-pack</a>.</div></div>
+          <div class="item"><div class="q">Q30. Tailored questionnaire support?</div><div class="a">Yes. Baseline answers are adapted to customer-specific formats during review sessions.</div></div>
+        </div>
+      </article>
+    </section>
+
+    <div class="links">
+      <a href="/security">Security</a>
+      <a href="/security-questionnaire">Questionnaire v1</a>
+      <a href="/legal-pack">Legal Pack</a>
+      <a href="/sla">SLA</a>
+      <a href="mailto:contact@agentlens.one?subject=Security%20Questionnaire%20V2%20Review">Request Questionnaire Review Session</a>
+    </div>
+
+    <footer>
+      AgentLens Security Questionnaire v2 - contact <a href="mailto:security@agentlens.one">security@agentlens.one</a>
+    </footer>
+  </div>
+</body>
+</html>
