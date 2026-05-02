@@ -73,7 +73,7 @@ Ziel: Abschlussfähigkeit für Enterprise-Deals in 90 Tagen.
 ### Compliance & Legal
 - [x] SLA finalisieren (Supportzeiten, Reaktionszeiten, Verfügbarkeit). (2026-05-02, siehe `enterprise/SLA_V2_FINAL.md` + `dashboard/sla.html`)
 - [x] Security Annex + Data Processing Annex final paketieren. (2026-05-02, siehe `enterprise/SECURITY_ANNEX_V1_FINAL.md` + `enterprise/DATA_PROCESSING_ANNEX_V1_FINAL.md` + `dashboard/legal-pack.html`)
-- [x] Standard-Antwortpaket für Security Questionnaires vorbereiten. (2026-05-02, siehe `enterprise/SECURITY_QUESTIONNAIRE_RESPONSE_PACK_V1.md` + `dashboard/security-questionnaire.html`)
+- [x] Standard-Antwortpaket für Security Questionnaires vorbereiten. (2026-05-02, siehe `enterprise/SECURITY_QUESTIONNAIRE_RESPONSE_PACK_V1.md` + `enterprise/SECURITY_QUESTIONNAIRE_TOP30_V2.md` + `dashboard/security-questionnaire.html` + `dashboard/security-questionnaire-v2.html`)
 
 ### Produkt & Betrieb
 - [ ] SSO/RBAC/Audit-Endzustand live und dokumentiert.
@@ -121,6 +121,10 @@ Ziel: Abschlussfähigkeit für Enterprise-Deals in 90 Tagen.
 ### Tag 8
 - [x] Security Annex v1 Final und Data Processing Annex v1 Final paketieren. (2026-05-02, siehe `enterprise/SECURITY_ANNEX_V1_FINAL.md` + `enterprise/DATA_PROCESSING_ANNEX_V1_FINAL.md`)
 - [x] Öffentliche Legal-Pack-Seite unter Clean URL veröffentlichen. (2026-05-02, siehe `/legal-pack` + `dashboard/legal-pack.html`)
+
+### Tag 9
+- [x] Security Questionnaire Top-30 v2 erstellen (Q&A Standardantwortpaket). (2026-05-02, siehe `enterprise/SECURITY_QUESTIONNAIRE_TOP30_V2.md`)
+- [x] Öffentliche Questionnaire-v2-Seite unter Clean URL veröffentlichen. (2026-05-02, siehe `/security-questionnaire-v2` + `dashboard/security-questionnaire-v2.html`)
 
 ---
 
