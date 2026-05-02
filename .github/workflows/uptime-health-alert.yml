@@ -28,7 +28,9 @@ jobs:
           echo "Health check ok."
 
       - name: Alert webhook on failure
-        if: failure() && secrets.INTERNAL_ALERT_WEBHOOK_URL != ''
+        if: failure() && env.INTERNAL_ALERT_WEBHOOK_URL != ''
+        env:
+          INTERNAL_ALERT_WEBHOOK_URL: ${{ secrets.INTERNAL_ALERT_WEBHOOK_URL }}
         shell: bash
         run: |
           payload=$(cat <<EOF
@@ -45,4 +47,4 @@ jobs:
           curl -sS -X POST \
             -H "Content-Type: application/json" \
             -d "$payload" \
-            "${{ secrets.INTERNAL_ALERT_WEBHOOK_URL }}"
+            "$INTERNAL_ALERT_WEBHOOK_URL"
