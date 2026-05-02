@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Security Policy - AgentLens</title>
+  <style>
+    body { margin: 0; padding: 2rem; font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif; background: #0b1020; color: #e6ecff; }
+    .wrap { max-width: 920px; margin: 0 auto; }
+    a { color: #7dd3fc; }
+    h1 { margin: 0 0 0.5rem 0; font-size: 2rem; }
+    h2 { margin-top: 2rem; font-size: 1.15rem; color: #bfdbfe; }
+    p, li { color: #cbd5e1; line-height: 1.6; }
+    .meta { color: #93c5fd; font-size: 0.95rem; margin-bottom: 1.5rem; }
+    .card { background: #111a33; border: 1px solid #243053; border-radius: 10px; padding: 1rem 1.2rem; margin-top: 1rem; }
+    code { background: #1e2a4a; border: 1px solid #2e3e67; padding: 0.12rem 0.35rem; border-radius: 6px; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <p><a href="/">Back to Dashboard</a></p>
+    <h1>Security Policy</h1>
+    <p class="meta">Last updated: 2026-05-02</p>
+
+    <div class="card">
+      <h2>Authentication and Access</h2>
+      <ul>
+        <li>API endpoints are protected by API keys (<code>X-API-Key</code> or <code>?api_key=</code>).</li>
+        <li>Invalid or inactive keys are rejected with authorization errors.</li>
+        <li>RBAC MVP roles are defined as <code>Admin</code>, <code>Analyst</code>, and <code>Read-only</code>.</li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <h2>Encryption and Transport Security</h2>
+      <ul>
+        <li>TLS is required for hosted traffic.</li>
+        <li>Security headers include HSTS, CSP, X-Frame-Options, and X-Content-Type-Options.</li>
+        <li>Database backups must be encrypted at rest in backup storage.</li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <h2>Logging and Auditability</h2>
+      <ul>
+        <li>Compliance actions (export, delete, retention changes) are written to the audit log.</li>
+        <li>API key rotation audit event schema is documented for full traceability.</li>
+        <li>Operational traces are available for debugging and post-incident analysis.</li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <h2>Backups and Recovery</h2>
+      <ul>
+        <li>Backup and restore process is documented with RPO/RTO targets.</li>
+        <li>Restore drill evidence is maintained in enterprise documentation.</li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <h2>Vulnerability Reporting</h2>
+      <p>Security issues can be reported to <a href="mailto:security@agentlens.one">security@agentlens.one</a>.
+      Process and SLAs are documented in the vulnerability process document.</p>
+    </div>
+
+    <div class="card">
+      <h2>References</h2>
+      <ul>
+        <li><a href="/subprocessors">Subprocessor List</a></li>
+        <li><a href="/compliance.html">Compliance Controls</a></li>
+      </ul>
+    </div>
+  </div>
+</body>
+</html>

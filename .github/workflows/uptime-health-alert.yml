@@ -1,0 +1,48 @@
+name: Uptime Health Alert
+
+on:
+  schedule:
+    - cron: "*/10 * * * *"
+  workflow_dispatch:
+
+jobs:
+  health-check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check /healthz endpoint
+        id: probe
+        shell: bash
+        run: |
+          set +e
+          URL="${{ secrets.HEALTHCHECK_URL }}"
+          if [ -z "$URL" ]; then
+            URL="https://www.agentlens.one/healthz"
+          fi
+          code=$(curl -s -o /tmp/health.json -w "%{http_code}" --max-time 15 "$URL")
+          echo "status_code=$code" >> "$GITHUB_OUTPUT"
+          if [ "$code" != "200" ]; then
+            echo "Health check failed: HTTP $code"
+            cat /tmp/health.json || true
+            exit 1
+          fi
+          echo "Health check ok."
+
+      - name: Alert webhook on failure
+        if: failure() && secrets.INTERNAL_ALERT_WEBHOOK_URL != ''
+        shell: bash
+        run: |
+          payload=$(cat <<EOF
+          {
+            "event":"agentlens_healthcheck_failed",
+            "repository":"${{ github.repository }}",
+            "workflow":"${{ github.workflow }}",
+            "run_id":"${{ github.run_id }}",
+            "status_code":"${{ steps.probe.outputs.status_code }}",
+            "checked_at_utc":"$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+          }
+          EOF
+          )
+          curl -sS -X POST \
+            -H "Content-Type: application/json" \
+            -d "$payload" \
+            "${{ secrets.INTERNAL_ALERT_WEBHOOK_URL }}"

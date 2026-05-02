@@ -10,7 +10,7 @@ from sqlalchemy import func, select, text
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from storage.database import SessionFactory, get_session
-from storage.models import ApiKey, Evaluation, Request, Span, Trace
+from storage.models import ApiKey, AuditLog, Evaluation, Request, Span, Trace
 
 router = APIRouter(prefix="/admin")
 
@@ -26,6 +26,22 @@ def _require_admin(token: str | None):
 class CreateKeyPayload(BaseModel):
     label: str
     plan: str = "pilot"
+    role: str = "admin"
+
+
+class SetRolePayload(BaseModel):
+    role: str
+
+
+def _mask_key(key: str) -> str:
+    if len(key) < 8:
+        return key
+    return f"{key[:6]}...{key[-4:]}"
+
+
+async def _audit(db: AsyncSession, action: str, detail: str) -> None:
+    db.add(AuditLog(id=str(uuid.uuid4()), action=action, detail=detail, timestamp=time.time()))
+    await db.commit()
 
 
 @router.post("/api-keys")
@@ -35,11 +51,18 @@ async def create_api_key(
     db: AsyncSession = Depends(get_session),
 ):
     _require_admin(token)
+    if payload.role not in {"admin", "analyst", "read_only"}:
+        raise HTTPException(status_code=422, detail="Invalid role. Use admin, analyst, or read_only.")
     key = "al_" + secrets.token_urlsafe(24)
-    obj = ApiKey(key=key, label=payload.label, plan=payload.plan, created_at=time.time())
+    obj = ApiKey(key=key, label=payload.label, plan=payload.plan, role=payload.role, created_at=time.time())
     db.add(obj)
     await db.commit()
-    return {"key": key, "label": payload.label, "plan": payload.plan}
+    await _audit(
+        db,
+        "api_key_created",
+        f"key={_mask_key(key)} plan={payload.plan} role={payload.role} label={payload.label}",
+    )
+    return {"key": key, "label": payload.label, "plan": payload.plan, "role": payload.role}
 
 
 @router.get("/api-keys")
@@ -51,7 +74,7 @@ async def list_api_keys(
     result = await db.execute(select(ApiKey).order_by(ApiKey.created_at.desc()))
     keys = result.scalars().all()
     return [
-        {"key": k.key, "label": k.label, "plan": k.plan, "active": k.active, "created_at": k.created_at}
+        {"key": k.key, "label": k.label, "plan": k.plan, "role": k.role or "admin", "active": k.active, "created_at": k.created_at}
         for k in keys
     ]
 
@@ -69,7 +92,101 @@ async def deactivate_api_key(
         raise HTTPException(status_code=404, detail="Key not found")
     obj.active = False
     await db.commit()
+    await _audit(db, "api_key_deactivated", f"key={_mask_key(key)} reason=manual")
     return {"deactivated": key}
+
+
+@router.post("/api-keys/{key}/role")
+async def set_api_key_role(
+    key: str,
+    payload: SetRolePayload,
+    token: str = Query(...),
+    db: AsyncSession = Depends(get_session),
+):
+    _require_admin(token)
+    if payload.role not in {"admin", "analyst", "read_only"}:
+        raise HTTPException(status_code=422, detail="Invalid role. Use admin, analyst, or read_only.")
+    result = await db.execute(select(ApiKey).where(ApiKey.key == key))
+    obj = result.scalar_one_or_none()
+    if not obj:
+        raise HTTPException(status_code=404, detail="Key not found")
+    obj.role = payload.role
+    await db.commit()
+    await _audit(db, "api_key_role_changed", f"key={_mask_key(key)} role={payload.role}")
+    return {"key": key, "role": payload.role}
+
+
+@router.post("/api-keys/{key}/rotate")
+async def rotate_api_key(
+    key: str,
+    token: str = Query(...),
+    grace_hours: int = Query(24, ge=0, le=168),
+    reason: str = Query("scheduled", pattern="^(scheduled|emergency|manual)$"),
+    db: AsyncSession = Depends(get_session),
+):
+    _require_admin(token)
+    result = await db.execute(select(ApiKey).where(ApiKey.key == key))
+    old_key = result.scalar_one_or_none()
+    if not old_key:
+        raise HTTPException(status_code=404, detail="Key not found")
+    if not old_key.active:
+        raise HTTPException(status_code=409, detail="Key already inactive")
+
+    rotation_id = f"rot_{int(time.time())}_{uuid.uuid4().hex[:6]}"
+    await _audit(
+        db,
+        "api_key_rotation_started",
+        (
+            f"rotation_id={rotation_id} old_key={_mask_key(old_key.key)} "
+            f"reason={reason} grace_hours={grace_hours}"
+        ),
+    )
+
+    new_key = "al_" + secrets.token_urlsafe(24)
+    new_obj = ApiKey(
+        key=new_key,
+        label=old_key.label,
+        plan=old_key.plan,
+        created_at=time.time(),
+        active=True,
+    )
+    db.add(new_obj)
+    await db.commit()
+    await _audit(
+        db,
+        "api_key_created",
+        f"rotation_id={rotation_id} key={_mask_key(new_key)} plan={old_key.plan}",
+    )
+
+    if reason == "emergency" or grace_hours == 0:
+        old_key.active = False
+        await db.commit()
+        await _audit(
+            db,
+            "api_key_deactivated",
+            f"rotation_id={rotation_id} key={_mask_key(old_key.key)} reason={reason}",
+        )
+        await _audit(db, "api_key_rotation_completed", f"rotation_id={rotation_id} mode=immediate")
+        return {
+            "rotation_id": rotation_id,
+            "mode": "immediate",
+            "old_key_deactivated": True,
+            "new_key": new_key,
+            "grace_hours": 0,
+        }
+
+    await _audit(
+        db,
+        "api_key_rotation_grace_started",
+        f"rotation_id={rotation_id} old_key={_mask_key(old_key.key)} grace_hours={grace_hours}",
+    )
+    return {
+        "rotation_id": rotation_id,
+        "mode": "grace",
+        "old_key_deactivated": False,
+        "new_key": new_key,
+        "grace_hours": grace_hours,
+    }
 
 
 async def _do_seed_demo(db: AsyncSession) -> dict:
@@ -250,4 +367,6 @@ async def seed_demo(
 ):
     """Manually trigger demo seeding. Idempotent."""
     _require_admin(token)
-    return await _do_seed_demo(db)
+    result = await _do_seed_demo(db)
+    await _audit(db, "admin_seed_demo", f"status={result.get('status')} requests={result.get('requests', result.get('requests_total'))}")
+    return result
