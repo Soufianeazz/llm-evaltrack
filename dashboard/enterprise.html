@@ -18,8 +18,47 @@
     .top { display:flex; justify-content:space-between; align-items:center; gap:1rem; margin-bottom:1rem; flex-wrap:wrap; }
     .brand { font-weight:800; font-size:1.05rem; color:#fff; }
     .brand span { color:var(--accent); }
-    .nav { display:flex; gap:0.8rem; flex-wrap:wrap; }
+    .nav { display:flex; gap:0.8rem; flex-wrap:wrap; align-items:center; }
     .nav a { border:1px solid var(--border); background:rgba(15,22,43,.7); padding:.45rem .75rem; border-radius:8px; font-size:.82rem; }
+    .dropdown { position:relative; }
+    .dropdown summary {
+      list-style:none;
+      cursor:pointer;
+      border:1px solid var(--border);
+      background:rgba(15,22,43,.7);
+      padding:.45rem .75rem;
+      border-radius:8px;
+      font-size:.82rem;
+      color:#a8beff;
+      user-select:none;
+    }
+    .dropdown summary::-webkit-details-marker { display:none; }
+    .dropdown-menu {
+      position:absolute;
+      top:calc(100% + .35rem);
+      right:0;
+      min-width:220px;
+      border:1px solid var(--border);
+      background:#0f1730;
+      border-radius:10px;
+      padding:.45rem;
+      display:grid;
+      gap:.25rem;
+      z-index:30;
+    }
+    .dropdown-menu a {
+      display:block;
+      padding:.42rem .55rem;
+      border-radius:7px;
+      border:1px solid transparent;
+      font-size:.8rem;
+      color:#c8d7fa;
+    }
+    .dropdown-menu a:hover {
+      text-decoration:none;
+      background:rgba(124,155,255,.1);
+      border-color:#345187;
+    }
     .hero { border:1px solid var(--border); background:linear-gradient(180deg, rgba(19,30,56,.95), rgba(12,18,36,.95)); border-radius:14px; padding:1.5rem; margin-top:1rem; }
     .badge { display:inline-block; border:1px solid #3a4f7b; color:#b9c8ef; border-radius:999px; padding:.2rem .65rem; font-size:.72rem; }
     h1 { margin:.8rem 0 .55rem; font-size:clamp(1.6rem,3.5vw,2.35rem); line-height:1.15; }
@@ -41,6 +80,9 @@
     .kpi .l { color:var(--muted); font-size:.75rem; }
     .status { color:var(--good); font-weight:700; }
     footer { margin-top:2rem; color:var(--muted); font-size:.78rem; text-align:center; }
+    @media (max-width: 640px) {
+      .dropdown-menu { right:auto; left:0; min-width:200px; }
+    }
   </style>
 </head>
 <body>
@@ -51,11 +93,16 @@
         <a href="/">Home</a>
         <a href="/security">Security</a>
         <a href="/subprocessors">Subprocessors</a>
-        <a href="/security-questionnaire">Questionnaire</a>
-        <a href="/security-questionnaire-v2">Questionnaire v2</a>
-        <a href="/sla">SLA</a>
-        <a href="/legal-pack">Legal Pack</a>
         <a href="/compliance.html?api_key=al_demo_agentlens">Compliance Console</a>
+        <details class="dropdown">
+          <summary>Trust Docs</summary>
+          <div class="dropdown-menu">
+            <a href="/security-questionnaire">Questionnaire v1</a>
+            <a href="/security-questionnaire-v2">Questionnaire v2 (Top-30)</a>
+            <a href="/sla">SLA Commitments</a>
+            <a href="/legal-pack">Legal Pack</a>
+          </div>
+        </details>
       </div>
     </div>
 
