@@ -9,16 +9,38 @@
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     :root {
-      --bg: #0f1117; --surface: #1e2130; --border: #2d3148;
-      --purple: #818cf8; --green: #4ade80; --red: #f87171;
-      --text: #e2e8f0; --muted: #64748b;
+      --bg: #0a0f1d;
+      --surface: #11182f;
+      --surface-alt: #131e38;
+      --border: #263556;
+      --purple: #7c9bff;
+      --green: #4ade80;
+      --red: #f87171;
+      --text: #e7ecff;
+      --muted: #9aa8c6;
     }
-    body { font-family: system-ui, -apple-system, sans-serif; background: var(--bg); color: var(--text); line-height: 1.6; }
+    body {
+      font-family: system-ui, -apple-system, sans-serif;
+      background: radial-gradient(1200px 500px at 20% -5%, #1a2650 0%, #0a0f1d 50%);
+      color: var(--text);
+      line-height: 1.6;
+    }
     a { color: var(--purple); text-decoration: none; }
     a:hover { text-decoration: underline; }
 
     /* Nav */
-    nav { display: flex; justify-content: space-between; align-items: center; padding: 1.25rem 2rem; border-bottom: 1px solid var(--border); position: sticky; top: 0; background: var(--bg); z-index: 10; }
+    nav {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1.25rem 2rem;
+      border-bottom: 1px solid var(--border);
+      position: sticky;
+      top: 0;
+      background: rgba(10, 15, 29, 0.92);
+      backdrop-filter: blur(6px);
+      z-index: 10;
+    }
     .nav-logo { font-weight: 800; font-size: 1.1rem; color: var(--text); }
     .nav-logo span { color: var(--purple); }
     .nav-links { display: flex; gap: 1.5rem; align-items: center; font-size: 0.875rem; }
@@ -39,7 +61,7 @@
     /* Code snippet */
     .code-block { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 1.25rem 1.5rem; text-align: left; max-width: 520px; margin: 2.5rem auto 0; font-family: 'Menlo', 'Consolas', monospace; font-size: 0.85rem; line-height: 1.7; }
     .code-comment { color: var(--muted); }
-    .code-key { color: #a5b4fc; }
+    .code-key { color: #a8beff; }
     .code-str { color: #86efac; }
     .code-fn { color: #f9a8d4; }
 
@@ -60,7 +82,7 @@
     .feature { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 1.25rem; }
     .feature-tag { display: inline-block; font-size: 0.65rem; font-weight: 700; padding: 0.15rem 0.5rem; border-radius: 4px; margin-bottom: 0.75rem; text-transform: uppercase; }
     .feature-tag.new { background: #1a2e1a; color: var(--green); }
-    .feature-tag.core { background: #1e293b; color: #93c5fd; }
+    .feature-tag.core { background: #1c2a49; color: #a8beff; }
     .feature h3 { font-size: 0.95rem; font-weight: 700; margin-bottom: 0.4rem; }
     .feature p { font-size: 0.8rem; color: var(--muted); }
 
@@ -73,12 +95,12 @@
     .compare-table tr:last-child td { border-bottom: none; }
     .check { color: var(--green); font-size: 1rem; }
     .cross { color: var(--red); font-size: 1rem; }
-    .ours { background: rgba(129, 140, 248, 0.06); }
+    .ours { background: rgba(124, 155, 255, 0.08); }
 
     /* Pricing */
     .pricing-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1rem; margin-top: 2rem; }
     .plan { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 1.75rem; position: relative; }
-    .plan.featured { border-color: var(--purple); }
+    .plan.featured { border-color: var(--purple); background: linear-gradient(180deg, rgba(19,30,56,0.95), rgba(12,18,36,0.95)); }
     .plan-badge { position: absolute; top: -0.65rem; left: 50%; transform: translateX(-50%); background: var(--purple); color: #0f1117; font-size: 0.65rem; font-weight: 700; padding: 0.2rem 0.7rem; border-radius: 99px; white-space: nowrap; }
     .plan-name { font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); margin-bottom: 0.5rem; }
     .plan-price { font-size: 2.25rem; font-weight: 800; color: var(--text); }
@@ -97,13 +119,29 @@
     .demo-links { display: flex; gap: 0.75rem; justify-content: center; flex-wrap: wrap; }
 
     .trust-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(240px,1fr)); gap:1rem; margin-top:1.5rem; }
-    .trust-card { background: var(--surface); border:1px solid var(--border); border-radius:10px; padding:1.1rem; }
+    .trust-card { background: var(--surface-alt); border:1px solid var(--border); border-radius:10px; padding:1.1rem; }
     .trust-card h3 { font-size:0.95rem; margin-bottom:0.35rem; }
     .trust-card p { font-size:0.8rem; color:var(--muted); }
     .trust-links { margin-top:1.1rem; display:flex; gap:0.8rem; flex-wrap:wrap; font-size:0.85rem; }
 
     /* Footer */
     footer { border-top: 1px solid var(--border); padding: 2rem; text-align: center; color: var(--muted); font-size: 0.8rem; margin-top: 4rem; }
+
+    .pricing-meta {
+      margin-top: 1rem;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 0.75rem;
+    }
+    .pricing-meta .item {
+      background: var(--surface-alt);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 0.85rem 1rem;
+      font-size: 0.8rem;
+      color: var(--muted);
+    }
+    .pricing-meta .item strong { color: var(--text); display: block; margin-bottom: 0.2rem; }
 
     @media (max-width: 600px) {
       nav { padding: 1rem; }
@@ -134,7 +172,7 @@
   </div>
   <div class="nav-links">
     <a href="#features">Features</a>
-    <a href="/enterprise">Enterprise</a>
+    <a href="/enterprise">Enterprise Trust</a>
     <a href="#pricing">Pricing</a>
     <a href="https://github.com/Soufianeazz/agentlens" target="_blank">GitHub</a>
     <a href="/dashboard?api_key=al_demo_agentlens" class="btn btn-outline">Live Demo</a>
@@ -373,7 +411,7 @@
 <section class="section" id="pricing">
   <div class="section-label">Pricing</div>
   <h2>Pricing that scales with your team</h2>
-  <p>Self-host the open source version on your own infrastructure. Upgrade for managed hosting, compliance packages, and dedicated support.</p>
+  <p>Self-host the open source version on your own infrastructure, or use managed hosting with enterprise support. Prices exclude VAT. Annual billing starts from Team and reduces monthly cost.</p>
 
   <div class="pricing-grid" style="grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));">
     <div class="plan">
@@ -396,7 +434,7 @@
       <div class="plan-badge">Best for EU Teams</div>
       <div class="plan-name">Team</div>
       <div class="plan-price">€999 <span>/ month</span></div>
-      <div class="plan-desc">For EU teams shipping LLM features that need GDPR-grade audit trails, not a SaaS in Virginia.</div>
+      <div class="plan-desc">Or €849/month with annual billing. For EU teams that need GDPR-grade audit trails.</div>
       <ul class="plan-features">
         <li>Everything in Starter</li>
         <li>10M calls / month</li>
@@ -406,6 +444,7 @@
         <li>Audit log + compliance CSV exports</li>
         <li>Custom retention policies (delete after N days)</li>
         <li>Slack support + monthly review call</li>
+        <li>Invoice and PO billing available</li>
         <li>14-day trial, no credit card</li>
       </ul>
       <a href="/book-demo?plan=team&source=landing-pricing" class="plan-cta btn-primary btn">Book a Demo →</a>
@@ -414,7 +453,7 @@
     <div class="plan">
       <div class="plan-name">Scale</div>
       <div class="plan-price">€2,999 <span>/ month</span></div>
-      <div class="plan-desc">Multiple products, dedicated deployment.</div>
+      <div class="plan-desc">Or €2,549/month with annual billing. For multiple products and dedicated deployment.</div>
       <ul class="plan-features">
         <li>Everything in Team</li>
         <li>50M calls / month</li>
@@ -431,7 +470,7 @@
     <div class="plan">
       <div class="plan-name">Enterprise</div>
       <div class="plan-price">€5,000+ <span>/ month</span></div>
-      <div class="plan-desc">On-premise on your own cloud infrastructure.</div>
+      <div class="plan-desc">Custom annual contract for on-premise or private cloud rollout.</div>
       <ul class="plan-features">
         <li>Deploy on AWS / GCP / Azure</li>
         <li>Unlimited calls & projects</li>
@@ -448,6 +487,21 @@
   <div style="margin-top:1.5rem; background:var(--surface); border:1px solid var(--border); border-radius:10px; padding:1.25rem 1.5rem; font-size:0.82rem; color:var(--muted);">
     <strong style="color:var(--text);">Add-ons available on any plan:</strong>
     Extra projects (+€99/project/mo) · Extra call volume (+€49/1M calls) · Compliance report package (+€299/mo) · Priority SLA (+€199/mo)
+  </div>
+
+  <div class="pricing-meta">
+    <div class="item">
+      <strong>Billing terms</strong>
+      Monthly billing on Starter. Annual billing and invoice terms from Team upward.
+    </div>
+    <div class="item">
+      <strong>Procurement readiness</strong>
+      DPA/AVV, subprocessors, SLA commitments, and security questionnaire pack are publicly available.
+    </div>
+    <div class="item">
+      <strong>Enterprise rollout</strong>
+      Dedicated onboarding, architecture review, and migration support for production deployments.
+    </div>
   </div>
 
   <div style="margin-top:1rem; background:#0f1c0f; border:1px solid #1a3a1a; border-radius:10px; padding:1rem 1.5rem; font-size:0.82rem; text-align:center;">
