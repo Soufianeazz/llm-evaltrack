@@ -3,7 +3,6 @@ Compliance endpoints — data export, retention, deletion, audit log.
 """
 import csv
 import io
-import os
 import time
 import uuid
 
@@ -12,19 +11,12 @@ from fastapi.responses import StreamingResponse
 from sqlalchemy import delete, select, text
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from api.admin_auth import require_admin_token
 from api.auth import ApiKeyContext, ensure_role, require_api_key_context
 from storage.database import get_session
 from storage.models import AuditLog, Evaluation, Request, RetentionPolicy
 
 router = APIRouter(prefix="/compliance")
-
-
-def _require_admin(token: str | None):
-    admin_token = os.environ.get("ADMIN_TOKEN")
-    if not admin_token:
-        raise HTTPException(status_code=503, detail="ADMIN_TOKEN not configured")
-    if token != admin_token:
-        raise HTTPException(status_code=403, detail="Forbidden")
 
 
 async def _log_action(db: AsyncSession, action: str, detail: str) -> None:
@@ -96,8 +88,11 @@ async def export_data(
 # ── Delete individual requests (GDPR right to erasure) ───────────────────────
 
 @router.delete("/requests/{request_id}")
-async def delete_request(request_id: str, token: str = Query(...), db: AsyncSession = Depends(get_session)):
-    _require_admin(token)
+async def delete_request(
+    request_id: str,
+    _admin: None = Depends(require_admin_token),
+    db: AsyncSession = Depends(get_session),
+):
     """Delete a single request and its evaluation — GDPR right to erasure."""
     await db.execute(delete(Evaluation).where(Evaluation.request_id == request_id))
     result = await db.execute(delete(Request).where(Request.id == request_id))
@@ -113,10 +108,9 @@ async def delete_request(request_id: str, token: str = Query(...), db: AsyncSess
 @router.delete("/requests")
 async def delete_requests_bulk(
     older_than_days: int = Query(..., ge=1, le=365),
-    token: str = Query(...),
+    _admin: None = Depends(require_admin_token),
     db: AsyncSession = Depends(get_session),
 ):
-    _require_admin(token)
     """Bulk-delete all requests older than X days."""
     cutoff = time.time() - (older_than_days * 86400)
 
@@ -141,10 +135,9 @@ async def delete_requests_bulk(
 async def set_retention_policy(
     retention_days: int = Query(..., ge=1, le=365),
     enabled: bool = Query(True),
-    token: str = Query(...),
+    _admin: None = Depends(require_admin_token),
     db: AsyncSession = Depends(get_session),
 ):
-    _require_admin(token)
     """Set or update the automatic retention policy."""
     result = await db.execute(select(RetentionPolicy).where(RetentionPolicy.id == "default"))
     policy = result.scalar_one_or_none()
@@ -175,9 +168,11 @@ async def get_retention_policy(db: AsyncSession = Depends(get_session)):
 
 
 @router.post("/retention/run")
-async def run_retention_now(token: str = Query(...), db: AsyncSession = Depends(get_session)):
+async def run_retention_now(
+    _admin: None = Depends(require_admin_token),
+    db: AsyncSession = Depends(get_session),
+):
     """Manually trigger retention cleanup."""
-    _require_admin(token)
     result = await db.execute(select(RetentionPolicy).where(RetentionPolicy.id == "default"))
     policy = result.scalar_one_or_none()
     if not policy or not policy.enabled:

@@ -1,12 +1,13 @@
-import time
 import uuid
+import time
 
-from fastapi import APIRouter, Depends, HTTPException, Query
+from fastapi import APIRouter, Depends
 from pydantic import BaseModel, EmailStr
 from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from api.admin_auth import require_admin_token
 from storage.database import get_session
 from storage.models import WaitlistEntry
 
@@ -37,15 +38,9 @@ async def join_waitlist(body: WaitlistSubmit, db: AsyncSession = Depends(get_ses
 
 @router.get("")
 async def list_waitlist(
-    token: str = Query(...),
+    _admin: None = Depends(require_admin_token),
     db: AsyncSession = Depends(get_session),
 ):
-    import os
-    admin_token = os.environ.get("ADMIN_TOKEN")
-    if not admin_token:
-        raise HTTPException(status_code=503, detail="ADMIN_TOKEN not configured")
-    if token != admin_token:
-        raise HTTPException(status_code=403, detail="Forbidden")
     result = await db.execute(
         select(WaitlistEntry).order_by(WaitlistEntry.timestamp.desc())
     )

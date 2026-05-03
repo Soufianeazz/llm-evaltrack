@@ -1,4 +1,3 @@
-import os
 import random
 import secrets
 import time
@@ -9,18 +8,13 @@ from pydantic import BaseModel
 from sqlalchemy import func, select, text
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from api.admin_auth import require_admin_token
 from storage.database import SessionFactory, get_session
 from storage.models import ApiKey, AuditLog, Evaluation, Request, Span, Trace
 
 router = APIRouter(prefix="/admin")
 
 DEMO_KEY = "al_demo_agentlens"
-
-
-def _require_admin(token: str | None):
-    admin_token = os.environ.get("ADMIN_TOKEN")
-    if not admin_token or token != admin_token:
-        raise HTTPException(status_code=403, detail="Forbidden")
 
 
 class CreateKeyPayload(BaseModel):
@@ -47,10 +41,9 @@ async def _audit(db: AsyncSession, action: str, detail: str) -> None:
 @router.post("/api-keys")
 async def create_api_key(
     payload: CreateKeyPayload,
-    token: str = Query(...),
+    _admin: None = Depends(require_admin_token),
     db: AsyncSession = Depends(get_session),
 ):
-    _require_admin(token)
     if payload.role not in {"admin", "analyst", "read_only"}:
         raise HTTPException(status_code=422, detail="Invalid role. Use admin, analyst, or read_only.")
     key = "al_" + secrets.token_urlsafe(24)
@@ -67,10 +60,9 @@ async def create_api_key(
 
 @router.get("/api-keys")
 async def list_api_keys(
-    token: str = Query(...),
+    _admin: None = Depends(require_admin_token),
     db: AsyncSession = Depends(get_session),
 ):
-    _require_admin(token)
     result = await db.execute(select(ApiKey).order_by(ApiKey.created_at.desc()))
     keys = result.scalars().all()
     return [
@@ -82,10 +74,9 @@ async def list_api_keys(
 @router.delete("/api-keys/{key}")
 async def deactivate_api_key(
     key: str,
-    token: str = Query(...),
+    _admin: None = Depends(require_admin_token),
     db: AsyncSession = Depends(get_session),
 ):
-    _require_admin(token)
     result = await db.execute(select(ApiKey).where(ApiKey.key == key))
     obj = result.scalar_one_or_none()
     if not obj:
@@ -100,10 +91,9 @@ async def deactivate_api_key(
 async def set_api_key_role(
     key: str,
     payload: SetRolePayload,
-    token: str = Query(...),
+    _admin: None = Depends(require_admin_token),
     db: AsyncSession = Depends(get_session),
 ):
-    _require_admin(token)
     if payload.role not in {"admin", "analyst", "read_only"}:
         raise HTTPException(status_code=422, detail="Invalid role. Use admin, analyst, or read_only.")
     result = await db.execute(select(ApiKey).where(ApiKey.key == key))
@@ -119,12 +109,11 @@ async def set_api_key_role(
 @router.post("/api-keys/{key}/rotate")
 async def rotate_api_key(
     key: str,
-    token: str = Query(...),
     grace_hours: int = Query(24, ge=0, le=168),
     reason: str = Query("scheduled", pattern="^(scheduled|emergency|manual)$"),
+    _admin: None = Depends(require_admin_token),
     db: AsyncSession = Depends(get_session),
 ):
-    _require_admin(token)
     result = await db.execute(select(ApiKey).where(ApiKey.key == key))
     old_key = result.scalar_one_or_none()
     if not old_key:
@@ -362,11 +351,10 @@ async def seed_demo_on_startup() -> None:
 
 @router.post("/seed-demo")
 async def seed_demo(
-    token: str = Query(...),
+    _admin: None = Depends(require_admin_token),
     db: AsyncSession = Depends(get_session),
 ):
     """Manually trigger demo seeding. Idempotent."""
-    _require_admin(token)
     result = await _do_seed_demo(db)
     await _audit(db, "admin_seed_demo", f"status={result.get('status')} requests={result.get('requests', result.get('requests_total'))}")
     return result

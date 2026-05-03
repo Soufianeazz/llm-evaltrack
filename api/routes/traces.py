@@ -1,7 +1,6 @@
 """
 Agent debugging endpoints — traces and spans for multi-step agent runs.
 """
-import os
 import time
 import uuid
 
@@ -11,20 +10,13 @@ from sqlalchemy import select, func
 from sqlalchemy.ext.asyncio import AsyncSession
 from typing import Any
 
+from api.admin_auth import require_admin_token
 from api.auth import ApiKeyContext, ensure_role, require_api_key, require_api_key_context
 from api.limiter import limiter
 from storage.database import get_session
 from storage.models import AuditLog, Span, Trace
 
 router = APIRouter(prefix="/traces")
-
-
-def _require_admin(token: str | None):
-    admin_token = os.environ.get("ADMIN_TOKEN")
-    if not admin_token:
-        raise HTTPException(status_code=503, detail="ADMIN_TOKEN not configured")
-    if token != admin_token:
-        raise HTTPException(status_code=403, detail="Forbidden")
 
 
 # ── Schemas ───────────────────────────────────────────────────────────────────
@@ -249,10 +241,9 @@ async def list_traces(
 @router.delete("/{trace_id}")
 async def delete_trace(
     trace_id: str,
-    token: str = Query(...),
+    _admin: None = Depends(require_admin_token),
     db: AsyncSession = Depends(get_session),
 ):
-    _require_admin(token)
     result = await db.execute(select(Trace).where(Trace.id == trace_id))
     trace = result.scalar_one_or_none()
     if not trace:
