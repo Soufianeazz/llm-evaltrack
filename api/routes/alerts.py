@@ -43,8 +43,11 @@ async def set_budget(
 
     if alert:
         alert.daily_budget_usd = payload.daily_budget_usd
-        alert.webhook_url = payload.webhook_url
-        alert.email = payload.email
+        # Preserve existing destinations when not explicitly provided.
+        if payload.webhook_url is not None:
+            alert.webhook_url = payload.webhook_url
+        if payload.email is not None:
+            alert.email = payload.email
         alert.triggered_today = False
     else:
         alert = BudgetAlert(
