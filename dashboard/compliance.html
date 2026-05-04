@@ -3,164 +3,263 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Compliance — AgentLens</title>
+  <title>Compliance - AgentLens</title>
   <script src="/auth.js"></script>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: system-ui, sans-serif; background: #0f1117; color: #e2e8f0; padding: 2rem; }
-    a { color: #818cf8; text-decoration: none; }
+    :root {
+      --bg: #0a0f1d;
+      --surface: #11182f;
+      --surface-soft: #131e38;
+      --ink: #e7ecff;
+      --ink-soft: #9aa8c6;
+      --line: #263556;
+      --accent: #7c9bff;
+      --accent-strong: #a8beff;
+      --ok: #4ade80;
+      --bad: #f87171;
+      --warn: #fb923c;
+      --shadow: 0 22px 54px rgba(0, 0, 0, 0.35);
+    }
+    body {
+      font-family: "Segoe UI Variable", "Segoe UI", "Trebuchet MS", "Lucida Sans", "Tahoma", sans-serif;
+      color: var(--ink);
+      background:
+        radial-gradient(1200px 520px at 90% -20%, #1a2650 0%, rgba(26, 38, 80, 0) 62%),
+        radial-gradient(900px 420px at -10% -10%, #152347 0%, rgba(21, 35, 71, 0) 58%),
+        var(--bg);
+      line-height: 1.5;
+      min-height: 100vh;
+    }
+    a { color: var(--accent-strong); text-decoration: none; }
     a:hover { text-decoration: underline; }
-    h1 { font-size: 1.5rem; margin-bottom: 0.25rem; }
-    .subtitle { color: #64748b; font-size: 0.875rem; margin-bottom: 1.5rem; }
-    .scope-pill { display:inline-block; margin-top:-1rem; margin-bottom:1.2rem; padding:0.25rem 0.6rem; border-radius:999px; border:1px solid #2d3148; color:#93c5fd; font-size:0.75rem; }
-    .kpi-bar { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; margin-bottom: 1.5rem; }
-    .kpi { background: #1e2130; border: 1px solid #2d3148; border-radius: 8px; padding: 1rem 1.25rem; }
-    .kpi-label { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; color: #64748b; margin-bottom: 0.4rem; }
-    .kpi-value { font-size: 1.5rem; font-weight: 700; color: #818cf8; }
-    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 1.5rem; }
-    .card { background: #1e2130; border: 1px solid #2d3148; border-radius: 8px; padding: 1.25rem; }
-    .card h2 { font-size: 0.875rem; text-transform: uppercase; letter-spacing: 0.05em; color: #64748b; margin-bottom: 1rem; }
-    .btn { background: #818cf8; color: #0f1117; border: none; padding: 0.45rem 1rem; border-radius: 6px; font-weight: 600; cursor: pointer; font-size: 0.85rem; }
-    .btn:hover { background: #6366f1; }
-    .btn-danger { background: #f87171; }
-    .btn-danger:hover { background: #ef4444; }
-    .btn-ghost { background: none; border: 1px solid #2d3148; color: #64748b; }
-    .btn-green { background: #4ade80; }
+    .wrap { width: min(1240px, calc(100% - 2.4rem)); margin: 0 auto; }
+    .top-nav {
+      display: flex;
+      gap: 1rem;
+      align-items: center;
+      padding: 1.2rem 0 0.4rem;
+      font-size: 0.95rem;
+      font-weight: 700;
+    }
+    .hero {
+      border: 1px solid var(--line);
+      background: linear-gradient(160deg, rgba(19, 30, 56, 0.96), rgba(12, 18, 36, 0.96));
+      box-shadow: var(--shadow);
+      border-radius: 16px;
+      margin: 0.85rem 0 1rem;
+      padding: 1.15rem;
+    }
+    h1 { font-size: 2rem; margin-bottom: 0.2rem; letter-spacing: -0.01em; }
+    .subtitle { color: var(--ink-soft); font-size: 0.96rem; margin-bottom: 0.95rem; }
+    .scope-pill {
+      display: inline-block;
+      padding: 0.25rem 0.72rem;
+      border-radius: 999px;
+      border: 1px solid #36558c;
+      color: #c8d7fa;
+      background: rgba(18, 31, 60, 0.75);
+      font-size: 0.78rem;
+      font-weight: 700;
+    }
+
+    .kpi-bar { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.9rem; margin-bottom: 1.1rem; }
+    .kpi {
+      background: rgba(19, 30, 56, 0.9);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 1rem 1.1rem;
+    }
+    .kpi-label { font-size: 0.74rem; text-transform: uppercase; letter-spacing: 0.07em; color: var(--ink-soft); margin-bottom: 0.4rem; }
+    .kpi-value { font-size: 1.5rem; font-weight: 800; color: var(--accent); }
+
+    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem; }
+    .card {
+      background: rgba(19, 30, 56, 0.9);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 1.15rem;
+    }
+    .card h2 { font-size: 0.82rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--ink-soft); margin-bottom: 0.8rem; }
+
+    .btn {
+      background: var(--accent);
+      color: #0f1117;
+      border: none;
+      padding: 0.5rem 1rem;
+      border-radius: 9px;
+      font-weight: 700;
+      cursor: pointer;
+      font-size: 0.86rem;
+    }
+    .btn:hover { background: #93adff; }
+    .btn-danger { background: var(--bad); color: #1a0909; }
+    .btn-danger:hover { background: #fb8f8f; }
+    .btn-ghost { background: transparent; border: 1px solid var(--line); color: var(--ink-soft); }
+    .btn-green { background: var(--ok); color: #08220f; }
+
     input, select {
-      background: #0f1117; border: 1px solid #2d3148; color: #e2e8f0;
-      padding: 0.4rem 0.6rem; border-radius: 4px; font-size: 0.85rem;
+      background: rgba(10, 15, 29, 0.85);
+      border: 1px solid var(--line);
+      color: var(--ink);
+      padding: 0.45rem 0.62rem;
+      border-radius: 8px;
+      font-size: 0.88rem;
     }
     .form-row { display: flex; gap: 0.75rem; align-items: end; flex-wrap: wrap; margin-bottom: 0.75rem; }
     .form-group { display: flex; flex-direction: column; gap: 0.25rem; }
-    .form-group label { font-size: 0.7rem; color: #64748b; text-transform: uppercase; }
-    .audit-table { width: 100%; border-collapse: collapse; font-size: 0.8rem; }
-    .audit-table th { text-align: left; padding: 0.5rem; color: #64748b; border-bottom: 1px solid #2d3148; }
-    .audit-table td { padding: 0.5rem; border-bottom: 1px solid #1a1d2e; }
-    .action-tag { display: inline-block; font-size: 0.7rem; padding: 0.1rem 0.4rem; border-radius: 4px; font-weight: 600; }
+    .form-group label { font-size: 0.7rem; color: var(--ink-soft); text-transform: uppercase; letter-spacing: 0.08em; }
+
+    .audit-table { width: 100%; border-collapse: collapse; font-size: 0.82rem; }
+    .audit-table th { text-align: left; padding: 0.5rem; color: var(--ink-soft); border-bottom: 1px solid var(--line); }
+    .audit-table td { padding: 0.5rem; border-bottom: 1px solid #1a2a4a; }
+
+    .action-tag { display: inline-block; font-size: 0.7rem; padding: 0.1rem 0.4rem; border-radius: 4px; font-weight: 700; }
     .action-tag.export { background: #1e3a5f; color: #60a5fa; }
     .action-tag.delete { background: #3b1111; color: #f87171; }
     .action-tag.policy_change { background: #1a2e1a; color: #4ade80; }
     .action-tag.retention_run { background: #2d2418; color: #fb923c; }
-    .status-badge { display: inline-block; padding: 0.2rem 0.5rem; border-radius: 4px; font-size: 0.75rem; font-weight: 600; }
+
+    .status-badge { display: inline-block; padding: 0.2rem 0.5rem; border-radius: 4px; font-size: 0.75rem; font-weight: 700; }
     .status-badge.active { background: #1a2e1a; color: #4ade80; }
     .status-badge.inactive { background: #2d1b1b; color: #f87171; }
-    .warn-box { margin-top: 0.75rem; font-size: 0.8rem; padding: 0.55rem 0.7rem; border-radius: 6px; border: 1px solid #2d3148; color: #cbd5e1; background: #151a2a; }
+
+    .warn-box {
+      margin-top: 0.75rem;
+      font-size: 0.8rem;
+      padding: 0.55rem 0.7rem;
+      border-radius: 8px;
+      border: 1px solid var(--line);
+      color: #cbd5e1;
+      background: rgba(10, 15, 29, 0.85);
+    }
     .warn-box.high { border-color: #f87171; color: #fecaca; background: #2a1212; }
     .warn-box.medium { border-color: #fb923c; color: #fed7aa; background: #2a1c12; }
     .warn-box.low { border-color: #4ade80; color: #bbf7d0; background: #132417; }
-    @media (max-width: 900px) { .grid { grid-template-columns: 1fr; } .kpi-bar { grid-template-columns: 1fr 1fr; } }
+
+    @media (max-width: 1000px) {
+      .grid { grid-template-columns: 1fr; }
+      .kpi-bar { grid-template-columns: 1fr 1fr; }
+    }
+    @media (max-width: 760px) {
+      .wrap { width: min(1240px, calc(100% - 1.2rem)); }
+      h1 { font-size: 1.6rem; }
+      .kpi-bar { grid-template-columns: 1fr; }
+    }
   </style>
 </head>
 <body>
-  <div style="margin-bottom:1rem;"><a href="/">← Dashboard</a> &nbsp; <a href="/debug.html">Prompt Debugger</a></div>
-  <h1>Compliance & Data Management</h1>
-  <p class="subtitle">GDPR-ready data export, retention policies, audit logging</p>
-  <div class="scope-pill">Data Scope: API-key isolated project context</div>
-
-  <!-- KPI bar -->
-  <div class="kpi-bar">
-    <div class="kpi"><div class="kpi-label">Total Records</div><div class="kpi-value" id="kpiTotal">—</div></div>
-    <div class="kpi"><div class="kpi-label">Oldest Record</div><div class="kpi-value" id="kpiOldest" style="font-size:1rem;">—</div></div>
-    <div class="kpi"><div class="kpi-label">Retention Policy</div><div class="kpi-value" id="kpiRetention" style="font-size:1rem;">—</div></div>
-    <div class="kpi"><div class="kpi-label">Audit Events</div><div class="kpi-value" id="kpiAudit">—</div></div>
-  </div>
-
-  <div class="grid">
-    <!-- Export -->
-    <div class="card">
-      <h2>Data Export</h2>
-      <p style="color:#94a3b8; font-size:0.85rem; margin-bottom:1rem;">Export all LLM call data for compliance or analysis.</p>
-      <div class="form-row">
-        <div class="form-group">
-          <label>Format</label>
-          <select id="exportFormat">
-            <option value="json">JSON</option>
-            <option value="csv">CSV</option>
-          </select>
-        </div>
-        <div class="form-group">
-          <label>Last N days (empty = all)</label>
-          <input type="number" id="exportDays" min="1" max="365" placeholder="e.g. 30" style="width:100px;" />
-        </div>
-        <div class="form-group">
-          <label>&nbsp;</label>
-          <button class="btn" id="exportBtn">Export</button>
-        </div>
-      </div>
+  <main class="wrap">
+    <div class="top-nav">
+      <a href="/">Back to Dashboard</a>
+      <a href="/debug.html">Prompt Debugger</a>
     </div>
 
-    <!-- Retention Policy -->
-    <div class="card">
-      <h2>Retention Policy</h2>
-      <p style="color:#94a3b8; font-size:0.85rem; margin-bottom:1rem;">Auto-delete data older than X days. Runs on manual trigger.</p>
-      <div class="form-row">
-        <div class="form-group">
-          <label>Retention (days)</label>
-          <input type="number" id="retentionDays" min="1" max="365" placeholder="e.g. 90" style="width:100px;" />
-        </div>
-        <div class="form-group">
-          <label>&nbsp;</label>
-          <button class="btn btn-green" id="retentionSave">Save Policy</button>
-        </div>
-        <div class="form-group">
-          <label>&nbsp;</label>
-          <button class="btn btn-danger" id="retentionRun">Run Now</button>
-        </div>
-      </div>
-      <div id="retentionStatus" style="margin-top:0.5rem; font-size:0.8rem; color:#64748b;"></div>
-      <div id="retentionWarning" class="warn-box">Set a retention period to see impact guidance.</div>
+    <div class="hero">
+      <h1>Compliance & Data Management</h1>
+      <p class="subtitle">GDPR-ready data export, retention policies, and audit logging.</p>
+      <div class="scope-pill">Data Scope: API-key isolated project context</div>
     </div>
-  </div>
 
-  <div class="grid">
-    <!-- Delete -->
-    <div class="card">
-      <h2>Data Deletion (GDPR)</h2>
-      <p style="color:#94a3b8; font-size:0.85rem; margin-bottom:1rem;">Delete individual requests or bulk-delete old data.</p>
-      <div class="form-row">
-        <div class="form-group">
-          <label>Request ID</label>
-          <input type="text" id="deleteId" placeholder="request UUID" style="width:250px;" />
-        </div>
-        <div class="form-group">
-          <label>&nbsp;</label>
-          <button class="btn btn-danger" id="deleteOneBtn">Delete</button>
-        </div>
-      </div>
-      <div style="border-top:1px solid #2d3148; margin:1rem 0; padding-top:1rem;">
+    <div class="kpi-bar">
+      <div class="kpi"><div class="kpi-label">Total Records</div><div class="kpi-value" id="kpiTotal">-</div></div>
+      <div class="kpi"><div class="kpi-label">Oldest Record</div><div class="kpi-value" id="kpiOldest" style="font-size:1rem;">-</div></div>
+      <div class="kpi"><div class="kpi-label">Retention Policy</div><div class="kpi-value" id="kpiRetention" style="font-size:1rem;">-</div></div>
+      <div class="kpi"><div class="kpi-label">Audit Events</div><div class="kpi-value" id="kpiAudit">-</div></div>
+    </div>
+
+    <div class="grid">
+      <div class="card">
+        <h2>Data Export</h2>
+        <p style="color:#b3c4e7; font-size:0.88rem; margin-bottom:1rem;">Export all LLM call data for compliance or analysis.</p>
         <div class="form-row">
           <div class="form-group">
-            <label>Bulk delete older than (days)</label>
-            <input type="number" id="bulkDeleteDays" min="1" max="365" style="width:100px;" />
+            <label>Format</label>
+            <select id="exportFormat">
+              <option value="json">JSON</option>
+              <option value="csv">CSV</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Last N days (empty = all)</label>
+            <input type="number" id="exportDays" min="1" max="365" placeholder="e.g. 30" style="width:100px;" />
           </div>
           <div class="form-group">
             <label>&nbsp;</label>
-            <button class="btn btn-danger" id="bulkDeleteBtn">Bulk Delete</button>
+            <button class="btn" id="exportBtn">Export</button>
           </div>
         </div>
       </div>
-      <div id="deleteStatus" style="margin-top:0.5rem; font-size:0.8rem; color:#64748b;"></div>
+
+      <div class="card">
+        <h2>Retention Policy</h2>
+        <p style="color:#b3c4e7; font-size:0.88rem; margin-bottom:1rem;">Auto-delete data older than X days. Runs on manual trigger.</p>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Retention (days)</label>
+            <input type="number" id="retentionDays" min="1" max="365" placeholder="e.g. 90" style="width:100px;" />
+          </div>
+          <div class="form-group">
+            <label>&nbsp;</label>
+            <button class="btn btn-green" id="retentionSave">Save Policy</button>
+          </div>
+          <div class="form-group">
+            <label>&nbsp;</label>
+            <button class="btn btn-danger" id="retentionRun">Run Now</button>
+          </div>
+        </div>
+        <div id="retentionStatus" style="margin-top:0.5rem; font-size:0.8rem; color:var(--ink-soft);"></div>
+        <div id="retentionWarning" class="warn-box">Set a retention period to see impact guidance.</div>
+      </div>
     </div>
 
-    <!-- Audit Log -->
-    <div class="card" style="max-height:400px; overflow-y:auto;">
-      <h2>Audit Log</h2>
-      <table class="audit-table">
-        <thead><tr><th>Time</th><th>Action</th><th>Detail</th></tr></thead>
-        <tbody id="auditBody"></tbody>
-      </table>
+    <div class="grid">
+      <div class="card">
+        <h2>Data Deletion (GDPR)</h2>
+        <p style="color:#b3c4e7; font-size:0.88rem; margin-bottom:1rem;">Delete individual requests or bulk-delete old data.</p>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Request ID</label>
+            <input type="text" id="deleteId" placeholder="request UUID" style="width:250px;" />
+          </div>
+          <div class="form-group">
+            <label>&nbsp;</label>
+            <button class="btn btn-danger" id="deleteOneBtn">Delete</button>
+          </div>
+        </div>
+        <div style="border-top:1px solid var(--line); margin:1rem 0; padding-top:1rem;">
+          <div class="form-row">
+            <div class="form-group">
+              <label>Bulk delete older than (days)</label>
+              <input type="number" id="bulkDeleteDays" min="1" max="365" style="width:100px;" />
+            </div>
+            <div class="form-group">
+              <label>&nbsp;</label>
+              <button class="btn btn-danger" id="bulkDeleteBtn">Bulk Delete</button>
+            </div>
+          </div>
+        </div>
+        <div id="deleteStatus" style="margin-top:0.5rem; font-size:0.8rem; color:var(--ink-soft);"></div>
+      </div>
+
+      <div class="card" style="max-height:420px; overflow-y:auto;">
+        <h2>Audit Log</h2>
+        <table class="audit-table">
+          <thead><tr><th>Time</th><th>Action</th><th>Detail</th></tr></thead>
+          <tbody id="auditBody"></tbody>
+        </table>
+      </div>
     </div>
-  </div>
+  </main>
 
   <script>
     const API = "";
 
     function fmtTime(ts) {
-      if (!ts) return "—";
+      if (!ts) return "-";
       return new Date(ts * 1000).toLocaleString();
     }
 
-    // ── Load stats ───────────────────────────────────────────────────────────
     async function loadStats() {
       try {
         const res = await fetch(`${API}/compliance/stats`);
@@ -180,7 +279,6 @@
       } catch(e) { console.warn("stats failed", e); }
     }
 
-    // ── Export ────────────────────────────────────────────────────────────────
     document.getElementById("exportBtn").addEventListener("click", async () => {
       const format = document.getElementById("exportFormat").value;
       const days = document.getElementById("exportDays").value;
@@ -201,7 +299,6 @@
       setTimeout(loadAudit, 1000);
     });
 
-    // ── Retention ────────────────────────────────────────────────────────────
     document.getElementById("retentionSave").addEventListener("click", async () => {
       const days = document.getElementById("retentionDays").value;
       if (!days) return;
@@ -245,7 +342,6 @@
     }
     document.getElementById("retentionDays").addEventListener("input", updateRetentionWarning);
 
-    // ── Delete ───────────────────────────────────────────────────────────────
     document.getElementById("deleteOneBtn").addEventListener("click", async () => {
       const id = document.getElementById("deleteId").value.trim();
       if (!id) return;
@@ -267,7 +363,6 @@
       loadAudit();
     });
 
-    // ── Audit log ────────────────────────────────────────────────────────────
     async function loadAudit() {
       try {
         const res = await fetch(`${API}/compliance/audit-log?limit=30`);
@@ -279,12 +374,12 @@
           tr.innerHTML = `
             <td style="white-space:nowrap;">${fmtTime(e.timestamp)}</td>
             <td><span class="action-tag ${e.action}">${e.action}</span></td>
-            <td style="color:#94a3b8;">${e.detail || "—"}</td>
+            <td style="color:#b3c4e7;">${e.detail || "-"}</td>
           `;
           tbody.appendChild(tr);
         }
         if (!data.length) {
-          tbody.innerHTML = '<tr><td colspan="3" style="color:#64748b;">No audit events yet</td></tr>';
+          tbody.innerHTML = '<tr><td colspan="3" style="color:var(--ink-soft);">No audit events yet</td></tr>';
         }
       } catch(e) { console.warn("audit failed", e); }
     }

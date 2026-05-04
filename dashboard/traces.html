@@ -3,186 +3,270 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Agent Debugger — AgentLens</title>
+  <title>Agent Debugger - AgentLens</title>
   <script src="/auth.js"></script>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: system-ui, sans-serif; background: #0f1117; color: #e2e8f0; padding: 2rem; }
-    a { color: #818cf8; text-decoration: none; }
+    :root {
+      --bg: #0a0f1d;
+      --surface: #11182f;
+      --surface-soft: #131e38;
+      --ink: #e7ecff;
+      --ink-soft: #9aa8c6;
+      --line: #263556;
+      --accent: #7c9bff;
+      --accent-strong: #a8beff;
+      --ok: #4ade80;
+      --bad: #f87171;
+      --info: #60a5fa;
+      --shadow: 0 22px 54px rgba(0, 0, 0, 0.35);
+    }
+    body {
+      font-family: "Segoe UI Variable", "Segoe UI", "Trebuchet MS", "Lucida Sans", "Tahoma", sans-serif;
+      color: var(--ink);
+      background:
+        radial-gradient(1200px 520px at 90% -20%, #1a2650 0%, rgba(26, 38, 80, 0) 62%),
+        radial-gradient(900px 420px at -10% -10%, #152347 0%, rgba(21, 35, 71, 0) 58%),
+        var(--bg);
+      line-height: 1.5;
+      min-height: 100vh;
+    }
+    a { color: var(--accent-strong); text-decoration: none; }
     a:hover { text-decoration: underline; }
-    h1 { font-size: 1.5rem; margin-bottom: 0.25rem; }
-    .subtitle { color: #64748b; font-size: 0.875rem; margin-bottom: 1.5rem; }
-    .scope-pill { display:inline-block; margin-top:-1rem; margin-bottom:1.2rem; padding:0.25rem 0.6rem; border-radius:999px; border:1px solid #2d3148; color:#93c5fd; font-size:0.75rem; }
-    .nav { margin-bottom: 1rem; display: flex; gap: 1rem; }
-    .filters { display: flex; gap: 0.75rem; margin-bottom: 1.5rem; align-items: end; flex-wrap: wrap; }
+    .wrap { width: min(1220px, calc(100% - 2.4rem)); margin: 0 auto; }
+    .top-nav {
+      display: flex;
+      gap: 1rem;
+      align-items: center;
+      padding: 1.2rem 0 0.4rem;
+      font-size: 0.95rem;
+      font-weight: 700;
+    }
+    .hero {
+      border: 1px solid var(--line);
+      background: linear-gradient(160deg, rgba(19, 30, 56, 0.96), rgba(12, 18, 36, 0.96));
+      box-shadow: var(--shadow);
+      border-radius: 16px;
+      margin: 0.85rem 0 1rem;
+      padding: 1.15rem;
+    }
+    h1 { font-size: 2rem; margin-bottom: 0.2rem; letter-spacing: -0.01em; }
+    .subtitle { color: var(--ink-soft); font-size: 0.96rem; margin-bottom: 0.95rem; }
+    .scope-pill {
+      display: inline-block;
+      padding: 0.25rem 0.72rem;
+      border-radius: 999px;
+      border: 1px solid #36558c;
+      color: #c8d7fa;
+      background: rgba(18, 31, 60, 0.75);
+      font-size: 0.78rem;
+      font-weight: 700;
+    }
+    .panel {
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: rgba(17, 24, 47, 0.82);
+      padding: 1rem;
+      margin-bottom: 1rem;
+    }
+    .filters { display: flex; gap: 0.75rem; margin-bottom: 0.5rem; align-items: end; flex-wrap: wrap; }
     .filter-group { display: flex; flex-direction: column; gap: 0.25rem; }
-    .filter-group label { font-size: 0.7rem; color: #64748b; text-transform: uppercase; }
+    .filter-group label { font-size: 0.7rem; color: var(--ink-soft); text-transform: uppercase; letter-spacing: 0.08em; }
     .filter-group input, .filter-group select {
-      background: #1e2130; border: 1px solid #2d3148; color: #e2e8f0;
-      padding: 0.4rem 0.6rem; border-radius: 4px; font-size: 0.85rem; width: 160px;
+      background: var(--surface-soft);
+      border: 1px solid var(--line);
+      color: var(--ink);
+      padding: 0.48rem 0.66rem;
+      border-radius: 8px;
+      font-size: 0.9rem;
+      width: 170px;
     }
-    .btn { background: #818cf8; color: #0f1117; border: none; padding: 0.45rem 1rem; border-radius: 6px; font-weight: 600; cursor: pointer; }
-    .btn:hover { background: #6366f1; }
+    .btn {
+      background: var(--accent);
+      color: #0f1117;
+      border: none;
+      padding: 0.5rem 1rem;
+      border-radius: 9px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .btn:hover { background: #93adff; }
+    .btn.secondary { background: transparent; border: 1px solid var(--line); color: var(--ink-soft); }
 
-    /* Trace list */
     .trace-card {
-      background: #1e2130; border: 1px solid #2d3148; border-radius: 8px;
-      padding: 1rem 1.25rem; margin-bottom: 0.5rem; cursor: pointer; transition: border-color 0.2s;
+      background: rgba(19, 30, 56, 0.9);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 1rem 1.25rem;
+      margin-bottom: 0.6rem;
+      cursor: pointer;
+      transition: border-color 0.2s, transform 0.15s;
     }
-    .trace-card:hover { border-color: #818cf8; }
-    .trace-header { display: flex; justify-content: space-between; align-items: center; }
+    .trace-card:hover { border-color: var(--accent); transform: translateY(-1px); }
+    .trace-header { display: flex; justify-content: space-between; align-items: center; gap: 0.6rem; }
     .trace-name { font-weight: 700; font-size: 1rem; }
-    .trace-meta { display: flex; gap: 1rem; font-size: 0.75rem; color: #64748b; }
-    .status { display: inline-block; padding: 0.1rem 0.4rem; border-radius: 4px; font-size: 0.7rem; font-weight: 600; }
-    .status.completed { background: #1a2e1a; color: #4ade80; }
-    .status.failed { background: #3b1111; color: #f87171; }
-    .status.running { background: #1e3a5f; color: #60a5fa; }
-    .trace-preview { color: #94a3b8; font-size: 0.8rem; margin-top: 0.4rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .trace-meta { display: flex; gap: 0.9rem; font-size: 0.78rem; color: var(--ink-soft); flex-wrap: wrap; justify-content: flex-end; }
+    .status { display: inline-block; padding: 0.1rem 0.4rem; border-radius: 4px; font-size: 0.7rem; font-weight: 700; }
+    .status.completed { background: #1a2e1a; color: var(--ok); }
+    .status.failed { background: #3b1111; color: var(--bad); }
+    .status.running { background: #1e3a5f; color: var(--info); }
+    .trace-preview { color: #b3c4e7; font-size: 0.84rem; margin-top: 0.4rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
-    /* Detail view */
     #detailView { display: none; }
     .detail-header { margin-bottom: 1.5rem; }
     .detail-kpis { display: grid; grid-template-columns: repeat(5, 1fr); gap: 0.75rem; margin-bottom: 1.5rem; }
-    .detail-kpi { background: #1e2130; border: 1px solid #2d3148; border-radius: 8px; padding: 0.75rem; text-align: center; }
-    .detail-kpi .val { font-size: 1.25rem; font-weight: 700; color: #818cf8; }
-    .detail-kpi .lbl { font-size: 0.7rem; color: #64748b; margin-top: 0.2rem; }
+    .detail-kpi { background: rgba(19, 30, 56, 0.9); border: 1px solid var(--line); border-radius: 10px; padding: 0.75rem; text-align: center; }
+    .detail-kpi .val { font-size: 1.25rem; font-weight: 700; color: var(--accent); }
+    .detail-kpi .lbl { font-size: 0.7rem; color: var(--ink-soft); margin-top: 0.2rem; }
     .io-section { margin-bottom: 1rem; }
-    .io-label { font-size: 0.7rem; text-transform: uppercase; color: #64748b; margin-bottom: 0.3rem; }
-    .io-content { background: #1e2130; border: 1px solid #2d3148; border-radius: 6px; padding: 0.75rem; font-size: 0.8rem; color: #cbd5e1; white-space: pre-wrap; word-break: break-word; max-height: 150px; overflow-y: auto; }
+    .io-label { font-size: 0.7rem; text-transform: uppercase; color: var(--ink-soft); margin-bottom: 0.3rem; letter-spacing: 0.08em; }
+    .io-content { background: rgba(19, 30, 56, 0.9); border: 1px solid var(--line); border-radius: 8px; padding: 0.75rem; font-size: 0.8rem; color: #cbd5e1; white-space: pre-wrap; word-break: break-word; max-height: 150px; overflow-y: auto; }
 
-    /* Waterfall timeline */
     .waterfall { margin-top: 1.5rem; }
-    .waterfall h2 { font-size: 0.875rem; text-transform: uppercase; color: #64748b; margin-bottom: 1rem; }
+    .waterfall h2 { font-size: 0.875rem; text-transform: uppercase; color: var(--ink-soft); margin-bottom: 1rem; letter-spacing: 0.08em; }
     .span-row { display: flex; align-items: stretch; margin-bottom: 2px; min-height: 36px; }
-    .span-label { width: 200px; flex-shrink: 0; display: flex; align-items: center; gap: 0.4rem; font-size: 0.8rem; padding-right: 0.5rem; }
-    .span-type-badge { font-size: 0.6rem; padding: 0.1rem 0.3rem; border-radius: 3px; font-weight: 600; flex-shrink: 0; }
+    .span-label { width: 220px; flex-shrink: 0; display: flex; align-items: center; gap: 0.4rem; font-size: 0.8rem; padding-right: 0.5rem; }
+    .span-type-badge { font-size: 0.6rem; padding: 0.1rem 0.3rem; border-radius: 3px; font-weight: 700; flex-shrink: 0; }
     .span-type-badge.llm { background: #312e81; color: #a5b4fc; }
     .span-type-badge.tool { background: #1a2e1a; color: #4ade80; }
     .span-type-badge.retrieval { background: #2d2418; color: #fb923c; }
     .span-type-badge.decision { background: #3b1111; color: #fca5a5; }
     .span-type-badge.custom { background: #1e293b; color: #94a3b8; }
-    .span-track { flex: 1; position: relative; background: #0f1117; border-radius: 4px; overflow: hidden; }
+    .span-track { flex: 1; position: relative; background: rgba(10, 15, 29, 0.85); border-radius: 6px; overflow: hidden; border: 1px solid var(--line); }
     .span-bar { position: absolute; height: 100%; border-radius: 4px; min-width: 2px; cursor: pointer; display: flex; align-items: center; padding-left: 0.4rem; font-size: 0.7rem; color: #fff; }
     .span-bar.completed { background: #818cf8; }
     .span-bar.failed { background: #f87171; }
     .span-bar.running { background: #60a5fa; }
     .span-bar:hover { opacity: 0.85; }
 
-    /* Span detail popup */
-    .span-detail { display: none; background: #1e2130; border: 1px solid #2d3148; border-radius: 8px; padding: 1rem; margin: 0.5rem 0 0.5rem 200px; font-size: 0.8rem; }
+    .span-detail { display: none; background: rgba(19, 30, 56, 0.9); border: 1px solid var(--line); border-radius: 10px; padding: 1rem; margin: 0.5rem 0 0.5rem 220px; font-size: 0.8rem; }
     .span-detail.open { display: block; }
     .span-detail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; margin-bottom: 0.75rem; }
-    .span-detail-item .key { color: #64748b; font-size: 0.7rem; text-transform: uppercase; }
+    .span-detail-item .key { color: var(--ink-soft); font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.08em; }
     .span-detail-item .val { color: #e2e8f0; margin-top: 0.15rem; }
     .span-io { margin-top: 0.5rem; }
-    .span-io-label { font-size: 0.7rem; color: #64748b; text-transform: uppercase; margin-bottom: 0.2rem; }
-    .span-io-content { background: #0f1117; border-radius: 4px; padding: 0.5rem; color: #cbd5e1; white-space: pre-wrap; max-height: 120px; overflow-y: auto; font-size: 0.75rem; }
+    .span-io-label { font-size: 0.7rem; color: var(--ink-soft); text-transform: uppercase; margin-bottom: 0.2rem; letter-spacing: 0.08em; }
+    .span-io-content { background: rgba(10, 15, 29, 0.85); border: 1px solid var(--line); border-radius: 6px; padding: 0.5rem; color: #cbd5e1; white-space: pre-wrap; max-height: 120px; overflow-y: auto; font-size: 0.75rem; }
 
-    @media (max-width: 700px) { .detail-kpis { grid-template-columns: repeat(2, 1fr); } .span-label { width: 120px; } }
+    @media (max-width: 980px) {
+      .detail-kpis { grid-template-columns: repeat(2, 1fr); }
+      .span-label { width: 140px; }
+      .span-detail { margin-left: 140px; }
+    }
+    @media (max-width: 760px) {
+      .wrap { width: min(1220px, calc(100% - 1.2rem)); }
+      h1 { font-size: 1.65rem; }
+      .trace-header { flex-direction: column; align-items: flex-start; }
+      .trace-meta { justify-content: flex-start; }
+    }
   </style>
 </head>
 <body>
-  <div class="nav">
-    <a href="/">← Dashboard</a>
-    <a href="/debug.html">Prompt Debugger</a>
-    <a href="/compliance.html">Compliance</a>
-  </div>
-  <h1>Agent Debugger</h1>
-  <p class="subtitle">Trace multi-step agent runs — see every step, find where things break</p>
-  <div class="scope-pill">Data Scope: API-key isolated project context</div>
-
-  <!-- List view -->
-  <div id="listView">
-    <div class="filters">
-      <div class="filter-group">
-        <label>Agent name</label>
-        <input type="text" id="filterName" placeholder="e.g. research_agent" />
-      </div>
-      <div class="filter-group">
-        <label>Status</label>
-        <select id="filterStatus">
-          <option value="">All</option>
-          <option value="completed">Completed</option>
-          <option value="failed">Failed</option>
-          <option value="running">Running</option>
-        </select>
-      </div>
-      <div class="filter-group">
-        <label>From</label>
-        <input type="datetime-local" id="filterFrom" />
-      </div>
-      <div class="filter-group">
-        <label>To</label>
-        <input type="datetime-local" id="filterTo" />
-      </div>
-      <div class="filter-group">
-        <label>Min duration (ms)</label>
-        <input type="number" id="filterMinDuration" placeholder="e.g. 1000" min="0" />
-      </div>
-      <div class="filter-group">
-        <label>Min cost (USD)</label>
-        <input type="number" id="filterMinCost" placeholder="e.g. 0.01" min="0" step="0.001" />
-      </div>
-      <div class="filter-group">
-        <label>&nbsp;</label>
-        <button class="btn" id="searchBtn">Search</button>
-      </div>
-      <div class="filter-group">
-        <label>&nbsp;</label>
-        <button class="btn" id="resetBtn" style="background:none; border:1px solid #2d3148; color:#64748b;">Reset</button>
-      </div>
-    </div>
-    <div id="traceCount" style="color:#64748b; font-size:0.8rem; margin-bottom:0.75rem;"></div>
-    <div id="traceList"></div>
-  </div>
-
-  <!-- Detail view -->
-  <div id="detailView">
-    <button class="btn" id="backBtn" style="margin-bottom:1rem; background:none; border:1px solid #2d3148; color:#64748b;">← Back to list</button>
-    <div class="detail-header">
-      <div style="display:flex; align-items:center; gap:0.75rem;">
-        <span id="detailName" style="font-size:1.25rem; font-weight:700;"></span>
-        <span id="detailStatus"></span>
-      </div>
-      <div id="detailError" style="display:none; background:#2d1b1b; border:1px solid #7f1d1d; border-radius:6px; padding:0.5rem 0.75rem; color:#f87171; font-size:0.85rem; margin-top:0.5rem;"></div>
+  <main class="wrap">
+    <div class="top-nav">
+      <a href="/">Back to Dashboard</a>
+      <a href="/debug.html">Prompt Debugger</a>
+      <a href="/compliance.html">Compliance</a>
     </div>
 
-    <div class="detail-kpis">
-      <div class="detail-kpi"><div class="val" id="kpiSpans">—</div><div class="lbl">Steps</div></div>
-      <div class="detail-kpi"><div class="val" id="kpiDuration">—</div><div class="lbl">Duration</div></div>
-      <div class="detail-kpi"><div class="val" id="kpiTokens">—</div><div class="lbl">Total Tokens</div></div>
-      <div class="detail-kpi"><div class="val" id="kpiCost">—</div><div class="lbl">Total Cost</div></div>
-      <div class="detail-kpi"><div class="val" id="kpiModel">—</div><div class="lbl">Models</div></div>
+    <div class="hero">
+      <h1>Agent Debugger</h1>
+      <p class="subtitle">Trace multi-step agent runs - see every step, find where things break.</p>
+      <div class="scope-pill">Data Scope: API-key isolated project context</div>
     </div>
 
-    <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem; margin-bottom:1.5rem;">
-      <div class="io-section">
-        <div class="io-label">Agent Input</div>
-        <div class="io-content" id="detailInput">—</div>
+    <div id="listView">
+      <div class="panel">
+        <div class="filters">
+          <div class="filter-group">
+            <label>Agent name</label>
+            <input type="text" id="filterName" placeholder="e.g. research_agent" />
+          </div>
+          <div class="filter-group">
+            <label>Status</label>
+            <select id="filterStatus">
+              <option value="">All</option>
+              <option value="completed">Completed</option>
+              <option value="failed">Failed</option>
+              <option value="running">Running</option>
+            </select>
+          </div>
+          <div class="filter-group">
+            <label>From</label>
+            <input type="datetime-local" id="filterFrom" />
+          </div>
+          <div class="filter-group">
+            <label>To</label>
+            <input type="datetime-local" id="filterTo" />
+          </div>
+          <div class="filter-group">
+            <label>Min duration (ms)</label>
+            <input type="number" id="filterMinDuration" placeholder="e.g. 1000" min="0" />
+          </div>
+          <div class="filter-group">
+            <label>Min cost (USD)</label>
+            <input type="number" id="filterMinCost" placeholder="e.g. 0.01" min="0" step="0.001" />
+          </div>
+          <div class="filter-group">
+            <label>&nbsp;</label>
+            <button class="btn" id="searchBtn">Search</button>
+          </div>
+          <div class="filter-group">
+            <label>&nbsp;</label>
+            <button class="btn secondary" id="resetBtn">Reset</button>
+          </div>
+        </div>
+        <div id="traceCount" style="color:var(--ink-soft); font-size:0.84rem; margin-bottom:0.75rem;"></div>
       </div>
-      <div class="io-section">
-        <div class="io-label">Agent Output</div>
-        <div class="io-content" id="detailOutput">—</div>
-      </div>
+      <div id="traceList"></div>
     </div>
 
-    <div class="waterfall">
-      <h2>Execution Timeline</h2>
-      <div id="waterfallContainer"></div>
+    <div id="detailView">
+      <button class="btn secondary" id="backBtn" style="margin-bottom:1rem;">Back to list</button>
+      <div class="detail-header">
+        <div style="display:flex; align-items:center; gap:0.75rem;">
+          <span id="detailName" style="font-size:1.25rem; font-weight:700;"></span>
+          <span id="detailStatus"></span>
+        </div>
+        <div id="detailError" style="display:none; background:#2d1b1b; border:1px solid #7f1d1d; border-radius:8px; padding:0.5rem 0.75rem; color:#f87171; font-size:0.85rem; margin-top:0.5rem;"></div>
+      </div>
+
+      <div class="detail-kpis">
+        <div class="detail-kpi"><div class="val" id="kpiSpans">-</div><div class="lbl">Steps</div></div>
+        <div class="detail-kpi"><div class="val" id="kpiDuration">-</div><div class="lbl">Duration</div></div>
+        <div class="detail-kpi"><div class="val" id="kpiTokens">-</div><div class="lbl">Total Tokens</div></div>
+        <div class="detail-kpi"><div class="val" id="kpiCost">-</div><div class="lbl">Total Cost</div></div>
+        <div class="detail-kpi"><div class="val" id="kpiModel">-</div><div class="lbl">Models</div></div>
+      </div>
+
+      <div class="panel" style="display:grid; grid-template-columns:1fr 1fr; gap:1rem; margin-bottom:1.5rem;">
+        <div class="io-section">
+          <div class="io-label">Agent Input</div>
+          <div class="io-content" id="detailInput">-</div>
+        </div>
+        <div class="io-section">
+          <div class="io-label">Agent Output</div>
+          <div class="io-content" id="detailOutput">-</div>
+        </div>
+      </div>
+
+      <div class="waterfall">
+        <h2>Execution Timeline</h2>
+        <div id="waterfallContainer"></div>
+      </div>
     </div>
-  </div>
+  </main>
 
   <script>
     const API = "";
 
-    function fmtTime(ts) { return ts ? new Date(ts * 1000).toLocaleString() : "—"; }
+    function fmtTime(ts) { return ts ? new Date(ts * 1000).toLocaleString() : "-"; }
     function fmtDuration(ms) {
-      if (!ms) return "—";
+      if (!ms) return "-";
       if (ms < 1000) return ms.toFixed(0) + "ms";
       return (ms / 1000).toFixed(1) + "s";
     }
 
-    // ── List view ────────────────────────────────────────────────────────────
     async function loadTraces() {
       const params = new URLSearchParams();
       const name = document.getElementById("filterName").value;
@@ -230,11 +314,10 @@
       }
 
       if (!data.count) {
-        list.innerHTML = '<div style="color:#64748b; text-align:center; padding:3rem;">No traces yet. Use <code>trace_agent()</code> in your code to start tracing.</div>';
+        list.innerHTML = '<div style="color:var(--ink-soft); text-align:center; padding:3rem;">No traces yet. Use <code>trace_agent()</code> in your code to start tracing.</div>';
       }
     }
 
-    // ── Detail view ──────────────────────────────────────────────────────────
     async function loadTraceDetail(traceId) {
       const res = await fetch(`${API}/traces/${traceId}`);
       const t = await res.json();
@@ -256,16 +339,15 @@
 
       document.getElementById("kpiSpans").textContent = t.spans.length;
       document.getElementById("kpiDuration").textContent = fmtDuration(t.total_duration_ms);
-      document.getElementById("kpiTokens").textContent = t.total_tokens || "—";
-      document.getElementById("kpiCost").textContent = t.total_cost_usd ? "$" + t.total_cost_usd.toFixed(4) : "—";
+      document.getElementById("kpiTokens").textContent = t.total_tokens || "-";
+      document.getElementById("kpiCost").textContent = t.total_cost_usd ? "$" + t.total_cost_usd.toFixed(4) : "-";
 
       const models = [...new Set(t.spans.filter(s => s.model).map(s => s.model))];
-      document.getElementById("kpiModel").textContent = models.join(", ") || "—";
+      document.getElementById("kpiModel").textContent = models.join(", ") || "-";
 
-      document.getElementById("detailInput").textContent = t.input || "—";
-      document.getElementById("detailOutput").textContent = t.output || "—";
+      document.getElementById("detailInput").textContent = t.input || "-";
+      document.getElementById("detailOutput").textContent = t.output || "-";
 
-      // Build waterfall
       renderWaterfall(t.spans, t.started_at, t.ended_at || (t.started_at + (t.total_duration_ms || 1000) / 1000));
     }
 
@@ -301,7 +383,6 @@
 
         container.appendChild(row);
 
-        // Span detail (click to expand)
         const detail = document.createElement("div");
         detail.className = "span-detail";
         detail.innerHTML = `
@@ -324,7 +405,6 @@
       }
     }
 
-    // ── Events ───────────────────────────────────────────────────────────────
     document.getElementById("searchBtn").addEventListener("click", loadTraces);
     document.getElementById("resetBtn").addEventListener("click", () => {
       document.getElementById("filterName").value = "";
