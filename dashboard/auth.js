@@ -4,6 +4,19 @@
  */
 (function () {
   const STORAGE_KEY = "agentlens_api_key";
+  const FAVICON_HREF = "/logo.svg";
+
+  function ensureFavicon() {
+    const existing = document.querySelector('link[rel="icon"], link[rel="shortcut icon"]');
+    if (existing) return;
+    const link = document.createElement("link");
+    link.setAttribute("rel", "icon");
+    link.setAttribute("type", "image/svg+xml");
+    link.setAttribute("href", FAVICON_HREF);
+    document.head.appendChild(link);
+  }
+
+  ensureFavicon();
 
   // 1. Pick up key from URL param on first visit
   const urlKey = new URLSearchParams(window.location.search).get("api_key");
