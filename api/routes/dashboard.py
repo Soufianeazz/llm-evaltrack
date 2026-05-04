@@ -1,6 +1,9 @@
 """
 Read endpoints consumed by the dashboard.
 """
+import asyncio
+import time
+
 from fastapi import APIRouter, Depends, Query
 from sqlalchemy import select, text
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -10,6 +13,9 @@ from storage.database import get_session
 from storage.models import Evaluation, Request
 
 router = APIRouter()
+_STATS_CACHE_TTL_SECONDS = 5.0
+_stats_cache: dict[str, tuple[float, dict]] = {}
+_stats_cache_lock = asyncio.Lock()
 
 
 @router.get("/requests/worst")
@@ -185,25 +191,39 @@ async def overview_stats(
     db: AsyncSession = Depends(get_session),
     api_key: str = Depends(require_api_key),
 ):
-    sql = text("""
-        SELECT
-            COUNT(*) AS total_calls,
-            AVG(e.quality_score) AS avg_quality,
-            SUM(CAST(json_extract(r.metadata, '$.cost_usd') AS REAL)) AS total_cost,
-            COUNT(CASE WHEN e.quality_score < 0.6 THEN 1 END) AS bad_calls
-        FROM requests r
-        JOIN evaluations e ON e.request_id = r.id
-        WHERE r.timestamp >= strftime('%s','now','-1 day')
-          AND r.api_key = :api_key
-    """)
-    row = (await db.execute(sql, {"api_key": api_key})).one()
-    total = row.total_calls or 0
-    return {
-        "total_calls_24h": total,
-        "avg_quality_24h": round(row.avg_quality or 0, 3),
-        "total_cost_24h_usd": round(row.total_cost or 0, 4),
-        "bad_response_rate": round((row.bad_calls or 0) / total, 3) if total > 0 else 0,
-    }
+    now = time.monotonic()
+    cached = _stats_cache.get(api_key)
+    if cached and now - cached[0] <= _STATS_CACHE_TTL_SECONDS:
+        return cached[1]
+
+    # Guard against thundering herd under burst traffic for the same API key.
+    async with _stats_cache_lock:
+        now = time.monotonic()
+        cached = _stats_cache.get(api_key)
+        if cached and now - cached[0] <= _STATS_CACHE_TTL_SECONDS:
+            return cached[1]
+
+        sql = text("""
+            SELECT
+                COUNT(*) AS total_calls,
+                AVG(e.quality_score) AS avg_quality,
+                SUM(CAST(json_extract(r.metadata, '$.cost_usd') AS REAL)) AS total_cost,
+                COUNT(CASE WHEN e.quality_score < 0.6 THEN 1 END) AS bad_calls
+            FROM requests r
+            JOIN evaluations e ON e.request_id = r.id
+            WHERE r.timestamp >= strftime('%s','now','-1 day')
+              AND r.api_key = :api_key
+        """)
+        row = (await db.execute(sql, {"api_key": api_key})).one()
+        total = row.total_calls or 0
+        payload = {
+            "total_calls_24h": total,
+            "avg_quality_24h": round(row.avg_quality or 0, 3),
+            "total_cost_24h_usd": round(row.total_cost or 0, 4),
+            "bad_response_rate": round((row.bad_calls or 0) / total, 3) if total > 0 else 0,
+        }
+        _stats_cache[api_key] = (time.monotonic(), payload)
+        return payload
 
 
 @router.get("/requests/regression")
