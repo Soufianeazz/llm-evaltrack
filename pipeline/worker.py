@@ -89,13 +89,28 @@ async def _check_budget_alert(db) -> None:
             if alert.webhook_url:
                 try:
                     async with httpx.AsyncClient(timeout=10) as client:
-                        await client.post(alert.webhook_url, json={
+                        percent_used = round(spent / alert.daily_budget_usd * 100, 1)
+                        payload = {
+                            # Slack incoming webhooks require a text field.
+                            "text": (
+                                f":rotating_light: AgentLens budget alert triggered\\n"
+                                f"Budget: ${alert.daily_budget_usd:.2f}\\n"
+                                f"Spent today: ${round(spent, 4):.4f}\\n"
+                                f"Usage: {percent_used}%"
+                            ),
                             "alert": "budget_exceeded",
                             "daily_budget_usd": alert.daily_budget_usd,
                             "spent_today_usd": round(spent, 4),
-                            "percent_used": round(spent / alert.daily_budget_usd * 100, 1),
+                            "percent_used": percent_used,
                             "timestamp": time.time(),
-                        })
+                        }
+                        resp = await client.post(alert.webhook_url, json=payload)
+                        if resp.status_code >= 400:
+                            logger.error(
+                                "Budget alert webhook returned error status=%s body=%s",
+                                resp.status_code,
+                                (resp.text or "")[:500],
+                            )
                 except Exception:
                     logger.exception("Failed to send webhook for budget alert")
     except Exception:
