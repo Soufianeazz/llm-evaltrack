@@ -46,9 +46,9 @@ Ziel: Abschlussfähigkeit für Enterprise-Deals in 90 Tagen.
 ## Phase 2 (Tag 31–60) – Hardening
 
 ### Security
-- [ ] Externer Pentest (oder gleichwertiger Security-Review) beauftragen.
+- [ ] Externer Pentest (oder gleichwertiger Security-Review) beauftragen. (In Vorbereitung seit 2026-05-03; erste Vendor-Antwort eingegangen am 2026-05-04, Follow-up fuer Q3 geplant; siehe `enterprise/PENTEST_VENDOR_SHORTLIST_2026-05-03.md` + `enterprise/PENTEST_VENDOR_OUTREACH_EMAILS_2026-05-03.md`)
 - [ ] Findings abarbeiten und Report-Summary freigeben.
-- [ ] Secret-Management-Härtung (Rotation-Intervalle + Owner).
+- [x] Secret-Management-Härtung (Rotation-Intervalle + Owner). (2026-05-03, siehe `enterprise/SECRET_MANAGEMENT_STANDARD_V1.md` + `enterprise/SECRET_INVENTORY_AND_ROTATION_MATRIX_2026-05-03.md`)
 
 ### Produkt
 - [x] SSO-Plan entscheiden: SAML oder OIDC (mind. einer produktiv). (2026-05-02, OIDC-first, siehe `enterprise/SSO_DECISION_PLAN_OIDC_FIRST.md`)
