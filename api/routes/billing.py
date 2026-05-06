@@ -149,6 +149,11 @@ async def checkout(plan: str):
             "cancel_url": f"{base_url}/",
             "allow_promotion_codes": True,
             "payment_method_types": _payment_method_types(),
+            "custom_text": {
+                "submit": {
+                    "message": f"By subscribing, you agree to a {CONTRACT_TERM_MONTHS}-month contract term with monthly billing."
+                }
+            },
             "metadata": {
                 "plan": plan,
                 "source": "website_checkout",
