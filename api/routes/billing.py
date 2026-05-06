@@ -39,11 +39,18 @@ def _payment_method_types() -> list[str]:
     return methods
 
 
+def _clean_text(value: Any, max_len: int = 500) -> str:
+    if value is None:
+        return ""
+    return str(value).strip()[:max_len]
+
+
 async def _notify_billing_event(payload: dict[str, Any]) -> None:
     webhook_url = os.environ.get("BILLING_EVENT_WEBHOOK_URL", "").strip()
     resend_api_key = os.environ.get("RESEND_API_KEY", "").strip()
     notify_email = os.environ.get("BILLING_NOTIFY_EMAIL", "").strip()
     from_email = os.environ.get("BILLING_NOTIFY_FROM_EMAIL", "AgentLens Billing <noreply@agentlens.one>").strip()
+    event_kind = payload.get("event_kind", "billing_checkout_completed")
 
     async with httpx.AsyncClient(timeout=10) as client:
         if webhook_url:
@@ -51,7 +58,7 @@ async def _notify_billing_event(payload: dict[str, Any]) -> None:
                 await client.post(
                     webhook_url,
                     json={
-                        "event": "billing_checkout_completed",
+                        "event": event_kind,
                         "timestamp": payload.get("timestamp", time.time()),
                         "billing": payload,
                     },
@@ -61,21 +68,45 @@ async def _notify_billing_event(payload: dict[str, Any]) -> None:
 
         if resend_api_key and notify_email:
             try:
-                subject = f"New subscription: {payload.get('plan', 'unknown')} - {payload.get('email', 'no-email')}"
-                body = (
-                    "New AgentLens subscription purchase\n\n"
-                    f"Plan: {payload.get('plan', 'n/a')}\n"
-                    f"Contract term: {payload.get('contract_term_months', 'n/a')} months\n"
-                    f"Billing interval: {payload.get('billing_interval', 'n/a')}\n"
-                    f"Email: {payload.get('email', 'n/a')}\n"
-                    f"Name: {payload.get('name', 'n/a')}\n"
-                    f"Amount: {payload.get('amount_total', 'n/a')} {payload.get('currency', 'n/a')}\n"
-                    f"Stripe customer: {payload.get('customer_id', 'n/a')}\n"
-                    f"Subscription: {payload.get('subscription_id', 'n/a')}\n"
-                    f"Checkout session: {payload.get('checkout_session_id', 'n/a')}\n"
-                    f"Source: {payload.get('source', 'n/a')}\n"
-                    f"Timestamp: {payload.get('timestamp', 'n/a')}\n"
-                )
+                if event_kind == "billing_onboarding_submitted":
+                    subject = f"Onboarding submitted: {payload.get('plan', 'unknown')} - {payload.get('email', 'no-email')}"
+                    body = (
+                        "AgentLens onboarding form submitted\n\n"
+                        f"Plan: {payload.get('plan', 'n/a')}\n"
+                        f"Contract term: {payload.get('contract_term_months', 'n/a')} months\n"
+                        f"Billing interval: {payload.get('billing_interval', 'n/a')}\n"
+                        f"Customer email: {payload.get('email', 'n/a')}\n"
+                        f"Customer name: {payload.get('name', 'n/a')}\n"
+                        f"Company: {payload.get('company_name', 'n/a')}\n"
+                        f"Website: {payload.get('company_website', 'n/a')}\n"
+                        f"Primary use case: {payload.get('use_case', 'n/a')}\n"
+                        f"Team size: {payload.get('team_size', 'n/a')}\n"
+                        f"Monthly volume expectation: {payload.get('monthly_volume', 'n/a')}\n"
+                        f"Technical contact name: {payload.get('technical_contact_name', 'n/a')}\n"
+                        f"Technical contact email: {payload.get('technical_contact_email', 'n/a')}\n"
+                        f"Preferred kickoff window: {payload.get('kickoff_timeline', 'n/a')}\n"
+                        f"Implementation notes: {payload.get('implementation_notes', 'n/a')}\n"
+                        f"Stripe customer: {payload.get('customer_id', 'n/a')}\n"
+                        f"Subscription: {payload.get('subscription_id', 'n/a')}\n"
+                        f"Checkout session: {payload.get('checkout_session_id', 'n/a')}\n"
+                        f"Timestamp: {payload.get('timestamp', 'n/a')}\n"
+                    )
+                else:
+                    subject = f"New subscription: {payload.get('plan', 'unknown')} - {payload.get('email', 'no-email')}"
+                    body = (
+                        "New AgentLens subscription purchase\n\n"
+                        f"Plan: {payload.get('plan', 'n/a')}\n"
+                        f"Contract term: {payload.get('contract_term_months', 'n/a')} months\n"
+                        f"Billing interval: {payload.get('billing_interval', 'n/a')}\n"
+                        f"Email: {payload.get('email', 'n/a')}\n"
+                        f"Name: {payload.get('name', 'n/a')}\n"
+                        f"Amount: {payload.get('amount_total', 'n/a')} {payload.get('currency', 'n/a')}\n"
+                        f"Stripe customer: {payload.get('customer_id', 'n/a')}\n"
+                        f"Subscription: {payload.get('subscription_id', 'n/a')}\n"
+                        f"Checkout session: {payload.get('checkout_session_id', 'n/a')}\n"
+                        f"Source: {payload.get('source', 'n/a')}\n"
+                        f"Timestamp: {payload.get('timestamp', 'n/a')}\n"
+                    )
                 await client.post(
                     "https://api.resend.com/emails",
                     headers={"Authorization": f"Bearer {resend_api_key}"},
@@ -218,6 +249,7 @@ async def stripe_webhook(request: Request):
             customer_details = session.get("customer_details") or {}
             amount_total = session.get("amount_total")
             notify_payload = {
+                "event_kind": "billing_checkout_completed",
                 "event_id": event.get("id"),
                 "timestamp": time.time(),
                 "plan": (session.get("metadata") or {}).get("plan", "unknown"),
@@ -235,4 +267,60 @@ async def stripe_webhook(request: Request):
             }
             await _notify_billing_event(notify_payload)
 
+    return {"received": True}
+
+
+@router.post("/onboarding-intake")
+async def onboarding_intake(request: Request):
+    stripe.api_key = _load_stripe_key()
+    if not stripe.api_key:
+        raise HTTPException(status_code=503, detail="Stripe not configured. Set STRIPE_SECRET_KEY.")
+
+    try:
+        form_data = await request.json()
+    except Exception:
+        raise HTTPException(status_code=400, detail="Invalid JSON payload")
+
+    session_id = _clean_text(form_data.get("session_id"), 255)
+    if not session_id:
+        raise HTTPException(status_code=400, detail="Missing session_id")
+
+    try:
+        session = await asyncio.to_thread(
+            lambda: stripe.checkout.Session.retrieve(session_id)
+        )
+    except stripe.StripeError as e:
+        raise HTTPException(status_code=400, detail=f"Stripe error: {e.user_message or str(e)}")
+
+    if (session.get("mode") or "") != "subscription":
+        raise HTTPException(status_code=400, detail="Session is not a subscription checkout")
+
+    customer_details = session.get("customer_details") or {}
+    amount_total = session.get("amount_total")
+    intake_payload = {
+        "event_kind": "billing_onboarding_submitted",
+        "timestamp": time.time(),
+        "plan": (session.get("metadata") or {}).get("plan", "unknown"),
+        "contract_term_months": (session.get("metadata") or {}).get("contract_term_months", str(CONTRACT_TERM_MONTHS)),
+        "billing_interval": (session.get("metadata") or {}).get("billing_interval", "month"),
+        "email": customer_details.get("email") or session.get("customer_email"),
+        "name": customer_details.get("name"),
+        "amount_total": (amount_total / 100) if isinstance(amount_total, int) else amount_total,
+        "currency": (session.get("currency") or "").upper(),
+        "customer_id": session.get("customer"),
+        "subscription_id": session.get("subscription"),
+        "checkout_session_id": session.get("id"),
+        "payment_status": session.get("payment_status"),
+        "company_name": _clean_text(form_data.get("company_name"), 160),
+        "company_website": _clean_text(form_data.get("company_website"), 300),
+        "use_case": _clean_text(form_data.get("use_case"), 1500),
+        "team_size": _clean_text(form_data.get("team_size"), 80),
+        "monthly_volume": _clean_text(form_data.get("monthly_volume"), 120),
+        "technical_contact_name": _clean_text(form_data.get("technical_contact_name"), 160),
+        "technical_contact_email": _clean_text(form_data.get("technical_contact_email"), 320),
+        "kickoff_timeline": _clean_text(form_data.get("kickoff_timeline"), 120),
+        "implementation_notes": _clean_text(form_data.get("implementation_notes"), 2000),
+    }
+
+    await _notify_billing_event(intake_payload)
     return {"received": True}

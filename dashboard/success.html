@@ -3,48 +3,266 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Welcome to AgentLens!</title>
+  <title>AgentLens Onboarding</title>
   <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: system-ui, sans-serif; background: #0f1117; color: #e2e8f0; min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 2rem; }
-    .card { background: #1e2130; border: 1px solid #2d3148; border-radius: 16px; padding: 3rem 2.5rem; max-width: 520px; width: 100%; text-align: center; }
-    .icon { font-size: 3.5rem; margin-bottom: 1.5rem; }
-    h1 { font-size: 1.75rem; font-weight: 800; margin-bottom: 0.75rem; }
-    p { color: #94a3b8; font-size: 0.95rem; line-height: 1.7; margin-bottom: 1.5rem; }
-    .steps { text-align: left; background: #0f1117; border-radius: 10px; padding: 1.25rem 1.5rem; margin-bottom: 2rem; }
-    .step { display: flex; gap: 0.75rem; align-items: flex-start; margin-bottom: 0.85rem; font-size: 0.875rem; }
-    .step:last-child { margin-bottom: 0; }
-    .step-num { background: #818cf8; color: #0f1117; font-weight: 800; border-radius: 50%; width: 22px; height: 22px; display: flex; align-items: center; justify-content: center; font-size: 0.7rem; flex-shrink: 0; margin-top: 1px; }
-    .step-text { color: #cbd5e1; }
-    .step-text strong { color: #e2e8f0; }
-    .btn { display: inline-block; background: #818cf8; color: #0f1117; font-weight: 700; padding: 0.75rem 2rem; border-radius: 8px; text-decoration: none; font-size: 0.95rem; }
-    .btn:hover { background: #6366f1; }
-    .note { font-size: 0.78rem; color: #475569; margin-top: 1.25rem; }
+    :root {
+      --bg: #070d22;
+      --bg-soft: #111a36;
+      --line: #24315f;
+      --text: #ebf1ff;
+      --muted: #9ca9ce;
+      --primary: #5d8eff;
+      --primary-dark: #3f72e6;
+      --ok: #1fc27a;
+      --danger: #ff6b6b;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "Segoe UI", Tahoma, sans-serif;
+      background: radial-gradient(1200px 800px at 10% 10%, #13214b, var(--bg));
+      color: var(--text);
+      min-height: 100vh;
+      padding: 24px;
+    }
+    .wrap {
+      max-width: 860px;
+      margin: 0 auto;
+      background: linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.01));
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 28px;
+    }
+    h1 {
+      margin: 0 0 8px;
+      font-size: 30px;
+      line-height: 1.2;
+    }
+    .sub {
+      margin: 0 0 18px;
+      color: var(--muted);
+      line-height: 1.6;
+    }
+    .badge {
+      display: inline-block;
+      background: rgba(31, 194, 122, 0.14);
+      border: 1px solid rgba(31, 194, 122, 0.4);
+      color: #a8f2cf;
+      border-radius: 999px;
+      padding: 4px 10px;
+      font-size: 12px;
+      margin-bottom: 14px;
+    }
+    form {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+    }
+    .field { display: flex; flex-direction: column; gap: 6px; }
+    .field.full { grid-column: 1 / -1; }
+    label {
+      font-size: 13px;
+      color: #c8d3f7;
+      font-weight: 600;
+    }
+    input, select, textarea {
+      width: 100%;
+      border: 1px solid var(--line);
+      background: var(--bg-soft);
+      color: var(--text);
+      border-radius: 10px;
+      padding: 10px 12px;
+      font-size: 14px;
+      outline: none;
+    }
+    input:focus, select:focus, textarea:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(93, 142, 255, 0.2);
+    }
+    textarea { min-height: 110px; resize: vertical; }
+    .actions {
+      margin-top: 18px;
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+    button {
+      background: linear-gradient(180deg, var(--primary), var(--primary-dark));
+      color: #fff;
+      border: 0;
+      border-radius: 10px;
+      padding: 10px 16px;
+      font-weight: 700;
+      cursor: pointer;
+      min-width: 220px;
+    }
+    button:disabled {
+      opacity: 0.7;
+      cursor: not-allowed;
+    }
+    .secondary {
+      text-decoration: none;
+      color: #b8c6ef;
+      font-size: 14px;
+      border: 1px solid var(--line);
+      padding: 10px 14px;
+      border-radius: 10px;
+    }
+    .status {
+      margin-top: 14px;
+      font-size: 14px;
+      min-height: 20px;
+    }
+    .status.ok { color: var(--ok); }
+    .status.err { color: var(--danger); }
+    .hint {
+      margin-top: 18px;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.5;
+    }
+    @media (max-width: 720px) {
+      .wrap { padding: 18px; }
+      form { grid-template-columns: 1fr; }
+      button { width: 100%; min-width: 0; }
+      .secondary { width: 100%; text-align: center; }
+    }
   </style>
 </head>
 <body>
-  <div class="card">
-    <div class="icon">🎉</div>
-    <h1>You're in!</h1>
-    <p>Payment successful. Welcome to AgentLens — you'll receive a confirmation email shortly.</p>
+  <div class="wrap">
+    <div class="badge">Payment received</div>
+    <h1>Welcome to AgentLens</h1>
+    <p class="sub">Final step: fill out this onboarding form so we can start your setup without back-and-forth emails.</p>
 
-    <div class="steps">
-      <div class="step">
-        <div class="step-num">1</div>
-        <div class="step-text"><strong>Check your email</strong> — we'll send you setup instructions within 24 hours.</div>
+    <form id="onboarding-form">
+      <div class="field">
+        <label for="company_name">Company name *</label>
+        <input id="company_name" name="company_name" required />
       </div>
-      <div class="step">
-        <div class="step-num">2</div>
-        <div class="step-text"><strong>Install the SDK:</strong> <code style="background:#1e2130; padding:0.1rem 0.4rem; border-radius:3px;">pip install agentlens-monitor</code></div>
+      <div class="field">
+        <label for="company_website">Company website</label>
+        <input id="company_website" name="company_website" placeholder="https://" />
       </div>
-      <div class="step">
-        <div class="step-num">3</div>
-        <div class="step-text"><strong>2 lines of code</strong> and you're monitoring every LLM call.</div>
+      <div class="field">
+        <label for="technical_contact_name">Technical contact name *</label>
+        <input id="technical_contact_name" name="technical_contact_name" required />
       </div>
+      <div class="field">
+        <label for="technical_contact_email">Technical contact email *</label>
+        <input id="technical_contact_email" name="technical_contact_email" type="email" required />
+      </div>
+      <div class="field">
+        <label for="team_size">Team size *</label>
+        <select id="team_size" name="team_size" required>
+          <option value="">Select...</option>
+          <option>1-5</option>
+          <option>6-20</option>
+          <option>21-50</option>
+          <option>51-200</option>
+          <option>200+</option>
+        </select>
+      </div>
+      <div class="field">
+        <label for="monthly_volume">Expected monthly LLM volume *</label>
+        <select id="monthly_volume" name="monthly_volume" required>
+          <option value="">Select...</option>
+          <option>Up to 1M calls</option>
+          <option>1M-10M calls</option>
+          <option>10M-50M calls</option>
+          <option>50M+ calls</option>
+        </select>
+      </div>
+      <div class="field full">
+        <label for="use_case">Primary use case *</label>
+        <textarea id="use_case" name="use_case" required placeholder="What should AgentLens monitor first?"></textarea>
+      </div>
+      <div class="field full">
+        <label for="kickoff_timeline">Preferred kickoff window *</label>
+        <select id="kickoff_timeline" name="kickoff_timeline" required>
+          <option value="">Select...</option>
+          <option>ASAP (within 48h)</option>
+          <option>This week</option>
+          <option>Next week</option>
+          <option>This month</option>
+        </select>
+      </div>
+      <div class="field full">
+        <label for="implementation_notes">Implementation notes / requirements</label>
+        <textarea id="implementation_notes" name="implementation_notes" placeholder="Compliance constraints, stack details, environments, special requirements..."></textarea>
+      </div>
+    </form>
+
+    <div class="actions">
+      <button id="submit-btn" type="button">Submit onboarding details</button>
+      <a href="/" class="secondary">Back to website</a>
     </div>
 
-    <a href="/dashboard" class="btn">View Live Demo →</a>
-    <p class="note">Questions? Email us at <a href="mailto:contact@agentlens.one" style="color:#818cf8;">contact@agentlens.one</a></p>
+    <p id="status" class="status" aria-live="polite"></p>
+    <p class="hint">Session validation is automatic. Please use the same browser tab after payment so your Stripe session ID stays attached.</p>
   </div>
+
+  <script>
+    (function () {
+      const params = new URLSearchParams(window.location.search);
+      const sessionId = params.get("session_id") || "";
+      const form = document.getElementById("onboarding-form");
+      const statusEl = document.getElementById("status");
+      const submitBtn = document.getElementById("submit-btn");
+
+      if (!sessionId) {
+        statusEl.className = "status err";
+        statusEl.textContent = "Missing session ID. Please open this page from Stripe checkout success redirect.";
+        submitBtn.disabled = true;
+        return;
+      }
+
+      submitBtn.addEventListener("click", async function () {
+        if (!form.reportValidity()) return;
+
+        submitBtn.disabled = true;
+        statusEl.className = "status";
+        statusEl.textContent = "Sending onboarding details...";
+
+        const payload = {
+          session_id: sessionId,
+          company_name: form.company_name.value,
+          company_website: form.company_website.value,
+          technical_contact_name: form.technical_contact_name.value,
+          technical_contact_email: form.technical_contact_email.value,
+          team_size: form.team_size.value,
+          monthly_volume: form.monthly_volume.value,
+          use_case: form.use_case.value,
+          kickoff_timeline: form.kickoff_timeline.value,
+          implementation_notes: form.implementation_notes.value
+        };
+
+        try {
+          const response = await fetch("/billing/onboarding-intake", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload)
+          });
+
+          const json = await response.json().catch(() => ({}));
+
+          if (!response.ok) {
+            throw new Error(json.detail || "Could not submit onboarding data.");
+          }
+
+          statusEl.className = "status ok";
+          statusEl.textContent = "Done. Your onboarding details were sent. We will contact you shortly.";
+          submitBtn.disabled = true;
+          form.querySelectorAll("input, select, textarea").forEach((el) => el.disabled = true);
+        } catch (err) {
+          statusEl.className = "status err";
+          statusEl.textContent = err.message || "Submission failed. Please retry.";
+          submitBtn.disabled = false;
+        }
+      });
+    })();
+  </script>
 </body>
 </html>
+
