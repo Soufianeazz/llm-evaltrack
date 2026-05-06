@@ -13,6 +13,23 @@ router = APIRouter(prefix="/billing")
 def _load_stripe_key() -> str:
     return (os.getenv("STRIPE_SECRET_KEY") or os.getenv("stripe_secret_key", "")).strip()
 
+
+def _payment_method_types() -> list[str]:
+    """
+    Stripe Checkout payment methods for self-serve plans.
+    Example env:
+      STRIPE_CHECKOUT_PAYMENT_METHODS=card
+
+    Note:
+    - Apple Pay and Google Pay are wallet options on top of `card` and appear
+      automatically in Stripe Checkout when domain/account requirements are met.
+    """
+    raw = (os.getenv("STRIPE_CHECKOUT_PAYMENT_METHODS") or "card").strip()
+    methods = [m.strip().lower() for m in raw.split(",") if m.strip()]
+    if not methods:
+        return ["card"]
+    return methods
+
 PLANS = {
     "starter": {
         "name": "AgentLens Starter",
@@ -54,25 +71,27 @@ async def checkout(plan: str):
     base_url = os.getenv("BASE_URL", "https://www.agentlens.one")
 
     try:
-        session = await asyncio.to_thread(
-            lambda: stripe.checkout.Session.create(
-                mode="subscription",
-                line_items=[{
-                    "price_data": {
-                        "currency": "eur",
-                        "product_data": {
-                            "name": p["name"],
-                            "description": p["description"],
-                        },
-                        "unit_amount": p["amount"],
-                        "recurring": {"interval": "month"},
+        checkout_kwargs = {
+            "mode": "subscription",
+            "line_items": [{
+                "price_data": {
+                    "currency": "eur",
+                    "product_data": {
+                        "name": p["name"],
+                        "description": p["description"],
                     },
-                    "quantity": 1,
-                }],
-                success_url=f"{base_url}/success.html?session_id={{CHECKOUT_SESSION_ID}}",
-                cancel_url=f"{base_url}/",
-                allow_promotion_codes=True,
-            )
+                    "unit_amount": p["amount"],
+                    "recurring": {"interval": "month"},
+                },
+                "quantity": 1,
+            }],
+            "success_url": f"{base_url}/success.html?session_id={{CHECKOUT_SESSION_ID}}",
+            "cancel_url": f"{base_url}/",
+            "allow_promotion_codes": True,
+            "payment_method_types": _payment_method_types(),
+        }
+        session = await asyncio.to_thread(
+            lambda: stripe.checkout.Session.create(**checkout_kwargs)
         )
     except stripe.StripeError as e:
         raise HTTPException(status_code=502, detail=f"Stripe error: {e.user_message}")
