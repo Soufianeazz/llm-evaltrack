@@ -167,7 +167,22 @@ async def checkout(plan: str):
             lambda: stripe.checkout.Session.create(**checkout_kwargs)
         )
     except stripe.StripeError as e:
-        raise HTTPException(status_code=502, detail=f"Stripe error: {e.user_message}")
+        # Resilient fallback: if SEPA is not yet activated in Stripe, keep checkout
+        # operational with card-only instead of returning a hard error to users.
+        err_text = (getattr(e, "user_message", "") or str(e) or "").lower()
+        configured_methods = checkout_kwargs.get("payment_method_types", [])
+        if "sepa_debit" in configured_methods and (
+            "sepa_debit" in err_text or "payment method type provided" in err_text
+        ):
+            checkout_kwargs["payment_method_types"] = ["card"]
+            try:
+                session = await asyncio.to_thread(
+                    lambda: stripe.checkout.Session.create(**checkout_kwargs)
+                )
+            except stripe.StripeError as inner:
+                raise HTTPException(status_code=502, detail=f"Stripe error: {inner.user_message}")
+        else:
+            raise HTTPException(status_code=502, detail=f"Stripe error: {e.user_message}")
 
     return RedirectResponse(session.url, status_code=303)
 
