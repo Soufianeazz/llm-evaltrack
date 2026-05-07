@@ -150,6 +150,19 @@ class DemoRequest(Base):
     timestamp = Column(Float, nullable=False, index=True)
 
 
+class ContactRequest(Base):
+    __tablename__ = "contact_requests"
+
+    id = Column(String, primary_key=True)
+    name = Column(String, nullable=False)
+    email = Column(String, nullable=False, index=True)
+    company = Column(String, nullable=True)
+    plan = Column(String, nullable=True)
+    message = Column(Text, nullable=True)
+    source = Column(String, nullable=True)
+    timestamp = Column(Float, nullable=False, index=True)
+
+
 class Evaluation(Base):
     __tablename__ = "evaluations"
 
