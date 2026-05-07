@@ -42,6 +42,19 @@
     return runtimeKey || localStorage.getItem(STORAGE_KEY);
   }
 
+  function keepDemoNav() {
+    if (!forceDemo) return;
+    const targets = ["/dashboard", "/traces.html", "/debug.html", "/compliance.html"];
+    document.querySelectorAll("a[href]").forEach((a) => {
+      const raw = a.getAttribute("href");
+      if (!raw || !targets.some((t) => raw.startsWith(t))) return;
+      const u = new URL(raw, window.location.origin);
+      u.searchParams.set("demo", "1");
+      u.searchParams.set("api_key", DEMO_API_KEY);
+      a.setAttribute("href", `${u.pathname}${u.search}${u.hash}`);
+    });
+  }
+
   // 2. Show prompt if no key stored
   function showKeyPrompt() {
     const overlay = document.createElement("div");
@@ -105,9 +118,11 @@
   // 4. On DOM ready — show prompt if no key
   if (document.readyState === "loading") {
     document.addEventListener("DOMContentLoaded", () => {
+      keepDemoNav();
       if (!getKey()) showKeyPrompt();
     });
   } else {
+    keepDemoNav();
     if (!getKey()) showKeyPrompt();
   }
 
