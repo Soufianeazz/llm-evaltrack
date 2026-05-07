@@ -36,7 +36,7 @@ class LoginPayload(BaseModel):
 
 
 class ApprovePayload(BaseModel):
-    plan: str = Field(default="pilot", pattern="^(pilot|starter|team|scale)$")
+    plan: str = Field(default="pilot", pattern="^(pilot|starter|team|scale|enterprise)$")
     trial_days: int = Field(default=14, ge=1, le=365)
     role: str = Field(default="admin", pattern="^(admin|analyst|read_only)$")
 

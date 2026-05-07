@@ -8,14 +8,30 @@ from fastapi import APIRouter, Depends, Query
 from sqlalchemy import select, text
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from api.auth import require_api_key
+from api.auth import ApiKeyContext, require_api_key, require_api_key_context
 from storage.database import get_session
-from storage.models import Evaluation, Request
+from storage.models import CustomerAccount, Evaluation, Request
 
 router = APIRouter()
 _STATS_CACHE_TTL_SECONDS = 5.0
 _stats_cache: dict[str, tuple[float, dict]] = {}
 _stats_cache_lock = asyncio.Lock()
+
+
+@router.get("/dashboard/context")
+async def dashboard_context(
+    db: AsyncSession = Depends(get_session),
+    ctx: ApiKeyContext = Depends(require_api_key_context),
+):
+    account_result = await db.execute(
+        select(CustomerAccount).where(CustomerAccount.api_key == ctx.key)
+    )
+    account = account_result.scalar_one_or_none()
+    plan = (ctx.plan or (account.plan if account else None) or "pilot").lower()
+    return {
+        "plan": plan,
+        "is_enterprise": plan == "enterprise",
+    }
 
 
 @router.get("/requests/worst")

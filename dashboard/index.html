@@ -123,8 +123,8 @@
   <div class="shell">
     <header class="topbar">
       <div>
-        <h1>AgentLens Enterprise Console</h1>
-        <p class="subtitle">Production observability for quality, cost, and governance.</p>
+        <h1 id="dashboardTitle">AgentLens Dashboard</h1>
+        <p class="subtitle" id="dashboardSubtitle">Production observability for quality, cost, and governance.</p>
       </div>
       <nav class="actions">
         <button class="btn-link" type="button" onclick="agentlensLogout()">Logout</button>
@@ -280,6 +280,25 @@
       if (!ok) { el.style.borderColor = "#75433f"; el.style.background = "rgba(63,26,22,0.78)"; }
     }
 
+    function applyDashboardBranding(context) {
+      const plan = String((context && context.plan) || "pilot").toLowerCase();
+      const isEnterprise = Boolean(context && context.is_enterprise);
+      const title = document.getElementById("dashboardTitle");
+      const subtitle = document.getElementById("dashboardSubtitle");
+      if (!title || !subtitle) return;
+
+      if (isEnterprise || plan === "enterprise") {
+        title.textContent = "AgentLens Enterprise Console";
+        subtitle.textContent = "Production observability for quality, cost, and governance.";
+        document.title = "AgentLens Enterprise Console";
+        return;
+      }
+
+      title.textContent = "AgentLens Dashboard";
+      subtitle.textContent = "Production observability for quality, cost, and governance.";
+      document.title = "AgentLens Dashboard";
+    }
+
     function renderRegression(data) {
       const el = document.getElementById("regressionAlert");
       if (!data || !data.regression_detected) return;
@@ -375,6 +394,8 @@
     async function main() {
       setupBudget();
       const forceDemo = new URLSearchParams(location.search).get("demo") === "1";
+      const context = await getJson("/dashboard/context").catch(() => ({ plan: "pilot", is_enterprise: false }));
+      applyDashboardBranding(context);
       try {
         const [stats, trend, regression, clusters, costQuality, rootCause, worst, budget] = await Promise.all([
           getJson("/requests/stats"), getJson("/requests/trend"), getJson("/requests/regression?window_minutes=60&threshold=0.1"),

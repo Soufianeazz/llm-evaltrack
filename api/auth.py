@@ -13,6 +13,7 @@ from storage.models import ApiKey, CustomerAccount
 class ApiKeyContext:
     key: str
     role: str
+    plan: str | None = None
 
 
 def ensure_role(ctx: ApiKeyContext, *allowed_roles: str) -> None:
@@ -61,4 +62,4 @@ async def require_api_key_context(
             raise HTTPException(status_code=403, detail=f"Access blocked: {reason}")
     if not obj.active:
         raise HTTPException(status_code=403, detail="Invalid or inactive API key")
-    return ApiKeyContext(key=obj.key, role=obj.role or "admin")
+    return ApiKeyContext(key=obj.key, role=obj.role or "admin", plan=obj.plan)
