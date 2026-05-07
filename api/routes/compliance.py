@@ -13,6 +13,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from api.admin_auth import require_admin_token
 from api.auth import ApiKeyContext, ensure_role, require_api_key_context
+from api.costing import compute_request_cost
 from storage.database import get_session
 from storage.models import AuditLog, Evaluation, Request, RetentionPolicy
 
@@ -52,6 +53,7 @@ async def export_data(
     records = []
     for req, ev in rows:
         meta = req.metadata_ or {}
+        cost_usd = compute_request_cost(req.model, meta, req.input, req.output)
         records.append({
             "request_id": req.id,
             "timestamp": req.timestamp,
@@ -59,7 +61,7 @@ async def export_data(
             "input": req.input,
             "output": req.output,
             "prompt": req.prompt,
-            "cost_usd": meta.get("cost_usd"),
+            "cost_usd": cost_usd,
             "input_tokens": meta.get("input_tokens"),
             "output_tokens": meta.get("output_tokens"),
             "quality_score": ev.quality_score if ev else None,
@@ -272,12 +274,24 @@ async def export_audit_log(
 # ── Stats ─────────────────────────────────────────────────────────────────────
 
 @router.get("/stats")
-async def compliance_stats(db: AsyncSession = Depends(get_session)):
+async def compliance_stats(
+    db: AsyncSession = Depends(get_session),
+    ctx: ApiKeyContext = Depends(require_api_key_context),
+):
     """Overview stats for the compliance page."""
-    total = (await db.execute(text("SELECT COUNT(*) FROM requests"))).scalar()
-    oldest = (await db.execute(text("SELECT MIN(timestamp) FROM requests"))).scalar()
-    newest = (await db.execute(text("SELECT MAX(timestamp) FROM requests"))).scalar()
-    total_evals = (await db.execute(text("SELECT COUNT(*) FROM evaluations"))).scalar()
+    total = (await db.execute(text("SELECT COUNT(*) FROM requests WHERE api_key = :api_key"), {"api_key": ctx.key})).scalar()
+    oldest = (await db.execute(text("SELECT MIN(timestamp) FROM requests WHERE api_key = :api_key"), {"api_key": ctx.key})).scalar()
+    newest = (await db.execute(text("SELECT MAX(timestamp) FROM requests WHERE api_key = :api_key"), {"api_key": ctx.key})).scalar()
+    total_evals = (
+        await db.execute(
+            text(
+                "SELECT COUNT(*) FROM evaluations e "
+                "JOIN requests r ON r.id = e.request_id "
+                "WHERE r.api_key = :api_key"
+            ),
+            {"api_key": ctx.key},
+        )
+    ).scalar()
     audit_count = (await db.execute(text("SELECT COUNT(*) FROM audit_log"))).scalar()
 
     result = await db.execute(select(RetentionPolicy).where(RetentionPolicy.id == "default"))

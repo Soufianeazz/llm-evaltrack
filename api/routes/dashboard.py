@@ -9,6 +9,7 @@ from sqlalchemy import select, text
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from api.auth import ApiKeyContext, require_api_key, require_api_key_context
+from api.costing import compute_request_cost
 from storage.database import get_session
 from storage.models import CustomerAccount, Evaluation, Request
 
@@ -143,7 +144,7 @@ async def root_cause_analysis(
         prompt_stats[key]["total"] += 1
         prompt_stats[key]["total_quality"] += ev.quality_score
         prompt_stats[key]["models"].add(req.model)
-        cost = (req.metadata_ or {}).get("cost_usd", 0)
+        cost = compute_request_cost(req.model, req.metadata_ or {}, req.input, req.output)
         prompt_stats[key]["total_cost"] += cost
         if ev.quality_score < quality_threshold:
             prompt_stats[key]["failures"] += 1
@@ -181,7 +182,7 @@ async def cost_quality_correlation(
         m = req.model
         if m not in models:
             models[m] = {"total": 0, "total_quality": 0.0, "total_cost": 0.0, "failures": 0}
-        cost = (req.metadata_ or {}).get("cost_usd", 0)
+        cost = compute_request_cost(req.model, req.metadata_ or {}, req.input, req.output)
         models[m]["total"] += 1
         models[m]["total_quality"] += ev.quality_score
         models[m]["total_cost"] += cost
@@ -219,24 +220,27 @@ async def overview_stats(
         if cached and now - cached[0] <= _STATS_CACHE_TTL_SECONDS:
             return cached[1]
 
-        sql = text("""
-            SELECT
-                COUNT(*) AS total_calls,
-                AVG(e.quality_score) AS avg_quality,
-                SUM(CAST(json_extract(r.metadata, '$.cost_usd') AS REAL)) AS total_cost,
-                COUNT(CASE WHEN e.quality_score < 0.6 THEN 1 END) AS bad_calls
-            FROM requests r
-            JOIN evaluations e ON e.request_id = r.id
-            WHERE r.timestamp >= strftime('%s','now','-1 day')
-              AND r.api_key = :api_key
-        """)
-        row = (await db.execute(sql, {"api_key": api_key})).one()
-        total = row.total_calls or 0
+        cutoff = time.time() - 86400
+        result = await db.execute(
+            select(Request, Evaluation)
+            .join(Evaluation, Evaluation.request_id == Request.id)
+            .where(Request.api_key == api_key, Request.timestamp >= cutoff)
+        )
+        rows = result.all()
+        total = len(rows)
+        total_quality = 0.0
+        total_cost = 0.0
+        bad_calls = 0
+        for req, ev in rows:
+            total_quality += ev.quality_score or 0.0
+            total_cost += compute_request_cost(req.model, req.metadata_ or {}, req.input, req.output)
+            if (ev.quality_score or 0.0) < 0.6:
+                bad_calls += 1
         payload = {
             "total_calls_24h": total,
-            "avg_quality_24h": round(row.avg_quality or 0, 3),
-            "total_cost_24h_usd": round(row.total_cost or 0, 4),
-            "bad_response_rate": round((row.bad_calls or 0) / total, 3) if total > 0 else 0,
+            "avg_quality_24h": round((total_quality / total) if total > 0 else 0, 3),
+            "total_cost_24h_usd": round(total_cost, 4),
+            "bad_response_rate": round((bad_calls or 0) / total, 3) if total > 0 else 0,
         }
         _stats_cache[api_key] = (time.monotonic(), payload)
         return payload

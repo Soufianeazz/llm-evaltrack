@@ -6,6 +6,7 @@ from sqlalchemy import select, text
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from api.auth import require_api_key
+from api.costing import compute_request_cost
 from storage.database import get_session
 from storage.models import Evaluation, Request
 
@@ -57,6 +58,7 @@ async def search_requests(
         meta = req.metadata_ or {}
         if user_id and meta.get("user_id") != user_id:
             continue
+        cost_usd = compute_request_cost(req.model, meta, req.input, req.output)
         items.append({
             "request_id": req.id,
             "model": req.model,
@@ -67,7 +69,7 @@ async def search_requests(
             "quality_score": ev.quality_score if ev else None,
             "hallucination_score": ev.hallucination_score if ev else None,
             "flags": ev.flags if ev else [],
-            "cost_usd": meta.get("cost_usd"),
+            "cost_usd": cost_usd,
             "user_id": meta.get("user_id"),
             "metadata": meta,
         })
@@ -92,6 +94,7 @@ async def get_request_detail(
 
     req, ev = row
     meta = req.metadata_ or {}
+    cost_usd = compute_request_cost(req.model, meta, req.input, req.output)
 
     return {
         "request_id": req.id,
@@ -101,7 +104,7 @@ async def get_request_detail(
         "output": req.output,
         "prompt": req.prompt,
         "metadata": meta,
-        "cost_usd": meta.get("cost_usd"),
+        "cost_usd": cost_usd,
         "input_tokens": meta.get("input_tokens"),
         "output_tokens": meta.get("output_tokens"),
         "evaluation": {

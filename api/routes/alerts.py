@@ -5,25 +5,27 @@ import time
 import uuid
 
 from fastapi import APIRouter, Depends, HTTPException
-from sqlalchemy import select, text
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from api.auth import ApiKeyContext, ensure_role, require_api_key_context
+from api.costing import compute_request_cost
 from api.schemas import BudgetAlertPayload, BudgetAlertResponse
 from storage.database import get_session
-from storage.models import AuditLog, BudgetAlert
+from storage.models import AuditLog, BudgetAlert, Request
 
 router = APIRouter(prefix="/alerts")
 
 
-async def _get_spent_today(db: AsyncSession) -> float:
-    sql = text("""
-        SELECT COALESCE(SUM(CAST(json_extract(r.metadata, '$.cost_usd') AS REAL)), 0) AS spent
-        FROM requests r
-        WHERE r.timestamp >= strftime('%s', 'now', 'start of day')
-    """)
-    row = (await db.execute(sql)).one()
-    return round(row.spent, 6)
+async def _get_spent_today(db: AsyncSession, api_key: str) -> float:
+    day_start = time.time() - (time.time() % 86400)
+    result = await db.execute(
+        select(Request).where(Request.api_key == api_key, Request.timestamp >= day_start)
+    )
+    spent = 0.0
+    for req in result.scalars().all():
+        spent += compute_request_cost(req.model, req.metadata_ or {}, req.input, req.output)
+    return round(spent, 6)
 
 
 async def _audit(db: AsyncSession, action: str, detail: str) -> None:
@@ -61,7 +63,7 @@ async def set_budget(
     await db.commit()
     await _audit(db, "budget_alert_updated", f"by_role={ctx.role} budget={payload.daily_budget_usd}")
 
-    spent = await _get_spent_today(db)
+    spent = await _get_spent_today(db, ctx.key)
     return BudgetAlertResponse(
         daily_budget_usd=alert.daily_budget_usd,
         webhook_url=alert.webhook_url,
@@ -83,7 +85,7 @@ async def get_budget(
     if not alert:
         return {"configured": False}
 
-    spent = await _get_spent_today(db)
+    spent = await _get_spent_today(db, ctx.key)
     return BudgetAlertResponse(
         daily_budget_usd=alert.daily_budget_usd,
         webhook_url=alert.webhook_url,
