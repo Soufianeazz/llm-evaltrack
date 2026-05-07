@@ -6,6 +6,18 @@
   <title>AgentLens | Self-Hosted LLM Observability for Enterprise Teams</title>
   <link rel="icon" href="/logo.svg" type="image/svg+xml" />
   <meta name="description" content="Self-hosted LLM observability with quality scoring, agent traces, and compliance workflows. Built for teams that need data control and enterprise readiness." />
+  <link rel="canonical" href="https://www.agentlens.one/" />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="AgentLens" />
+  <meta property="og:title" content="AgentLens | Self-Hosted LLM Observability for Enterprise Teams" />
+  <meta property="og:description" content="Self-hosted LLM observability with quality scoring, agent traces, and compliance workflows. Built for teams that need data control and enterprise readiness." />
+  <meta property="og:url" content="https://www.agentlens.one/" />
+  <meta property="og:image" content="https://www.agentlens.one/assets/dashboard-preview.png" />
+  <meta property="og:image:alt" content="AgentLens dashboard with quality, cost, and risk monitoring metrics" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="AgentLens | Self-Hosted LLM Observability for Enterprise Teams" />
+  <meta name="twitter:description" content="Self-hosted LLM observability with quality scoring, agent traces, and compliance workflows." />
+  <meta name="twitter:image" content="https://www.agentlens.one/assets/dashboard-preview.png" />
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     :root {
@@ -187,6 +199,26 @@
       font-weight: 700;
     }
     .proof-strip span::before { content: "- "; color: var(--warm); }
+
+    .product-shot {
+      margin-top: 1.1rem;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      overflow: hidden;
+      background: var(--surface);
+      box-shadow: var(--shadow);
+    }
+    .product-shot img {
+      display: block;
+      width: 100%;
+      height: auto;
+    }
+    .shot-caption {
+      padding: 0.8rem 1rem;
+      font-size: 0.82rem;
+      color: var(--ink-soft);
+      border-top: 1px solid var(--line);
+    }
 
     .section { padding: 3.3rem 0; }
     .kicker {
@@ -456,6 +488,16 @@
           agentlens.patch_openai()
         </div>
       </div>
+    </section>
+
+    <section class="section" style="padding-top: 0.9rem;">
+      <div class="kicker">Product Preview</div>
+      <h2>See what teams monitor in production.</h2>
+      <p class="lead">Live view of quality, spend, and risk signals in one dashboard. Use this preview in shares and customer threads.</p>
+      <figure class="product-shot">
+        <img src="/assets/dashboard-preview.png" alt="AgentLens dashboard screenshot showing live call quality and cost metrics" loading="lazy" />
+        <figcaption class="shot-caption">Dashboard overview with live call count, quality trend, bad response categories, and cost monitoring.</figcaption>
+      </figure>
     </section>
 
     <section class="section">
