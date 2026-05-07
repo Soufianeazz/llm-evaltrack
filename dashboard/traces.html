@@ -37,10 +37,13 @@
     .wrap { width: min(1220px, calc(100% - 2.4rem)); margin: 0 auto; }
     .top-nav {
       display: flex;
-      justify-content: flex-end;
-      align-items: flex-start;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
       padding: 1.2rem 0 0.4rem;
     }
+    .nav-left { display: flex; gap: 10px; flex-wrap: wrap; }
     .actions { display: flex; gap: 10px; flex-wrap: wrap; }
     .btn-link {
       color: var(--ink);
@@ -179,6 +182,9 @@
 <body>
   <main class="wrap">
     <div class="top-nav">
+      <div class="nav-left">
+        <a class="btn-link" href="/dashboard">Dashboard</a>
+      </div>
       <nav class="actions">
         <button class="btn-link" type="button" onclick="agentlensLogout()">Logout</button>
         <a class="btn-link active" href="/traces.html">Agent Debugger</a>

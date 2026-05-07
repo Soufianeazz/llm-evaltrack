@@ -32,7 +32,8 @@
     a { color: var(--accent-soft); text-decoration: none; }
     a:hover { text-decoration: underline; }
     .wrap { max-width: 1500px; margin: 0 auto; }
-    .top-nav { display: flex; justify-content: flex-end; align-items: flex-start; gap: 1rem; margin-bottom: 0.8rem; }
+    .top-nav { display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: 0.8rem; }
+    .nav-left { display: flex; gap: 10px; flex-wrap: wrap; }
     .actions { display: flex; gap: 10px; flex-wrap: wrap; }
     .btn-link {
       color: var(--text); text-decoration: none; font-size: 13px; padding: 10px 14px;
@@ -100,6 +101,9 @@
 <body>
   <main class="wrap">
   <div class="top-nav">
+    <div class="nav-left">
+      <a class="btn-link" href="/dashboard">Dashboard</a>
+    </div>
     <nav class="actions">
       <button class="btn-link" type="button" onclick="agentlensLogout()">Logout</button>
       <a class="btn-link" href="/traces.html">Agent Debugger</a>
