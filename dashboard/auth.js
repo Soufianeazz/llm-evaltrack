@@ -4,7 +4,9 @@
  */
 (function () {
   const STORAGE_KEY = "agentlens_api_key";
+  const DEMO_API_KEY = "al_demo_agentlens";
   const FAVICON_HREF = "/logo.svg";
+  let runtimeKey = null;
 
   function ensureFavicon() {
     const existing = document.querySelector('link[rel="icon"], link[rel="shortcut icon"]');
@@ -18,18 +20,26 @@
 
   ensureFavicon();
 
-  // 1. Pick up key from URL param on first visit
-  const urlKey = new URLSearchParams(window.location.search).get("api_key");
-  if (urlKey) {
+  // 1. Pick up auth mode from URL.
+  const params = new URLSearchParams(window.location.search);
+  const forceDemo = params.get("demo") === "1";
+  const urlKey = params.get("api_key");
+  if (forceDemo) {
+    // Demo pages should always use demo data, never a stored customer key.
+    runtimeKey = DEMO_API_KEY;
+  } else if (urlKey) {
     localStorage.setItem(STORAGE_KEY, urlKey);
-    // Clean key from URL without reload
+    runtimeKey = urlKey;
+  }
+  if (urlKey) {
+    // Clean sensitive key from URL without reload.
     const url = new URL(window.location.href);
     url.searchParams.delete("api_key");
     window.history.replaceState({}, "", url.toString());
   }
 
   function getKey() {
-    return localStorage.getItem(STORAGE_KEY);
+    return runtimeKey || localStorage.getItem(STORAGE_KEY);
   }
 
   // 2. Show prompt if no key stored
@@ -94,7 +104,9 @@
 
   // 4. On DOM ready — show prompt if no key
   if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", () => { if (!getKey()) showKeyPrompt(); });
+    document.addEventListener("DOMContentLoaded", () => {
+      if (!getKey()) showKeyPrompt();
+    });
   } else {
     if (!getKey()) showKeyPrompt();
   }
