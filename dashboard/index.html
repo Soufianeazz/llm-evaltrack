@@ -3,412 +3,412 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>AgentLens — LLM Observability</title>
+  <title>AgentLens Dashboard</title>
   <script src="/auth.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
   <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: system-ui, sans-serif; background: #0f1117; color: #e2e8f0; padding: 2rem; }
-    h1 { font-size: 1.5rem; margin-bottom: 0.25rem; }
-    .subtitle { color: #64748b; font-size: 0.875rem; margin-bottom: 1.5rem; }
-    .scope-pill { display:inline-block; margin-top:-1rem; margin-bottom:1.2rem; padding:0.25rem 0.6rem; border-radius:999px; border:1px solid #2d3148; color:#93c5fd; font-size:0.75rem; }
-    .kpi-bar { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; margin-bottom: 1.5rem; }
-    .kpi { background: #1e2130; border: 1px solid #2d3148; border-radius: 8px; padding: 1rem 1.25rem; }
-    .kpi-label { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; color: #64748b; margin-bottom: 0.4rem; }
-    .kpi-value { font-size: 1.75rem; font-weight: 700; }
-    .kpi-value.good { color: #4ade80; }
-    .kpi-value.bad  { color: #f87171; }
-    .kpi-value.mid  { color: #fb923c; }
-    .kpi-value.neutral { color: #818cf8; }
-    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 1.5rem; }
-    .card { background: #1e2130; border: 1px solid #2d3148; border-radius: 8px; padding: 1.25rem; }
-    .card h2 { font-size: 0.875rem; text-transform: uppercase; letter-spacing: 0.05em; color: #64748b; margin-bottom: 1rem; }
+    :root {
+      --bg: #07111f; --panel: #10233a; --panel2: #132a45; --border: #244262;
+      --text: #d8e6f6; --muted: #8ca3bd; --brand: #3db6ff;
+      --good: #38d39f; --warn: #f0a73b; --bad: #ff6f7d; --accent: #6fc3ff;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: "Segoe UI Variable", "Segoe UI", "Aptos", "Trebuchet MS", sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(1200px 600px at 10% -20%, #1e3f62 0%, transparent 60%),
+        radial-gradient(900px 500px at 110% 0%, #123658 0%, transparent 50%),
+        linear-gradient(180deg, #07111f 0%, #081426 100%);
+      min-height: 100vh;
+      padding: 26px;
+    }
+    .shell { max-width: 1500px; margin: 0 auto; }
+    .topbar { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; margin-bottom: 14px; }
+    h1 { font-size: 34px; line-height: 1.1; margin-bottom: 6px; }
+    .subtitle { color: var(--muted); font-size: 14px; }
+    .actions { display: flex; gap: 10px; flex-wrap: wrap; }
+    .btn-link {
+      color: var(--text); text-decoration: none; font-size: 13px; padding: 10px 14px;
+      border: 1px solid var(--border); border-radius: 10px; background: rgba(12, 27, 47, 0.6);
+    }
+    button.btn-link { cursor: pointer; font-family: inherit; }
+    .hero {
+      border: 1px solid var(--border); border-radius: 14px;
+      background: linear-gradient(140deg, rgba(18,39,64,0.96), rgba(15,34,57,0.96));
+      padding: 14px; margin-bottom: 12px;
+    }
+    .hero-row { display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap; }
+    .pill-row { display: flex; gap: 8px; flex-wrap: wrap; }
+    .pill {
+      border: 1px solid #2c4f70; border-radius: 999px; padding: 5px 10px; font-size: 12px;
+      color: #b8d0ea; background: rgba(10,26,45,0.72);
+    }
+    .state {
+      padding: 8px 12px; border-radius: 10px; border: 1px solid #2f6a54;
+      background: rgba(16,50,37,0.78); font-size: 13px;
+    }
+    .notice {
+      margin-top: 10px; display: none; font-size: 13px; border-radius: 10px; padding: 9px 12px;
+      border: 1px solid #7a6030; background: rgba(69,51,22,0.45); color: #ffe8bf;
+    }
+    .regression {
+      display: none; margin-bottom: 12px; border: 1px solid #87404c; border-radius: 10px; padding: 9px 12px;
+      background: rgba(64,21,32,0.62); color: #ffd3d8; font-size: 13px;
+    }
+    .budget {
+      margin-top: 10px; border: 1px solid #234a65; border-radius: 10px; background: rgba(8,23,40,0.72); padding: 12px; display: none;
+    }
+    .budget-top { display: flex; justify-content: space-between; gap: 10px; font-size: 14px; margin-bottom: 7px; }
+    .budget-track { height: 9px; border-radius: 999px; overflow: hidden; background: #081727; border: 1px solid #18344b; }
+    .budget-fill { height: 100%; width: 0; transition: width .25s ease; }
+    .toggle { margin-top: 10px; font-size: 12px; color: var(--muted); background: transparent; border: 1px solid var(--border); border-radius: 8px; padding: 7px 10px; cursor: pointer; }
+    .budget-form { display: none; margin-top: 10px; border: 1px solid var(--border); border-radius: 10px; background: rgba(9,22,38,0.88); padding: 12px; }
+    .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 10px; align-items: end; }
+    label { display: block; color: var(--muted); font-size: 12px; margin-bottom: 5px; }
+    input {
+      width: 100%; border: 1px solid var(--border); border-radius: 8px; background: #081a2d;
+      color: var(--text); padding: 8px 10px; font-size: 13px;
+    }
+    .btn { border: 1px solid var(--border); border-radius: 8px; padding: 8px 12px; font-size: 13px; cursor: pointer; }
+    .btn-save { background: var(--good); color: #08241c; border-color: #2da67f; font-weight: 700; }
+    .btn-danger { background: transparent; color: var(--bad); border-color: #8c2c42; }
+    .kpi-grid { display: grid; grid-template-columns: repeat(6, minmax(0,1fr)); gap: 10px; margin: 12px 0; }
+    .kpi {
+      min-height: 94px; padding: 14px; border-radius: 12px; border: 1px solid var(--border);
+      background: linear-gradient(180deg, rgba(18,39,64,0.95), rgba(12,28,47,0.95));
+    }
+    .kpi .label { color: var(--muted); font-size: 11px; letter-spacing: .08em; text-transform: uppercase; margin-bottom: 8px; }
+    .kpi .value { font-size: 30px; line-height: 1; font-weight: 700; }
+    .kpi .sub { margin-top: 7px; color: var(--muted); font-size: 12px; }
+    .value.good { color: var(--good); } .value.warn { color: var(--warn); } .value.bad { color: var(--bad); } .value.neutral { color: var(--accent); }
+    .grid2 { display: grid; grid-template-columns: 1.1fr .9fr; gap: 12px; margin-bottom: 12px; }
+    .card {
+      min-height: 220px; padding: 14px; border-radius: 12px; border: 1px solid var(--border);
+      background: linear-gradient(180deg, rgba(17,37,61,.98), rgba(13,30,50,.98));
+    }
+    .card h2 { font-size: 13px; letter-spacing: .06em; text-transform: uppercase; color: #aac4de; margin-bottom: 8px; }
+    .card-sub { color: var(--muted); font-size: 12px; margin-bottom: 10px; }
+    .cluster-wrap { display: grid; grid-template-columns: repeat(auto-fit, minmax(165px,1fr)); gap: 8px; }
+    .cluster { border: 1px solid #2b4a67; border-radius: 10px; background: rgba(9,23,39,.7); padding: 10px; }
+    .cluster .num { font-size: 24px; font-weight: 700; margin-bottom: 2px; }
+    .cluster .title { font-size: 12px; margin-bottom: 5px; text-transform: capitalize; }
+    .cluster .meta { font-size: 11px; color: var(--muted); }
+    .bars .row { margin-bottom: 8px; }
+    .bars .line { display: grid; grid-template-columns: 220px 1fr 48px; align-items: center; gap: 8px; margin-bottom: 4px; }
+    .bars .label { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .bars .track { height: 8px; border-radius: 999px; border: 1px solid #1c3952; background: #0b1a2c; overflow: hidden; }
+    .bars .fill { height: 100%; border-radius: 999px; }
+    .bars .val { text-align: right; color: var(--muted); }
+    .bars .meta { color: #6f88a1; font-size: 11px; }
+    .table-wrap { overflow-x: auto; border: 1px solid #1f3d58; border-radius: 10px; }
+    table { width: 100%; border-collapse: collapse; min-width: 940px; }
+    thead th { text-align: left; color: #9fb8d3; font-size: 11px; letter-spacing: .06em; text-transform: uppercase; padding: 10px; border-bottom: 1px solid #1f3d58; }
+    tbody td { padding: 10px; border-bottom: 1px solid rgba(28,57,82,.65); font-size: 13px; vertical-align: top; }
+    .score-pill { border-radius: 999px; padding: 2px 8px; font-size: 12px; font-weight: 700; display: inline-block; }
+    .score-pill.good { background: rgba(56,211,159,.2); color: #9af0cd; }
+    .score-pill.warn { background: rgba(240,167,59,.2); color: #ffd79e; }
+    .score-pill.bad  { background: rgba(255,111,125,.2); color: #ffc0c7; }
+    .flag { display: inline-block; margin: 1px 4px 1px 0; padding: 2px 7px; border-radius: 999px; border: 1px solid #385875; font-size: 11px; }
+    .preview { color: #b4c8db; max-width: 330px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .explain { color: #7f9ab3; font-size: 12px; max-width: 360px; line-height: 1.35; }
+    .empty { color: var(--muted); font-size: 13px; }
     canvas { width: 100% !important; }
-    table { width: 100%; border-collapse: collapse; font-size: 0.8rem; }
-    th { text-align: left; padding: 0.5rem 0.75rem; color: #64748b; border-bottom: 1px solid #2d3148; font-weight: 500; }
-    td { padding: 0.5rem 0.75rem; border-bottom: 1px solid #1a1d2e; vertical-align: top; }
-    tr:last-child td { border-bottom: none; }
-    .score { font-weight: 700; }
-    .score.bad  { color: #f87171; }
-    .score.mid  { color: #fb923c; }
-    .score.good { color: #4ade80; }
-    .flag { display: inline-block; font-size: 0.7rem; background: #2d1b1b; color: #f87171;
-            border: 1px solid #7f1d1d; border-radius: 4px; padding: 0 0.35rem; margin: 1px; }
-    .preview { color: #94a3b8; max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-    .explanation { color: #64748b; font-style: italic; font-size: 0.75rem; max-width: 240px; }
-    .bar-row { display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem; font-size: 0.8rem; }
-    .bar-label { width: 130px; color: #94a3b8; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; flex-shrink: 0; }
-    .bar-track { flex: 1; height: 8px; background: #0f1117; border-radius: 4px; overflow: hidden; }
-    .bar-fill { height: 100%; border-radius: 4px; }
-    .bar-val { width: 36px; text-align: right; color: #64748b; font-size: 0.75rem; flex-shrink: 0; }
-    @media (max-width: 900px) { .grid { grid-template-columns: 1fr; } .kpi-bar { grid-template-columns: 1fr 1fr; } }
-    @media (max-width: 500px) { .kpi-bar { grid-template-columns: 1fr; } }
+    @media (max-width: 1320px) { .kpi-grid { grid-template-columns: repeat(3, minmax(0,1fr)); } .grid2 { grid-template-columns: 1fr; } }
+    @media (max-width: 760px) { body { padding: 16px; } .kpi-grid { grid-template-columns: repeat(2,minmax(0,1fr)); } h1 { font-size: 28px; } .bars .line { grid-template-columns: 1fr; } .bars .val { text-align: left; } }
+    @media (max-width: 500px) { .kpi-grid { grid-template-columns: 1fr; } }
   </style>
 </head>
 <body>
-  <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.25rem;">
-    <h1>AgentLens</h1>
-    <div style="display:flex; gap:0.5rem;">
-      <a href="/traces.html" style="color:#818cf8; text-decoration:none; font-size:0.875rem; border:1px solid #2d3148; padding:0.4rem 0.75rem; border-radius:6px;">Agent Debugger</a>
-      <a href="/debug.html" style="color:#818cf8; text-decoration:none; font-size:0.875rem; border:1px solid #2d3148; padding:0.4rem 0.75rem; border-radius:6px;">Prompt Debugger</a>
-      <a href="/compliance.html" style="color:#818cf8; text-decoration:none; font-size:0.875rem; border:1px solid #2d3148; padding:0.4rem 0.75rem; border-radius:6px;">Compliance</a>
-    </div>
-  </div>
-  <p class="subtitle">Evaluation-first monitoring — worst responses surface first</p>
-  <div class="scope-pill">Data Scope: API-key isolated project context</div>
-
-  <!-- Budget alert banner -->
-  <div id="budgetAlert" style="display:none; border-radius:8px; padding:1rem 1.25rem; margin-bottom:1rem;">
-    <div style="display:flex; justify-content:space-between; align-items:center;">
+  <div class="shell">
+    <header class="topbar">
       <div>
-        <strong id="budgetAlertTitle"></strong> — <span id="budgetAlertMsg"></span>
+        <h1>AgentLens Enterprise Console</h1>
+        <p class="subtitle">Production observability for quality, cost, and governance.</p>
       </div>
-      <div style="font-size:0.8rem;" id="budgetAlertPercent"></div>
-    </div>
-    <div style="margin-top:0.5rem; height:6px; background:#0f1117; border-radius:3px; overflow:hidden;">
-      <div id="budgetBar" style="height:100%; border-radius:3px; transition:width 0.3s;"></div>
-    </div>
-  </div>
+      <nav class="actions">
+        <button class="btn-link" type="button" onclick="agentlensLogout()">Logout</button>
+        <a class="btn-link" href="/traces.html">Agent Debugger</a>
+        <a class="btn-link" href="/debug.html">Prompt Debugger</a>
+        <a class="btn-link" href="/compliance.html">Compliance</a>
+      </nav>
+    </header>
 
-  <!-- Budget settings (collapsed) -->
-  <div style="margin-bottom:1rem;">
-    <button id="budgetToggle" style="background:none; border:1px solid #2d3148; color:#64748b; padding:0.4rem 0.75rem; border-radius:6px; cursor:pointer; font-size:0.8rem;">Set Daily Budget</button>
-    <div id="budgetForm" style="display:none; margin-top:0.75rem; background:#1e2130; border:1px solid #2d3148; border-radius:8px; padding:1rem; max-width:500px;">
-      <div style="display:flex; gap:0.75rem; align-items:end; flex-wrap:wrap;">
-        <div>
-          <label style="font-size:0.75rem; color:#64748b; display:block; margin-bottom:0.25rem;">Daily Budget (USD)</label>
-          <input type="number" id="budgetInput" step="0.01" min="0.01" placeholder="e.g. 10.00"
-                 style="background:#0f1117; border:1px solid #2d3148; color:#e2e8f0; padding:0.4rem 0.6rem; border-radius:4px; width:120px;" />
+    <section class="hero">
+      <div class="hero-row">
+        <div class="pill-row">
+          <span class="pill">Scope: API-key isolated project</span>
+          <span class="pill">Mode: Live plus presentation-safe fallback</span>
+          <span class="pill">Window: Last 24h</span>
         </div>
-        <div>
-          <label style="font-size:0.75rem; color:#64748b; display:block; margin-bottom:0.25rem;">Webhook URL (optional)</label>
-          <input type="url" id="webhookInput" placeholder="https://hooks.slack.com/..."
-                 style="background:#0f1117; border:1px solid #2d3148; color:#e2e8f0; padding:0.4rem 0.6rem; border-radius:4px; width:250px;" />
-        </div>
-        <button id="budgetSave" style="background:#4ade80; color:#0f1117; border:none; padding:0.45rem 1rem; border-radius:6px; font-weight:600; cursor:pointer;">Save</button>
-        <button id="budgetDelete" style="background:none; color:#f87171; border:1px solid #7f1d1d; padding:0.45rem 0.75rem; border-radius:6px; cursor:pointer; font-size:0.8rem;">Remove</button>
+        <div class="state" id="readiness">Readiness: <strong>Checking...</strong></div>
       </div>
-    </div>
-  </div>
+      <div class="notice" id="demoNotice"></div>
+      <div class="budget" id="budgetBanner">
+        <div class="budget-top"><div><strong id="budgetTitle">Budget status</strong> - <span id="budgetText"></span></div><div id="budgetPct"></div></div>
+        <div class="budget-track"><div class="budget-fill" id="budgetFill"></div></div>
+      </div>
+      <button class="toggle" id="budgetToggle">Set Daily Budget</button>
+      <div class="budget-form" id="budgetForm">
+        <div class="form-grid">
+          <div><label>Daily Budget (USD)</label><input id="budgetInput" type="number" step="0.01" min="0.01" placeholder="e.g. 25.00" /></div>
+          <div><label>Webhook URL (optional)</label><input id="webhookInput" type="url" placeholder="https://hooks.slack.com/..." /></div>
+          <div style="display:flex;gap:8px;">
+            <button class="btn btn-save" id="budgetSave">Save</button>
+            <button class="btn btn-danger" id="budgetDelete">Remove</button>
+          </div>
+        </div>
+      </div>
+    </section>
 
-  <!-- Regression alert banner -->
-  <div id="regressionAlert" style="display:none; background:#2d1b1b; border:1px solid #7f1d1d; border-radius:8px; padding:1rem 1.25rem; margin-bottom:1.5rem; color:#f87171;">
-    <strong>⚠ Regression detected</strong> — <span id="regressionMsg"></span>
-  </div>
+    <div class="regression" id="regressionAlert"></div>
 
-  <!-- KPI header bar -->
-  <div class="kpi-bar" id="kpiBar">
-    <div class="kpi"><div class="kpi-label">Total Calls (24 h)</div><div class="kpi-value neutral" id="kpiCalls">—</div></div>
-    <div class="kpi"><div class="kpi-label">Avg Quality (24 h)</div><div class="kpi-value" id="kpiQuality">—</div></div>
-    <div class="kpi"><div class="kpi-label">Total Cost (24 h)</div><div class="kpi-value neutral" id="kpiCost">—</div></div>
-    <div class="kpi"><div class="kpi-label">Bad Response Rate</div><div class="kpi-value" id="kpiBadRate">—</div></div>
-  </div>
+    <section class="kpi-grid">
+      <article class="kpi"><div class="label">Total Calls (24h)</div><div class="value neutral" id="kpiCalls">-</div><div class="sub" id="kpiCallsSub">Traffic volume in monitored scope</div></article>
+      <article class="kpi"><div class="label">Avg Quality</div><div class="value" id="kpiQuality">-</div><div class="sub">Target >= 0.80</div></article>
+      <article class="kpi"><div class="label">Bad Response Rate</div><div class="value" id="kpiBadRate">-</div><div class="sub">Threshold &lt; 15%</div></article>
+      <article class="kpi"><div class="label">Total Cost (24h)</div><div class="value neutral" id="kpiCost">-</div><div class="sub">Estimated API spend</div></article>
+      <article class="kpi"><div class="label">Active Models</div><div class="value neutral" id="kpiModels">-</div><div class="sub">Distinct model families</div></article>
+      <article class="kpi"><div class="label">Top Risk Category</div><div class="value warn" id="kpiRisk">-</div><div class="sub" id="kpiRiskSub">No category data yet</div></article>
+    </section>
 
-  <!-- Trend + Bad Categories -->
-  <div class="grid">
-    <div class="card">
-      <h2>Quality Trend (last 24 h)</h2>
-      <canvas id="trendChart" height="120"></canvas>
-    </div>
-    <div class="card">
-      <h2>Bad Response Categories</h2>
-      <div id="clusterWrap" style="display:flex; gap:0.75rem; flex-wrap:wrap; margin-top:0.5rem;"></div>
-    </div>
-  </div>
+    <section class="grid2">
+      <article class="card"><h2>Quality Trend</h2><div class="card-sub">Hourly average quality over the last day.</div><canvas id="trendChart" height="120"></canvas></article>
+      <article class="card"><h2>Bad Response Categories</h2><div class="card-sub">Clustered from failed or low-quality responses.</div><div id="clusterWrap" class="cluster-wrap"></div></article>
+    </section>
 
-  <!-- Cost vs Quality + Root Cause -->
-  <div class="grid">
-    <div class="card">
-      <h2>Cost ↔ Quality by Model</h2>
-      <canvas id="costQualityChart" height="140"></canvas>
-    </div>
-    <div class="card">
-      <h2>Root-Cause: Worst Prompts</h2>
-      <div id="rootCauseWrap"></div>
-    </div>
-  </div>
+    <section class="grid2">
+      <article class="card"><h2>Cost vs Quality by Model</h2><div class="card-sub">Compare quality score and per-call cost signal.</div><canvas id="costChart" height="140"></canvas></article>
+      <article class="card"><h2>Root Cause Hotspots</h2><div class="card-sub">Prompt families sorted by failure rate.</div><div id="rootWrap" class="bars"></div></article>
+    </section>
 
-  <!-- Worst responses table -->
-  <div class="card">
-    <h2>Worst Responses</h2>
-    <table id="worstTable">
-      <thead>
-        <tr>
-          <th>Quality</th>
-          <th>Hall.</th>
-          <th>Flags</th>
-          <th>Model</th>
-          <th>Output preview</th>
-          <th>Why</th>
-        </tr>
-      </thead>
-      <tbody></tbody>
-    </table>
+    <section class="card">
+      <h2>Worst Responses</h2>
+      <div class="card-sub">Low-quality outputs with flags and quick diagnosis.</div>
+      <div class="table-wrap">
+        <table id="worstTable">
+          <thead><tr><th>Quality</th><th>Hallucination</th><th>Flags</th><th>Model</th><th>Output Preview</th><th>Why</th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </section>
   </div>
 
   <script>
     const API = "";
+    let trendChart = null;
+    let costChart = null;
+    const DEMO = {
+      stats: { total_calls_24h: 1428, avg_quality_24h: 0.83, total_cost_24h_usd: 184.2174, bad_response_rate: 0.082 },
+      trend: [
+        { hour: "2026-05-04T08:00:00", avg_quality: 0.81 }, { hour: "2026-05-04T09:00:00", avg_quality: 0.79 }, { hour: "2026-05-04T10:00:00", avg_quality: 0.82 },
+        { hour: "2026-05-04T11:00:00", avg_quality: 0.84 }, { hour: "2026-05-04T12:00:00", avg_quality: 0.83 }, { hour: "2026-05-04T13:00:00", avg_quality: 0.86 },
+        { hour: "2026-05-04T14:00:00", avg_quality: 0.85 }, { hour: "2026-05-04T15:00:00", avg_quality: 0.88 }, { hour: "2026-05-04T16:00:00", avg_quality: 0.84 },
+        { hour: "2026-05-04T17:00:00", avg_quality: 0.82 }, { hour: "2026-05-04T18:00:00", avg_quality: 0.83 }, { hour: "2026-05-04T19:00:00", avg_quality: 0.85 }
+      ],
+      clusters: [
+        { category: "possible_hallucination", count: 21, avg_quality: 0.41 }, { category: "too_short", count: 16, avg_quality: 0.49 },
+        { category: "no_answer", count: 11, avg_quality: 0.36 }, { category: "likely_incorrect", count: 8, avg_quality: 0.44 }
+      ],
+      costQuality: [
+        { model: "gpt-4o", avg_quality: 0.89, avg_cost_usd: 0.0038 }, { model: "claude-3-haiku", avg_quality: 0.79, avg_cost_usd: 0.0012 },
+        { model: "gpt-4o-mini", avg_quality: 0.75, avg_cost_usd: 0.0008 }
+      ],
+      rootCause: [
+        { prompt_preview: "Classify legal complaint and route to policy owner", total_calls: 36, failure_rate: 0.44, avg_quality: 0.52, total_cost_usd: 0.2134, models: ["gpt-4o", "gpt-4o-mini"] },
+        { prompt_preview: "Summarize multi-doc context and return exact citations", total_calls: 28, failure_rate: 0.39, avg_quality: 0.57, total_cost_usd: 0.1911, models: ["claude-3-haiku"] },
+        { prompt_preview: "Generate customer follow-up with strict tone constraints", total_calls: 19, failure_rate: 0.31, avg_quality: 0.61, total_cost_usd: 0.1096, models: ["gpt-4o-mini"] },
+        { prompt_preview: "Extract PII-safe action items for compliance workflow", total_calls: 17, failure_rate: 0.27, avg_quality: 0.64, total_cost_usd: 0.0881, models: ["gpt-4o"] }
+      ],
+      worst: [
+        { quality_score: 0.18, hallucination_score: 0.84, flags: ["possible_hallucination", "no_answer"], model: "gpt-4o-mini", output_preview: "The policy owner appears to be Alex Richter from Security Ops, but the source text does not mention this role.", score_explanation: "Invented owner name not present in source evidence." },
+        { quality_score: 0.23, hallucination_score: 0.75, flags: ["possible_hallucination"], model: "claude-3-haiku", output_preview: "All contracts include DPA Article 28 by default and no exceptions are recorded.", score_explanation: "Over-generalization contradicts known exceptions in contract records." },
+        { quality_score: 0.31, hallucination_score: 0.53, flags: ["too_short"], model: "gpt-4o", output_preview: "Approved.", score_explanation: "Missing mandatory rationale and compliance references." },
+        { quality_score: 0.37, hallucination_score: 0.64, flags: ["likely_incorrect"], model: "gpt-4o-mini", output_preview: "EU data never leaves region because endpoint is in us-east and mirrored nightly.", score_explanation: "Region claim conflicts with endpoint metadata." },
+        { quality_score: 0.41, hallucination_score: 0.32, flags: ["too_short"], model: "claude-3-haiku", output_preview: "Unable to determine, please retry.", score_explanation: "No fallback behavior or partial answer despite available context." },
+        { quality_score: 0.45, hallucination_score: 0.57, flags: ["likely_incorrect"], model: "gpt-4o", output_preview: "Daily budget is exceeded at 72% usage.", score_explanation: "Threshold and status wording do not align with configured budget rules." }
+      ],
+      regression: { regression_detected: false, reason: "quality stable", current_avg: 0.84, previous_avg: 0.82, window_minutes: 60 }
+    };
 
-    function scoreClass(s) {
-      if (s < 0.4) return "bad";
-      if (s < 0.7) return "mid";
-      return "good";
+    const num = (v, d = 0) => Number.isFinite(Number(v)) ? Number(v) : d;
+    const esc = (v) => String(v || "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/\"/g, "&quot;").replace(/'/g, "&#39;");
+    const cls = (s) => s >= 0.8 ? "good" : (s >= 0.6 ? "warn" : "bad");
+    const shortCat = (s) => String(s || "unflagged").replace(/_/g, " ");
+
+    async function getJson(path) {
+      const r = await fetch(`${API}${path}`);
+      if (!r.ok) throw new Error(`${path}: ${r.status}`);
+      return r.json();
     }
 
-    // ── KPI bar ──────────────────────────────────────────────────────────────
-    async function loadStats() {
-      try {
-        const res = await fetch(`${API}/requests/stats`);
-        const d = await res.json();
-        document.getElementById("kpiCalls").textContent = d.total_calls_24h;
-        const qEl = document.getElementById("kpiQuality");
-        qEl.textContent = d.avg_quality_24h.toFixed(2);
-        qEl.className = "kpi-value " + scoreClass(d.avg_quality_24h);
-        document.getElementById("kpiCost").textContent = "$" + d.total_cost_24h_usd.toFixed(4);
-        const brEl = document.getElementById("kpiBadRate");
-        const br = d.bad_response_rate;
-        brEl.textContent = (br * 100).toFixed(1) + "%";
-        brEl.className = "kpi-value " + (br > 0.3 ? "bad" : br > 0.15 ? "mid" : "good");
-      } catch(e) { console.warn("stats failed", e); }
+    function sparse(live) {
+      const calls = num(live.stats && live.stats.total_calls_24h, 0);
+      return calls < 25 || !Array.isArray(live.trend) || live.trend.length < 6 || !Array.isArray(live.worst) || live.worst.length < 6;
     }
 
-    // ── Quality trend ─────────────────────────────────────────────────────────
-    async function loadTrend() {
-      try {
-        const res = await fetch(`${API}/requests/trend`);
-        const data = await res.json();
-        new Chart(document.getElementById("trendChart"), {
-          type: "line",
-          data: {
-            labels: data.map(d => d.hour.slice(11, 16)),
-            datasets: [{
-              label: "Avg quality",
-              data: data.map(d => d.avg_quality),
-              borderColor: "#818cf8",
-              backgroundColor: "rgba(129,140,248,0.1)",
-              tension: 0.3,
-              fill: true,
-              pointRadius: 3,
-            }],
-          },
-          options: {
-            scales: {
-              y: { min: 0, max: 1, ticks: { color: "#64748b" }, grid: { color: "#1e2130" } },
-              x: { ticks: { color: "#64748b" }, grid: { color: "#1e2130" } },
-            },
-            plugins: { legend: { labels: { color: "#e2e8f0" } } },
-          },
-        });
-      } catch(e) { console.warn("trend failed", e); }
+    function merge(live, forceDemo) {
+      if (forceDemo) return { payload: DEMO, mode: "forced" };
+      if (!sparse(live)) return { payload: live, mode: "live" };
+      return {
+        payload: {
+          stats: live.stats || DEMO.stats,
+          trend: (live.trend || []).length >= 6 ? live.trend : DEMO.trend,
+          clusters: (live.clusters || []).length >= 2 ? live.clusters : DEMO.clusters,
+          costQuality: (live.costQuality || []).length >= 2 ? live.costQuality : DEMO.costQuality,
+          rootCause: (live.rootCause || []).length >= 3 ? live.rootCause : DEMO.rootCause,
+          worst: (live.worst || []).length >= 6 ? live.worst : DEMO.worst,
+          regression: live.regression || DEMO.regression,
+          budget: live.budget
+        },
+        mode: "sparse"
+      };
     }
 
-    // ── Regression alert ──────────────────────────────────────────────────────
-    async function loadRegression() {
-      try {
-        const res = await fetch(`${API}/requests/regression?window_minutes=60&threshold=0.1`);
-        const data = await res.json();
-        if (data.regression_detected) {
-          document.getElementById("regressionAlert").style.display = "block";
-          document.getElementById("regressionMsg").textContent =
-            `${data.reason} | current: ${data.current_avg} vs previous: ${data.previous_avg} (last ${data.window_minutes} min)`;
-        }
-      } catch(e) { console.warn("regression failed", e); }
+    function renderNotice(mode) {
+      const el = document.getElementById("demoNotice");
+      if (mode === "live") return;
+      el.style.display = "block";
+      el.textContent = mode === "forced"
+        ? "Presentation mode is active (?demo=1). Dashboard is fully populated with curated sample data."
+        : "Live traffic is currently sparse. Empty sections were auto-filled with presentation-safe sample data.";
     }
 
-    // ── Bad response categories ───────────────────────────────────────────────
-    async function loadClusters() {
-      try {
-        const res = await fetch(`${API}/requests/clusters?quality_threshold=0.7`);
-        const data = await res.json();
-        const wrap = document.getElementById("clusterWrap");
-        wrap.innerHTML = "";
-        if (!data.length) {
-          wrap.innerHTML = '<span style="color:#64748b;font-size:0.875rem;">No bad responses yet</span>';
-          return;
-        }
-        const colors = { no_answer:"#f87171", too_short:"#fb923c", likely_incorrect:"#fbbf24", possible_hallucination:"#a78bfa", unflagged:"#64748b" };
-        for (const c of data) {
-          const color = colors[c.category] || "#94a3b8";
-          wrap.innerHTML += `
-            <div style="background:#0f1117;border:1px solid ${color}44;border-radius:8px;padding:0.75rem 1rem;min-width:150px;">
-              <div style="color:${color};font-weight:700;font-size:1.25rem;">${c.count}</div>
-              <div style="color:#e2e8f0;font-size:0.8rem;margin:0.2rem 0;">${c.category.replace(/_/g," ")}</div>
-              <div style="color:#64748b;font-size:0.75rem;">avg quality ${c.avg_quality}</div>
-            </div>`;
-        }
-      } catch(e) { console.warn("clusters failed", e); }
+    function renderReadiness(text, ok) {
+      const el = document.getElementById("readiness");
+      el.innerHTML = `Readiness: <strong>${esc(text)}</strong>`;
+      if (!ok) { el.style.borderColor = "#75433f"; el.style.background = "rgba(63,26,22,0.78)"; }
     }
 
-    // ── Cost ↔ Quality chart ──────────────────────────────────────────────────
-    async function loadCostQuality() {
-      try {
-        const res = await fetch(`${API}/requests/cost-quality`);
-        const data = await res.json();
-        if (!data.length) return;
-        const labels = data.map(d => d.model);
-        const qualities = data.map(d => d.avg_quality);
-        const costs = data.map(d => +(d.avg_cost_usd * 1000).toFixed(4)); // to milli-dollars for readability
-        new Chart(document.getElementById("costQualityChart"), {
-          type: "bar",
-          data: {
-            labels,
-            datasets: [
-              {
-                label: "Avg Quality",
-                data: qualities,
-                backgroundColor: "rgba(129,140,248,0.7)",
-                yAxisID: "yQ",
-              },
-              {
-                label: "Avg Cost (m$)",
-                data: costs,
-                backgroundColor: "rgba(251,146,60,0.7)",
-                yAxisID: "yC",
-                type: "line",
-                borderColor: "#fb923c",
-                fill: false,
-                tension: 0.2,
-                pointRadius: 4,
-              },
-            ],
-          },
-          options: {
-            scales: {
-              yQ: { min: 0, max: 1, position: "left", ticks: { color: "#818cf8" }, grid: { color: "#1e2130" }, title: { display: true, text: "Quality", color: "#818cf8" } },
-              yC: { min: 0, position: "right", ticks: { color: "#fb923c" }, grid: { drawOnChartArea: false }, title: { display: true, text: "Cost (m$)", color: "#fb923c" } },
-              x: { ticks: { color: "#64748b" }, grid: { color: "#1e2130" } },
-            },
-            plugins: { legend: { labels: { color: "#e2e8f0" } } },
-          },
-        });
-      } catch(e) { console.warn("cost-quality failed", e); }
+    function renderRegression(data) {
+      const el = document.getElementById("regressionAlert");
+      if (!data || !data.regression_detected) return;
+      el.style.display = "block";
+      el.textContent = `Regression detected: ${data.reason} | current ${data.current_avg} vs previous ${data.previous_avg} in last ${data.window_minutes} min.`;
     }
 
-    // ── Root-cause analysis ───────────────────────────────────────────────────
-    async function loadRootCause() {
-      try {
-        const res = await fetch(`${API}/requests/root-cause?quality_threshold=0.6`);
-        const data = await res.json();
-        const wrap = document.getElementById("rootCauseWrap");
-        if (!data.length) {
-          wrap.innerHTML = '<span style="color:#64748b;font-size:0.875rem;">No failures above threshold</span>';
-          return;
-        }
-        wrap.innerHTML = data.map(d => {
-          const pct = d.failure_rate;
-          const color = pct > 0.6 ? "#f87171" : pct > 0.3 ? "#fb923c" : "#fbbf24";
-          const barW = Math.round(pct * 100);
-          return `
-            <div class="bar-row" title="${d.prompt_preview}">
-              <div class="bar-label">${d.prompt_preview.slice(0,40)}</div>
-              <div class="bar-track"><div class="bar-fill" style="width:${barW}%;background:${color};"></div></div>
-              <div class="bar-val">${(pct*100).toFixed(0)}%</div>
-            </div>
-            <div style="font-size:0.7rem;color:#475569;margin:-0.35rem 0 0.6rem 0;padding-left:0;">
-              ${d.total_calls} calls · avg quality ${d.avg_quality} · $${d.total_cost_usd} · ${d.models.join(", ")}
-            </div>`;
-        }).join("");
-      } catch(e) { console.warn("root-cause failed", e); }
+    function renderBudget(b) {
+      if (!b || (!b.configured && !b.daily_budget_usd)) return;
+      const banner = document.getElementById("budgetBanner");
+      const pct = num(b.percent_used, 0);
+      banner.style.display = "block";
+      document.getElementById("budgetText").textContent = `$${num(b.spent_today_usd, 0).toFixed(4)} of $${num(b.daily_budget_usd, 0).toFixed(2)} used today`;
+      document.getElementById("budgetPct").textContent = `${pct.toFixed(1)}%`;
+      document.getElementById("budgetFill").style.width = `${Math.min(pct, 100)}%`;
+      document.getElementById("budgetFill").style.background = pct >= 100 ? "var(--bad)" : pct >= 80 ? "var(--warn)" : "var(--good)";
+      document.getElementById("budgetInput").value = num(b.daily_budget_usd, 0) || "";
+      document.getElementById("webhookInput").value = b.webhook_url || "";
     }
 
-    // ── Worst responses table ─────────────────────────────────────────────────
-    async function loadWorst() {
-      try {
-        const res = await fetch(`${API}/requests/worst?limit=20`);
-        const rows = await res.json();
-        const tbody = document.querySelector("#worstTable tbody");
-        tbody.innerHTML = "";
-        for (const r of rows) {
-          const tr = document.createElement("tr");
-          const flags = (r.flags || []).map(f => `<span class="flag">${f}</span>`).join(" ");
-          tr.innerHTML = `
-            <td><span class="score ${scoreClass(r.quality_score)}">${r.quality_score.toFixed(2)}</span></td>
-            <td><span class="score ${scoreClass(1 - r.hallucination_score)}">${r.hallucination_score.toFixed(2)}</span></td>
-            <td>${flags}</td>
-            <td>${r.model}</td>
-            <td class="preview" title="${r.output_preview}">${r.output_preview}</td>
-            <td class="explanation">${r.score_explanation || "—"}</td>
-          `;
-          tbody.appendChild(tr);
-        }
-      } catch(e) { console.warn("worst failed", e); }
+    function renderKpis(stats, models, clusters) {
+      const calls = num(stats.total_calls_24h, 0), q = num(stats.avg_quality_24h, 0), br = num(stats.bad_response_rate, 0), cost = num(stats.total_cost_24h_usd, 0);
+      document.getElementById("kpiCalls").textContent = calls.toLocaleString();
+      document.getElementById("kpiCallsSub").textContent = calls < 25 ? "Low-traffic window" : "Healthy traffic sample";
+      const qEl = document.getElementById("kpiQuality"); qEl.textContent = q.toFixed(2); qEl.className = `value ${cls(q)}`;
+      const bEl = document.getElementById("kpiBadRate"); bEl.textContent = `${(br * 100).toFixed(1)}%`; bEl.className = `value ${br > 0.2 ? "bad" : br > 0.1 ? "warn" : "good"}`;
+      document.getElementById("kpiCost").textContent = `$${cost.toFixed(4)}`;
+      document.getElementById("kpiModels").textContent = Array.isArray(models) ? models.length : 0;
+      const top = Array.isArray(clusters) && clusters.length ? clusters[0] : null;
+      document.getElementById("kpiRisk").textContent = top ? shortCat(top.category) : "none";
+      document.getElementById("kpiRiskSub").textContent = top ? `${top.count} flagged responses` : "No cluster warnings";
     }
 
-    // ── Budget alert ─────────────────────────────────────────────────────────
-    async function loadBudget() {
-      try {
-        const res = await fetch(`${API}/alerts/budget`);
-        const d = await res.json();
-        if (!d.configured && !d.daily_budget_usd) return;
-
-        const el = document.getElementById("budgetAlert");
-        const bar = document.getElementById("budgetBar");
-        const pct = d.percent_used;
-
-        el.style.display = "block";
-        document.getElementById("budgetAlertMsg").textContent =
-          `$${d.spent_today_usd.toFixed(4)} of $${d.daily_budget_usd.toFixed(2)} daily budget used`;
-        document.getElementById("budgetAlertPercent").textContent = pct.toFixed(1) + "%";
-
-        if (pct >= 100) {
-          el.style.background = "#2d1b1b";
-          el.style.border = "1px solid #7f1d1d";
-          el.style.color = "#f87171";
-          bar.style.background = "#f87171";
-          document.getElementById("budgetAlertTitle").textContent = "🚨 Budget exceeded";
-        } else if (pct >= 80) {
-          el.style.background = "#2d2418";
-          el.style.border = "1px solid #92400e";
-          el.style.color = "#fb923c";
-          bar.style.background = "#fb923c";
-          document.getElementById("budgetAlertTitle").textContent = "⚠ Budget warning";
-        } else {
-          el.style.background = "#1a2130";
-          el.style.border = "1px solid #1e3a5f";
-          el.style.color = "#4ade80";
-          bar.style.background = "#4ade80";
-          document.getElementById("budgetAlertTitle").textContent = "Budget on track";
-        }
-        bar.style.width = Math.min(pct, 100) + "%";
-
-        // Pre-fill form
-        document.getElementById("budgetInput").value = d.daily_budget_usd;
-        document.getElementById("webhookInput").value = d.webhook_url || "";
-      } catch(e) { console.warn("budget failed", e); }
-    }
-
-    // Budget form toggle + save
-    document.getElementById("budgetToggle").addEventListener("click", () => {
-      const form = document.getElementById("budgetForm");
-      form.style.display = form.style.display === "none" ? "block" : "none";
-    });
-
-    document.getElementById("budgetSave").addEventListener("click", async () => {
-      const budget = parseFloat(document.getElementById("budgetInput").value);
-      const webhook = document.getElementById("webhookInput").value.trim() || null;
-      if (!budget || budget <= 0) return alert("Enter a valid budget amount");
-      await fetch(`${API}/alerts/budget`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ daily_budget_usd: budget, webhook_url: webhook }),
+    function renderTrend(data) {
+      if (trendChart) trendChart.destroy();
+      trendChart = new Chart(document.getElementById("trendChart"), {
+        type: "line",
+        data: { labels: data.map(d => String(d.hour || "").slice(11, 16)), datasets: [{ label: "Avg quality", data: data.map(d => num(d.avg_quality, 0)), borderColor: "#4fb8ff", backgroundColor: "rgba(79,184,255,0.15)", tension: 0.28, fill: true, pointRadius: 2 }] },
+        options: { scales: { y: { min: 0, max: 1, ticks: { color: "#8ca3bd" }, grid: { color: "rgba(38,71,101,.35)" } }, x: { ticks: { color: "#8ca3bd" }, grid: { color: "rgba(25,51,75,.28)" } } }, plugins: { legend: { labels: { color: "#d8e6f6" } } } }
       });
-      location.reload();
-    });
+    }
 
-    document.getElementById("budgetDelete").addEventListener("click", async () => {
-      await fetch(`${API}/alerts/budget`, { method: "DELETE" });
-      location.reload();
-    });
+    function renderClusters(data) {
+      const wrap = document.getElementById("clusterWrap");
+      if (!Array.isArray(data) || !data.length) { wrap.innerHTML = '<div class="empty">No cluster data available.</div>'; return; }
+      const palette = { no_answer: "#ff6f7d", too_short: "#f0a73b", likely_incorrect: "#f5c452", possible_hallucination: "#ff7a93", unflagged: "#90aac6" };
+      wrap.innerHTML = data.map(c => {
+        const color = palette[c.category] || "#8db0ce";
+        return `<article class="cluster" style="border-color:${color}55;"><div class="num" style="color:${color};">${num(c.count,0)}</div><div class="title">${esc(shortCat(c.category))}</div><div class="meta">avg quality ${num(c.avg_quality,0).toFixed(2)}</div></article>`;
+      }).join("");
+    }
 
-    // Load everything in parallel
-    loadStats();
-    loadTrend();
-    loadRegression();
-    loadClusters();
-    loadCostQuality();
-    loadRootCause();
-    loadWorst();
-    loadBudget();
+    function renderCost(data) {
+      if (costChart) costChart.destroy();
+      costChart = new Chart(document.getElementById("costChart"), {
+        data: { labels: data.map(d => d.model), datasets: [{ type: "bar", label: "Avg quality", data: data.map(d => num(d.avg_quality, 0)), backgroundColor: "rgba(73,171,240,0.7)", yAxisID: "yQ" }, { type: "line", label: "Avg cost (m$)", data: data.map(d => +(num(d.avg_cost_usd, 0) * 1000).toFixed(4)), borderColor: "#f0a73b", backgroundColor: "rgba(240,167,59,0.22)", pointRadius: 4, tension: 0.24, yAxisID: "yC" }] },
+        options: { scales: { x: { ticks: { color: "#8ca3bd" }, grid: { color: "rgba(25,51,75,.24)" } }, yQ: { min: 0, max: 1, position: "left", ticks: { color: "#8bd0ff" }, title: { display: true, text: "Quality", color: "#8bd0ff" }, grid: { color: "rgba(38,71,101,.35)" } }, yC: { min: 0, position: "right", ticks: { color: "#ffc16a" }, title: { display: true, text: "Cost (m$)", color: "#ffc16a" }, grid: { drawOnChartArea: false } } }, plugins: { legend: { labels: { color: "#d8e6f6" } } } }
+      });
+    }
+
+    function renderRoot(data) {
+      const wrap = document.getElementById("rootWrap");
+      if (!Array.isArray(data) || !data.length) { wrap.innerHTML = '<div class="empty">No root-cause records yet.</div>'; return; }
+      wrap.innerHTML = data.map(r => {
+        const rate = num(r.failure_rate, 0), pct = Math.round(rate * 100), color = rate > 0.4 ? "#ff6f7d" : rate > 0.25 ? "#f0a73b" : "#74c8ff";
+        const models = Array.isArray(r.models) ? r.models.join(", ") : "n/a";
+        return `<div class="row"><div class="line"><div class="label" title="${esc(r.prompt_preview)}">${esc(String(r.prompt_preview || "").slice(0,70))}</div><div class="track"><div class="fill" style="width:${pct}%;background:${color};"></div></div><div class="val">${pct}%</div></div><div class="meta">${num(r.total_calls,0)} calls - avg quality ${num(r.avg_quality,0).toFixed(2)} - $${num(r.total_cost_usd,0).toFixed(4)} - ${esc(models)}</div></div>`;
+      }).join("");
+    }
+
+    function renderWorst(data) {
+      const tbody = document.querySelector("#worstTable tbody");
+      if (!Array.isArray(data) || !data.length) { tbody.innerHTML = '<tr><td colspan="6" class="empty">No low-quality responses found.</td></tr>'; return; }
+      tbody.innerHTML = data.map(r => {
+        const q = num(r.quality_score, 0), h = num(r.hallucination_score, 0), flags = Array.isArray(r.flags) ? r.flags : [];
+        const flagHtml = flags.length ? flags.map(f => `<span class="flag">${esc(shortCat(f))}</span>`).join("") : '<span class="flag">unflagged</span>';
+        return `<tr><td><span class="score-pill ${cls(q)}">${q.toFixed(2)}</span></td><td><span class="score-pill ${cls(1-h)}">${h.toFixed(2)}</span></td><td>${flagHtml}</td><td>${esc(r.model || "-")}</td><td class="preview" title="${esc(r.output_preview || "")}">${esc(r.output_preview || "-")}</td><td class="explain">${esc(r.score_explanation || "-")}</td></tr>`;
+      }).join("");
+    }
+
+    function setupBudget() {
+      const form = document.getElementById("budgetForm");
+      document.getElementById("budgetToggle").addEventListener("click", () => { form.style.display = form.style.display === "block" ? "none" : "block"; });
+      document.getElementById("budgetSave").addEventListener("click", async () => {
+        const b = parseFloat(document.getElementById("budgetInput").value), w = document.getElementById("webhookInput").value.trim() || null;
+        if (!b || b <= 0) { alert("Enter a valid daily budget."); return; }
+        await fetch(`${API}/alerts/budget`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ daily_budget_usd: b, webhook_url: w }) });
+        location.reload();
+      });
+      document.getElementById("budgetDelete").addEventListener("click", async () => { await fetch(`${API}/alerts/budget`, { method: "DELETE" }); location.reload(); });
+    }
+
+    async function main() {
+      setupBudget();
+      const forceDemo = new URLSearchParams(location.search).get("demo") === "1";
+      try {
+        const [stats, trend, regression, clusters, costQuality, rootCause, worst, budget] = await Promise.all([
+          getJson("/requests/stats"), getJson("/requests/trend"), getJson("/requests/regression?window_minutes=60&threshold=0.1"),
+          getJson("/requests/clusters?quality_threshold=0.7"), getJson("/requests/cost-quality"), getJson("/requests/root-cause?quality_threshold=0.6"),
+          getJson("/requests/worst?limit=20"), getJson("/alerts/budget").catch(() => null)
+        ]);
+        const live = { stats, trend, regression, clusters, costQuality, rootCause, worst, budget };
+        const merged = merge(live, forceDemo);
+        renderNotice(merged.mode);
+        renderRegression(merged.payload.regression);
+        renderBudget(merged.payload.budget);
+        renderKpis(merged.payload.stats, merged.payload.costQuality, merged.payload.clusters);
+        renderTrend(merged.payload.trend);
+        renderClusters(merged.payload.clusters);
+        renderCost(merged.payload.costQuality);
+        renderRoot(merged.payload.rootCause);
+        renderWorst(merged.payload.worst);
+        const calls = num(merged.payload.stats.total_calls_24h, 0);
+        renderReadiness(merged.mode === "live" ? "Production healthy" : `Presentation ready (${calls} live calls)`, true);
+      } catch (e) {
+        console.warn("dashboard bootstrap failed", e);
+        renderNotice("forced");
+        renderRegression(DEMO.regression);
+        renderKpis(DEMO.stats, DEMO.costQuality, DEMO.clusters);
+        renderTrend(DEMO.trend);
+        renderClusters(DEMO.clusters);
+        renderCost(DEMO.costQuality);
+        renderRoot(DEMO.rootCause);
+        renderWorst(DEMO.worst);
+        renderReadiness("Presentation mode (API unavailable)", false);
+      }
+    }
+
+    main();
   </script>
 </body>
 </html>
