@@ -1,9 +1,9 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Prompt Debugger — AgentLens</title>
+  <title>Prompt Debugger â€” AgentLens</title>
   <script src="/auth.js"></script>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -63,9 +63,9 @@
   </style>
 </head>
 <body>
-  <div style="margin-bottom:1rem;"><a href="/">← Dashboard</a></div>
+  <div style="margin-bottom:1rem;"><a href="/dashboard">â† Dashboard</a></div>
   <h1>Prompt Debugger</h1>
-  <p class="subtitle">Search and inspect individual LLM calls — find exactly where and why things fail</p>
+  <p class="subtitle">Search and inspect individual LLM calls â€” find exactly where and why things fail</p>
   <div class="scope-pill">Data Scope: API-key isolated project context</div>
 
   <div class="filters">
@@ -164,7 +164,7 @@
       for (const r of data.results) {
         const flags = (r.flags || []).map(f => `<span class="flag">${f}</span>`).join(" ");
         const qClass = scoreClass(r.quality_score);
-        const qText = r.quality_score !== null ? r.quality_score.toFixed(2) : "—";
+        const qText = r.quality_score !== null ? r.quality_score.toFixed(2) : "â€”";
 
         const card = document.createElement("div");
         card.className = "request-card";
@@ -217,7 +217,7 @@
               <div class="lbl">Flags</div>
             </div>
             <div class="eval-item">
-              <div class="val">${d.cost_usd ? '$' + d.cost_usd.toFixed(4) : '—'}</div>
+              <div class="val">${d.cost_usd ? '$' + d.cost_usd.toFixed(4) : 'â€”'}</div>
               <div class="lbl">Cost</div>
             </div>
           </div>
@@ -267,3 +267,4 @@
   </script>
 </body>
 </html>
+
