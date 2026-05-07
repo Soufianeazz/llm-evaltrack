@@ -12,11 +12,45 @@ from typing import Any
 
 from api.admin_auth import require_admin_token
 from api.auth import ApiKeyContext, ensure_role, require_api_key, require_api_key_context
+from api.costing import compute_cost_from_tokens
 from api.limiter import limiter
 from storage.database import get_session
 from storage.models import AuditLog, Span, Trace
 
 router = APIRouter(prefix="/traces")
+
+
+def _span_effective_cost(span: Span) -> float:
+    # Prefer explicit span token split when available.
+    meta = span.metadata_ or {}
+    in_tokens = meta.get("input_tokens")
+    out_tokens = meta.get("output_tokens")
+    try:
+        if in_tokens is not None and out_tokens is not None:
+            computed = compute_cost_from_tokens(
+                span.model,
+                int(float(in_tokens)),
+                int(float(out_tokens)),
+            )
+            if computed is not None:
+                return computed
+    except Exception:
+        pass
+
+    # Fallback: estimate split from total tokens if available.
+    try:
+        if span.tokens is not None:
+            total = max(0, int(float(span.tokens)))
+            # Conservative approximation when split is missing.
+            est_input = int(total * 0.6)
+            est_output = max(0, total - est_input)
+            computed = compute_cost_from_tokens(span.model, est_input, est_output)
+            if computed is not None:
+                return computed
+    except Exception:
+        pass
+
+    return float(span.cost_usd or 0.0)
 
 
 # ── Schemas ───────────────────────────────────────────────────────────────────
@@ -101,7 +135,7 @@ async def end_trace(
     spans_result = await db.execute(select(Span).where(Span.trace_id == trace_id))
     spans = spans_result.scalars().all()
     trace.total_tokens = sum(s.tokens or 0 for s in spans)
-    trace.total_cost_usd = sum(s.cost_usd or 0 for s in spans)
+    trace.total_cost_usd = sum(_span_effective_cost(s) for s in spans)
 
     await db.commit()
     return {"trace_id": trace_id, "status": trace.status, "duration_ms": trace.total_duration_ms}
@@ -168,7 +202,20 @@ async def end_span(
     span.output = payload.output
     span.error = payload.error
     span.tokens = payload.tokens
-    span.cost_usd = payload.cost_usd
+    if payload.cost_usd is not None:
+        span.cost_usd = payload.cost_usd
+    else:
+        # Keep stored trace costs useful even if caller only sends tokens.
+        try:
+            if payload.tokens is not None:
+                total = max(0, int(float(payload.tokens)))
+                est_input = int(total * 0.6)
+                est_output = max(0, total - est_input)
+                computed = compute_cost_from_tokens(span.model, est_input, est_output)
+                if computed is not None:
+                    span.cost_usd = computed
+        except Exception:
+            pass
     span.ended_at = now
     span.duration_ms = round((now - span.started_at) * 1000, 1)
 
@@ -202,14 +249,13 @@ async def list_traces(
         query = query.where(Trace.started_at <= to_ts)
     if min_duration_ms is not None:
         query = query.where(Trace.total_duration_ms >= min_duration_ms)
-    if min_cost_usd is not None:
-        query = query.where(Trace.total_cost_usd >= min_cost_usd)
-
     result = await db.execute(query.offset(offset).limit(limit))
     traces = result.scalars().all()
 
     trace_ids = [t.id for t in traces]
     span_counts: dict[str, int] = {}
+    span_cost_totals: dict[str, float] = {}
+    span_token_totals: dict[str, float] = {}
     if trace_ids:
         counts_result = await db.execute(
             select(Span.trace_id, func.count(Span.id).label("cnt"))
@@ -217,17 +263,24 @@ async def list_traces(
             .group_by(Span.trace_id)
         )
         span_counts = {row.trace_id: row.cnt for row in counts_result}
+        spans_result = await db.execute(select(Span).where(Span.trace_id.in_(trace_ids)))
+        for s in spans_result.scalars().all():
+            span_cost_totals[s.trace_id] = span_cost_totals.get(s.trace_id, 0.0) + _span_effective_cost(s)
+            span_token_totals[s.trace_id] = span_token_totals.get(s.trace_id, 0.0) + float(s.tokens or 0.0)
 
     items = []
     for t in traces:
+        effective_cost = round(span_cost_totals.get(t.id, float(t.total_cost_usd or 0.0)), 6)
+        if min_cost_usd is not None and effective_cost < min_cost_usd:
+            continue
         items.append({
             "trace_id": t.id,
             "name": t.name,
             "status": t.status,
             "input_preview": (t.input or "")[:120],
             "output_preview": (t.output or "")[:120],
-            "total_tokens": t.total_tokens,
-            "total_cost_usd": t.total_cost_usd,
+            "total_tokens": span_token_totals.get(t.id, float(t.total_tokens or 0.0)),
+            "total_cost_usd": effective_cost,
             "total_duration_ms": t.total_duration_ms,
             "span_count": span_counts.get(t.id, 0),
             "error": t.error,
@@ -281,6 +334,8 @@ async def get_trace_detail(
         select(Span).where(Span.trace_id == trace_id).order_by(Span.started_at)
     )
     spans = spans_result.scalars().all()
+    total_tokens = sum(float(s.tokens or 0.0) for s in spans)
+    total_cost = round(sum(_span_effective_cost(s) for s in spans), 6)
 
     return {
         "trace_id": trace.id,
@@ -288,8 +343,8 @@ async def get_trace_detail(
         "status": trace.status,
         "input": trace.input,
         "output": trace.output,
-        "total_tokens": trace.total_tokens,
-        "total_cost_usd": trace.total_cost_usd,
+        "total_tokens": total_tokens if spans else trace.total_tokens,
+        "total_cost_usd": total_cost if spans else trace.total_cost_usd,
         "total_duration_ms": trace.total_duration_ms,
         "error": trace.error,
         "metadata": trace.metadata_,
@@ -306,7 +361,7 @@ async def get_trace_detail(
                 "output": s.output,
                 "model": s.model,
                 "tokens": s.tokens,
-                "cost_usd": s.cost_usd,
+                "cost_usd": round(_span_effective_cost(s), 8),
                 "duration_ms": s.duration_ms,
                 "error": s.error,
                 "metadata": s.metadata_,
