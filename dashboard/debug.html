@@ -7,76 +7,108 @@
   <script src="/auth.js"></script>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: system-ui, sans-serif; background: #0f1117; color: #e2e8f0; padding: 2rem; }
-    a { color: #818cf8; text-decoration: none; }
-    a:hover { text-decoration: underline; }
-    h1 { font-size: 1.5rem; margin-bottom: 0.25rem; }
-    .subtitle { color: #64748b; font-size: 0.875rem; margin-bottom: 1.5rem; }
-    .top-nav { display: flex; justify-content: space-between; align-items: center; gap: 1rem; margin-bottom: 1rem; }
-    .top-links { display: flex; gap: 0.6rem; flex-wrap: wrap; }
-    .top-links a {
-      display: inline-block;
-      border: 1px solid #2d3148;
-      border-radius: 6px;
-      padding: 0.35rem 0.7rem;
-      text-decoration: none;
-      font-size: 0.9rem;
+    :root {
+      --bg: #07111f;
+      --panel: #10233a;
+      --line: #244262;
+      --text: #d8e6f6;
+      --muted: #8ca3bd;
+      --accent: #6fc3ff;
+      --accent-soft: #818cf8;
+      --good: #38d39f;
+      --warn: #f0a73b;
+      --bad: #ff6f7d;
     }
-    .top-links a:hover { text-decoration: none; border-color: #818cf8; }
-    .scope-pill { display:inline-block; margin-top:-1rem; margin-bottom:1.2rem; padding:0.25rem 0.6rem; border-radius:999px; border:1px solid #2d3148; color:#93c5fd; font-size:0.75rem; }
+    body {
+      font-family: "Segoe UI Variable", "Segoe UI", "Trebuchet MS", sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(1200px 600px at 10% -20%, #1e3f62 0%, transparent 60%),
+        radial-gradient(900px 500px at 110% 0%, #123658 0%, transparent 50%),
+        linear-gradient(180deg, #07111f 0%, #081426 100%);
+      min-height: 100vh;
+      padding: 26px;
+    }
+    a { color: var(--accent-soft); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    .wrap { max-width: 1500px; margin: 0 auto; }
+    .top-nav { display: flex; justify-content: flex-end; align-items: flex-start; gap: 1rem; margin-bottom: 0.8rem; }
+    .actions { display: flex; gap: 10px; flex-wrap: wrap; }
+    .btn-link {
+      color: var(--text); text-decoration: none; font-size: 13px; padding: 10px 14px;
+      border: 1px solid var(--line); border-radius: 10px; background: rgba(12, 27, 47, 0.6);
+    }
+    .btn-link:hover { text-decoration: none; border-color: #3d69a0; }
+    button.btn-link { cursor: pointer; font-family: inherit; }
+    .btn-link.active { border-color: #3d69a0; background: rgba(27, 49, 76, 0.75); }
+    h1 { font-size: 1.5rem; margin-bottom: 0.25rem; }
+    .subtitle { color: var(--muted); font-size: 0.95rem; margin-bottom: 1.5rem; }
+    .scope-pill {
+      display:inline-block; margin-top:-1rem; margin-bottom:1.2rem; padding:0.25rem 0.6rem;
+      border-radius:999px; border:1px solid #2c4f70; color:#9bd2ff; font-size:0.75rem;
+      background: rgba(10,26,45,0.72);
+    }
     .filters { display: flex; gap: 0.75rem; flex-wrap: wrap; margin-bottom: 1.5rem; align-items: end; }
     .filter-group { display: flex; flex-direction: column; gap: 0.25rem; }
-    .filter-group label { font-size: 0.7rem; color: #64748b; text-transform: uppercase; letter-spacing: 0.05em; }
+    .filter-group label { font-size: 0.7rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; }
     .filter-group input, .filter-group select {
-      background: #1e2130; border: 1px solid #2d3148; color: #e2e8f0;
-      padding: 0.4rem 0.6rem; border-radius: 4px; font-size: 0.85rem;
+      background: #1a2740; border: 1px solid var(--line); color: var(--text);
+      padding: 0.45rem 0.65rem; border-radius: 8px; font-size: 0.9rem;
     }
     .filter-group input { width: 160px; }
     .filter-group select { width: 160px; }
-    .btn { background: #818cf8; color: #0f1117; border: none; padding: 0.45rem 1rem; border-radius: 6px; font-weight: 600; cursor: pointer; font-size: 0.85rem; }
-    .btn:hover { background: #6366f1; }
-    .btn-ghost { background: none; border: 1px solid #2d3148; color: #64748b; }
-    .results-count { color: #64748b; font-size: 0.8rem; margin-bottom: 1rem; }
+    .btn { background: var(--accent-soft); color: #0f1117; border: none; padding: 0.45rem 1rem; border-radius: 8px; font-weight: 700; cursor: pointer; font-size: 0.9rem; }
+    .btn:hover { background: #97a4ff; }
+    .btn-ghost { background: transparent; border: 1px solid var(--line); color: var(--muted); }
+    .results-count { color: var(--muted); font-size: 0.85rem; margin-bottom: 1rem; }
     .request-list { display: flex; flex-direction: column; gap: 0.5rem; }
     .request-card {
-      background: #1e2130; border: 1px solid #2d3148; border-radius: 8px;
+      background: #1a2740; border: 1px solid var(--line); border-radius: 10px;
       padding: 1rem 1.25rem; cursor: pointer; transition: border-color 0.2s;
     }
-    .request-card:hover { border-color: #818cf8; }
-    .request-card.expanded { border-color: #818cf8; }
+    .request-card:hover { border-color: #3d69a0; }
+    .request-card.expanded { border-color: #3d69a0; }
     .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem; }
-    .card-meta { display: flex; gap: 1rem; font-size: 0.75rem; color: #64748b; }
+    .card-meta { display: flex; gap: 1rem; font-size: 0.75rem; color: var(--muted); }
     .score { font-weight: 700; }
-    .score.bad { color: #f87171; }
-    .score.mid { color: #fb923c; }
-    .score.good { color: #4ade80; }
-    .flag { display: inline-block; font-size: 0.65rem; background: #2d1b1b; color: #f87171;
+    .score.bad { color: var(--bad); }
+    .score.mid { color: var(--warn); }
+    .score.good { color: var(--good); }
+    .flag { display: inline-block; font-size: 0.65rem; background: #2d1b1b; color: var(--bad);
             border: 1px solid #7f1d1d; border-radius: 4px; padding: 0 0.35rem; margin: 1px; }
-    .preview-text { color: #94a3b8; font-size: 0.8rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-    .detail { display: none; margin-top: 1rem; border-top: 1px solid #2d3148; padding-top: 1rem; }
+    .preview-text { color: #a6bbd3; font-size: 0.8rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .detail { display: none; margin-top: 1rem; border-top: 1px solid var(--line); padding-top: 1rem; }
     .detail.open { display: block; }
     .detail-section { margin-bottom: 1rem; }
-    .detail-label { font-size: 0.7rem; text-transform: uppercase; color: #64748b; letter-spacing: 0.05em; margin-bottom: 0.3rem; }
+    .detail-label { font-size: 0.7rem; text-transform: uppercase; color: var(--muted); letter-spacing: 0.05em; margin-bottom: 0.3rem; }
     .detail-content {
-      background: #0f1117; border: 1px solid #1e2130; border-radius: 6px;
+      background: #0f1e32; border: 1px solid #203a59; border-radius: 8px;
       padding: 0.75rem; font-size: 0.8rem; color: #cbd5e1; white-space: pre-wrap;
       word-break: break-word; max-height: 200px; overflow-y: auto;
     }
     .eval-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.75rem; }
-    .eval-item { background: #0f1117; border-radius: 6px; padding: 0.75rem; text-align: center; }
+    .eval-item { background: #0f1e32; border: 1px solid #203a59; border-radius: 8px; padding: 0.75rem; text-align: center; }
     .eval-item .val { font-size: 1.25rem; font-weight: 700; }
-    .eval-item .lbl { font-size: 0.7rem; color: #64748b; margin-top: 0.2rem; }
+    .eval-item .lbl { font-size: 0.7rem; color: var(--muted); margin-top: 0.2rem; }
     .meta-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.5rem; font-size: 0.8rem; }
-    .meta-grid div { background: #0f1117; padding: 0.5rem; border-radius: 4px; }
-    .meta-grid .key { color: #64748b; }
-    .meta-grid .val { color: #e2e8f0; }
+    .meta-grid div { background: #0f1e32; border: 1px solid #203a59; padding: 0.5rem; border-radius: 6px; }
+    .meta-grid .key { color: var(--muted); }
+    .meta-grid .val { color: var(--text); }
     @media (max-width: 700px) { .eval-grid { grid-template-columns: 1fr 1fr; } .meta-grid { grid-template-columns: 1fr; } }
   </style>
 </head>
 <body>
-  <div class="top-nav"><a href="/dashboard">&larr; Dashboard</a><div class="top-links"><a href="/traces.html">Agent Debugger</a><a href="/compliance.html">Compliance</a></div></div>
+  <main class="wrap">
+  <div class="top-nav">
+    <nav class="actions">
+      <button class="btn-link" type="button" onclick="agentlensLogout()">Logout</button>
+      <a class="btn-link" href="/traces.html">Agent Debugger</a>
+      <a class="btn-link active" href="/debug.html">Prompt Debugger</a>
+      <a class="btn-link" href="/compliance.html">Compliance</a>
+    </nav>
+  </div>
   <h1>Prompt Debugger</h1>
-  <p class="subtitle">Search and inspect individual LLM calls â€” find exactly where and why things fail</p>
+  <p class="subtitle">Search and inspect individual LLM calls - find exactly where and why things fail</p>
   <div class="scope-pill">Data Scope: API-key isolated project context</div>
 
   <div class="filters">
@@ -116,6 +148,7 @@
 
   <div class="results-count" id="resultsCount"></div>
   <div class="request-list" id="requestList"></div>
+  </main>
 
   <script>
     const API = "";

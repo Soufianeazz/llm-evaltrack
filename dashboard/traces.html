@@ -37,11 +37,25 @@
     .wrap { width: min(1220px, calc(100% - 2.4rem)); margin: 0 auto; }
     .top-nav {
       display: flex;
-      gap: 1rem;
-      align-items: center;
+      justify-content: flex-end;
+      align-items: flex-start;
       padding: 1.2rem 0 0.4rem;
-      font-size: 0.95rem;
-      font-weight: 700;
+    }
+    .actions { display: flex; gap: 10px; flex-wrap: wrap; }
+    .btn-link {
+      color: var(--ink);
+      text-decoration: none;
+      font-size: 13px;
+      padding: 10px 14px;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      background: rgba(12, 27, 47, 0.6);
+    }
+    .btn-link:hover { text-decoration: none; border-color: #3d69a0; }
+    button.btn-link { cursor: pointer; font-family: inherit; }
+    .btn-link.active {
+      border-color: #3d69a0;
+      background: rgba(27, 49, 76, 0.75);
     }
     .hero {
       border: 1px solid var(--line);
@@ -165,9 +179,12 @@
 <body>
   <main class="wrap">
     <div class="top-nav">
-      <a href="/dashboard">Back to Dashboard</a>
-      <a href="/debug.html">Prompt Debugger</a>
-      <a href="/compliance.html">Compliance</a>
+      <nav class="actions">
+        <button class="btn-link" type="button" onclick="agentlensLogout()">Logout</button>
+        <a class="btn-link active" href="/traces.html">Agent Debugger</a>
+        <a class="btn-link" href="/debug.html">Prompt Debugger</a>
+        <a class="btn-link" href="/compliance.html">Compliance</a>
+      </nav>
     </div>
 
     <div class="hero">
