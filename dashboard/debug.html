@@ -1,9 +1,9 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Prompt Debugger — AgentLens</title>
+  <title>Prompt Debugger â€” AgentLens</title>
   <script src="/auth.js"></script>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -12,6 +12,17 @@
     a:hover { text-decoration: underline; }
     h1 { font-size: 1.5rem; margin-bottom: 0.25rem; }
     .subtitle { color: #64748b; font-size: 0.875rem; margin-bottom: 1.5rem; }
+    .top-nav { display: flex; justify-content: space-between; align-items: center; gap: 1rem; margin-bottom: 1rem; }
+    .top-links { display: flex; gap: 0.6rem; flex-wrap: wrap; }
+    .top-links a {
+      display: inline-block;
+      border: 1px solid #2d3148;
+      border-radius: 6px;
+      padding: 0.35rem 0.7rem;
+      text-decoration: none;
+      font-size: 0.9rem;
+    }
+    .top-links a:hover { text-decoration: none; border-color: #818cf8; }
     .scope-pill { display:inline-block; margin-top:-1rem; margin-bottom:1.2rem; padding:0.25rem 0.6rem; border-radius:999px; border:1px solid #2d3148; color:#93c5fd; font-size:0.75rem; }
     .filters { display: flex; gap: 0.75rem; flex-wrap: wrap; margin-bottom: 1.5rem; align-items: end; }
     .filter-group { display: flex; flex-direction: column; gap: 0.25rem; }
@@ -63,9 +74,9 @@
   </style>
 </head>
 <body>
-  <div style="margin-bottom:1rem;"><a href="/dashboard">← Dashboard</a></div>
+  <div class="top-nav"><a href="/dashboard">&larr; Dashboard</a><div class="top-links"><a href="/traces.html">Agent Debugger</a><a href="/compliance.html">Compliance</a></div></div>
   <h1>Prompt Debugger</h1>
-  <p class="subtitle">Search and inspect individual LLM calls — find exactly where and why things fail</p>
+  <p class="subtitle">Search and inspect individual LLM calls â€” find exactly where and why things fail</p>
   <div class="scope-pill">Data Scope: API-key isolated project context</div>
 
   <div class="filters">
@@ -164,7 +175,7 @@
       for (const r of data.results) {
         const flags = (r.flags || []).map(f => `<span class="flag">${f}</span>`).join(" ");
         const qClass = scoreClass(r.quality_score);
-        const qText = r.quality_score !== null ? r.quality_score.toFixed(2) : "—";
+        const qText = r.quality_score !== null ? r.quality_score.toFixed(2) : "â€”";
 
         const card = document.createElement("div");
         card.className = "request-card";
@@ -217,7 +228,7 @@
               <div class="lbl">Flags</div>
             </div>
             <div class="eval-item">
-              <div class="val">${d.cost_usd ? '$' + d.cost_usd.toFixed(4) : '—'}</div>
+              <div class="val">${d.cost_usd ? '$' + d.cost_usd.toFixed(4) : 'â€”'}</div>
               <div class="lbl">Cost</div>
             </div>
           </div>
@@ -267,3 +278,4 @@
   </script>
 </body>
 </html>
+
