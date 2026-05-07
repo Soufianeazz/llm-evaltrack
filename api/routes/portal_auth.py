@@ -1,9 +1,11 @@
 import hashlib
 import hmac
+import os
 import secrets
 import time
 import uuid
 
+import httpx
 from fastapi import APIRouter, Depends, HTTPException, Query
 from pydantic import BaseModel, EmailStr, Field
 from sqlalchemy import select
@@ -79,6 +81,53 @@ async def _audit(db: AsyncSession, action: str, detail: str) -> None:
     await db.commit()
 
 
+async def _notify_signup(payload: dict) -> None:
+    webhook_url = os.environ.get("SIGNUP_NOTIFY_WEBHOOK_URL", "").strip()
+    resend_api_key = os.environ.get("RESEND_API_KEY", "").strip()
+    notify_email = os.environ.get("SIGNUP_NOTIFY_EMAIL", "").strip()
+    from_email = os.environ.get("SIGNUP_NOTIFY_FROM_EMAIL", "AgentLens Access <noreply@agentlens.one>").strip()
+
+    async with httpx.AsyncClient(timeout=10) as client:
+        if webhook_url:
+            try:
+                await client.post(
+                    webhook_url,
+                    json={
+                        "event": "customer_signup_pending",
+                        "timestamp": payload["created_at"],
+                        "account": payload,
+                    },
+                )
+            except Exception:
+                pass
+
+        if resend_api_key and notify_email:
+            try:
+                subject = f"New signup pending approval: {payload['email']}"
+                body = (
+                    "New AgentLens account signup\n\n"
+                    f"Name: {payload.get('name') or 'n/a'}\n"
+                    f"Email: {payload['email']}\n"
+                    f"Company: {payload.get('company') or 'n/a'}\n"
+                    f"Account ID: {payload['id']}\n"
+                    f"Status: {payload['status']}\n"
+                    f"Created at (epoch): {payload['created_at']}\n\n"
+                    "Next step: approve via /admin/customers/{id}/approve\n"
+                )
+                await client.post(
+                    "https://api.resend.com/emails",
+                    headers={"Authorization": f"Bearer {resend_api_key}"},
+                    json={
+                        "from": from_email,
+                        "to": [notify_email],
+                        "subject": subject,
+                        "text": body,
+                    },
+                )
+            except Exception:
+                pass
+
+
 @router.post("/signup")
 async def signup(payload: SignupPayload, db: AsyncSession = Depends(get_session)):
     email = payload.email.strip().lower()
@@ -100,6 +149,16 @@ async def signup(payload: SignupPayload, db: AsyncSession = Depends(get_session)
     )
     db.add(account)
     await db.commit()
+    await _notify_signup(
+        {
+            "id": account.id,
+            "email": account.email,
+            "name": account.name,
+            "company": account.company,
+            "status": account.status,
+            "created_at": account.created_at,
+        }
+    )
     await _audit(
         db,
         "customer_signup",
