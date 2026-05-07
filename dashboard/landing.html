@@ -207,6 +207,9 @@
       overflow: hidden;
       background: var(--surface);
       box-shadow: var(--shadow);
+      max-width: 860px;
+      margin-left: auto;
+      margin-right: auto;
     }
     .product-shot img {
       display: block;
@@ -214,10 +217,16 @@
       height: auto;
     }
     .shot-caption {
-      padding: 0.8rem 1rem;
-      font-size: 0.82rem;
+      padding: 0.65rem 0.85rem;
+      font-size: 0.78rem;
       color: var(--ink-soft);
       border-top: 1px solid var(--line);
+    }
+    .product-preview {
+      padding-top: 0.7rem;
+    }
+    .product-preview .lead {
+      max-width: 58ch;
     }
 
     .section { padding: 3.3rem 0; }
@@ -490,7 +499,7 @@
       </div>
     </section>
 
-    <section class="section" style="padding-top: 0.9rem;">
+    <section class="section product-preview">
       <div class="kicker">Product Preview</div>
       <h2>See what teams monitor in production.</h2>
       <p class="lead">Live view of quality, spend, and risk signals in one dashboard. Use this preview in shares and customer threads.</p>
