@@ -102,6 +102,6 @@
   // 5. Expose logout helper
   window.agentlensLogout = function () {
     localStorage.removeItem(STORAGE_KEY);
-    window.location.reload();
+    window.location.href = "/";
   };
 })();
