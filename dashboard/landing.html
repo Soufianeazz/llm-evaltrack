@@ -3,663 +3,519 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>AgentLens | Self-Hosted LLM Observability for Enterprise Teams</title>
+  <title>AgentLens — Self-hosted LLM Observability</title>
   <link rel="icon" href="/logo.svg" type="image/svg+xml" />
-  <meta name="description" content="Self-hosted LLM observability with quality scoring, agent traces, and compliance workflows. Built for teams that need data control and enterprise readiness." />
-  <link rel="canonical" href="https://www.agentlens.one/" />
-  <meta property="og:type" content="website" />
-  <meta property="og:site_name" content="AgentLens" />
-  <meta property="og:title" content="AgentLens | Self-Hosted LLM Observability for Enterprise Teams" />
-  <meta property="og:description" content="Self-hosted LLM observability with quality scoring, agent traces, and compliance workflows. Built for teams that need data control and enterprise readiness." />
-  <meta property="og:url" content="https://www.agentlens.one/" />
-  <meta property="og:image" content="https://www.agentlens.one/assets/dashboard-preview.png" />
-  <meta property="og:image:alt" content="AgentLens dashboard with quality, cost, and risk monitoring metrics" />
-  <meta name="twitter:card" content="summary_large_image" />
-  <meta name="twitter:title" content="AgentLens | Self-Hosted LLM Observability for Enterprise Teams" />
-  <meta name="twitter:description" content="Self-hosted LLM observability with quality scoring, agent traces, and compliance workflows." />
-  <meta name="twitter:image" content="https://www.agentlens.one/assets/dashboard-preview.png" />
+  <meta name="description" content="Know exactly where your LLM app breaks. Quality scoring, hallucination detection, cost tracking, and agent debugging — in 2 lines of code." />
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     :root {
-      --bg: #0a0f1d;
-      --surface: #11182f;
-      --surface-soft: #131e38;
-      --ink: #e7ecff;
-      --ink-soft: #9aa8c6;
-      --line: #263556;
-      --accent: #7c9bff;
-      --accent-strong: #a8beff;
-      --warm: #4ade80;
-      --ok: #4ade80;
-      --shadow: 0 22px 54px rgba(0, 0, 0, 0.35);
+      --bg: #0f1117; --surface: #1e2130; --border: #2d3148;
+      --purple: #818cf8; --green: #4ade80; --red: #f87171;
+      --text: #e2e8f0; --muted: #64748b;
     }
-    html { scroll-behavior: smooth; }
-    body {
-      font-family: "Segoe UI Variable", "Segoe UI", "Trebuchet MS", "Lucida Sans", "Tahoma", sans-serif;
-      color: var(--ink);
-      background:
-        radial-gradient(1200px 520px at 90% -20%, #1a2650 0%, rgba(26, 38, 80, 0) 62%),
-        radial-gradient(900px 420px at -10% -10%, #152347 0%, rgba(21, 35, 71, 0) 58%),
-        var(--bg);
-      line-height: 1.55;
-    }
-    a { color: var(--accent-strong); text-decoration: none; }
+    body { font-family: system-ui, -apple-system, sans-serif; background: var(--bg); color: var(--text); line-height: 1.6; }
+    a { color: var(--purple); text-decoration: none; }
     a:hover { text-decoration: underline; }
-    .wrap { width: min(1180px, calc(100% - 2.5rem)); margin: 0 auto; }
-    .btn {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: 0.4rem;
-      border-radius: 999px;
-      padding: 0.72rem 1.25rem;
-      font-size: 0.9rem;
-      font-weight: 700;
-      transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
-    }
-    .btn:hover { transform: translateY(-1px); text-decoration: none; }
-    .btn-primary {
-      background: var(--accent);
-      color: #fff;
-      box-shadow: 0 8px 20px rgba(15, 108, 123, 0.22);
-    }
-    .btn-primary:hover { background: var(--accent-strong); }
-    .btn-ghost {
-      border: 1px solid var(--line);
-      color: var(--ink);
-      background: #fff;
-    }
 
-    nav {
-      position: sticky;
-      top: 0;
-      z-index: 20;
-      backdrop-filter: blur(8px);
-      background: rgba(244, 246, 248, 0.9);
-      border-bottom: 1px solid rgba(219, 227, 234, 0.88);
-    }
-    .nav-row {
-      height: 74px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 1rem;
-    }
-    .brand {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.64rem;
-      font-weight: 900;
-      font-size: 1.06rem;
-      color: var(--ink);
-      letter-spacing: 0.02em;
-    }
-    .brand-mark { width: 28px; height: 28px; display: inline-flex; }
-    .nav-links {
-      display: flex;
-      align-items: center;
-      gap: 1rem;
-      font-size: 0.88rem;
-      font-weight: 700;
-    }
-    .nav-links a { color: var(--ink-soft); }
-    .nav-links a:hover { color: var(--ink); text-decoration: none; }
-    .brand .lens { color: var(--accent); }
+    /* Nav */
+    nav { display: flex; justify-content: space-between; align-items: center; padding: 1.25rem 2rem; border-bottom: 1px solid var(--border); position: sticky; top: 0; background: var(--bg); z-index: 10; }
+    .nav-logo { font-weight: 800; font-size: 1.1rem; color: var(--text); }
+    .nav-logo span { color: var(--purple); }
+    .nav-links { display: flex; gap: 1.5rem; align-items: center; font-size: 0.875rem; }
+    .btn { display: inline-block; padding: 0.5rem 1.25rem; border-radius: 8px; font-weight: 600; font-size: 0.875rem; cursor: pointer; transition: opacity 0.15s; }
+    .btn:hover { opacity: 0.85; text-decoration: none; }
+    .btn-primary { background: var(--purple); color: #0f1117; }
+    .btn-outline { border: 1px solid var(--border); color: var(--text); background: none; }
 
-    .hero {
-      padding: 4.4rem 0 2.4rem;
-      display: grid;
-      grid-template-columns: 1.2fr 0.8fr;
-      gap: 1.6rem;
-      align-items: stretch;
-    }
-    .eyebrow {
-      display: inline-block;
-      border: 1px solid #bddde4;
-      background: #e8f4f7;
-      border-radius: 999px;
-      color: var(--accent-strong);
-      font-size: 0.75rem;
-      font-weight: 800;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-      padding: 0.34rem 0.74rem;
-      margin-bottom: 1.08rem;
-    }
-    .hero h1 {
-      font-family: "Georgia", "Times New Roman", serif;
-      font-size: clamp(2rem, 4.2vw, 3.5rem);
-      line-height: 1.1;
-      letter-spacing: -0.02em;
-      margin-bottom: 1rem;
-      max-width: 13ch;
-    }
-    .hero p {
-      color: var(--ink-soft);
-      font-size: 1.02rem;
-      max-width: 58ch;
-      margin-bottom: 1.5rem;
-    }
-    .hero-ctas { display: flex; gap: 0.66rem; flex-wrap: wrap; }
-    .hero-note { margin-top: 0.9rem; color: #5d748b; font-size: 0.83rem; }
+    /* Hero */
+    .hero { max-width: 760px; margin: 0 auto; text-align: center; padding: 5rem 2rem 3rem; }
+    .badge { display: inline-block; background: #1e2130; border: 1px solid var(--border); border-radius: 99px; padding: 0.3rem 0.9rem; font-size: 0.75rem; color: var(--purple); margin-bottom: 1.5rem; }
+    .hero h1 { font-size: clamp(2rem, 5vw, 3.25rem); font-weight: 800; line-height: 1.15; margin-bottom: 1.25rem; }
+    .hero h1 span { color: var(--purple); }
+    .hero p { font-size: 1.1rem; color: var(--muted); max-width: 560px; margin: 0 auto 2rem; }
+    .hero-ctas { display: flex; gap: 0.75rem; justify-content: center; flex-wrap: wrap; }
+    .hero-sub { color: var(--muted); font-size: 0.8rem; margin-top: 1rem; }
 
-    .hero-panel {
-      border: 1px solid var(--line);
-      border-radius: 18px;
-      background: linear-gradient(160deg, #ffffff, #f5fafb 58%, #fff6ef);
-      box-shadow: var(--shadow);
-      padding: 1.05rem;
-      display: grid;
-      grid-template-rows: auto auto 1fr;
-      gap: 0.85rem;
-    }
-    .panel-top {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      font-size: 0.8rem;
-      color: var(--ink-soft);
-    }
-    .panel-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 0.62rem;
-    }
-    .kpi {
-      border: 1px solid var(--line);
-      background: #fff;
-      border-radius: 12px;
-      padding: 0.72rem;
-    }
-    .kpi .label { font-size: 0.72rem; color: #5f778d; margin-bottom: 0.24rem; }
-    .kpi .value { font-size: 1.2rem; font-weight: 900; color: var(--ink); }
-    .kpi .hint { font-size: 0.72rem; color: #648096; }
-    .snippet {
-      border: 1px solid #ced9e3;
-      background: #f8fbfd;
-      border-radius: 12px;
-      padding: 0.75rem;
-      font-family: "Consolas", "Lucida Console", monospace;
-      font-size: 0.77rem;
-      color: #11304a;
-      line-height: 1.55;
-    }
+    /* Code snippet */
+    .code-block { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 1.25rem 1.5rem; text-align: left; max-width: 520px; margin: 2.5rem auto 0; font-family: 'Menlo', 'Consolas', monospace; font-size: 0.85rem; line-height: 1.7; }
+    .code-comment { color: var(--muted); }
+    .code-key { color: #a5b4fc; }
+    .code-str { color: #86efac; }
+    .code-fn { color: #f9a8d4; }
 
-    .proof-strip {
-      margin-top: 1rem;
-      border: 1px solid var(--line);
-      border-radius: 14px;
-      background: #fff;
-      padding: 0.75rem 1rem;
-      display: flex;
-      gap: 0.8rem;
-      flex-wrap: wrap;
-      color: #4f6880;
-      font-size: 0.82rem;
-      font-weight: 700;
-    }
-    .proof-strip span::before { content: "- "; color: var(--warm); }
+    /* Pain section */
+    .section { padding: 4rem 2rem; max-width: 1000px; margin: 0 auto; }
+    .section-label { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--purple); margin-bottom: 0.75rem; }
+    .section h2 { font-size: clamp(1.5rem, 3vw, 2rem); font-weight: 700; margin-bottom: 1rem; }
+    .section p { color: var(--muted); max-width: 560px; }
 
-    .product-shot {
-      margin-top: 1.1rem;
-      border: 1px solid var(--line);
-      border-radius: 16px;
-      overflow: hidden;
-      background: var(--surface);
-      box-shadow: var(--shadow);
-      max-width: 860px;
-      margin-left: auto;
-      margin-right: auto;
-    }
-    .product-shot img {
-      display: block;
-      width: 100%;
-      height: auto;
-    }
-    .shot-caption {
-      padding: 0.65rem 0.85rem;
-      font-size: 0.78rem;
-      color: var(--ink-soft);
-      border-top: 1px solid var(--line);
-    }
-    .product-preview {
-      padding-top: 0.7rem;
-    }
-    .product-preview .lead {
-      max-width: 58ch;
-    }
+    .pain-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem; margin-top: 2rem; }
+    .pain-card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 1.25rem; }
+    .pain-icon { font-size: 1.5rem; margin-bottom: 0.75rem; }
+    .pain-card h3 { font-size: 0.95rem; font-weight: 700; margin-bottom: 0.4rem; }
+    .pain-card p { font-size: 0.8rem; color: var(--muted); }
 
-    .section { padding: 3.3rem 0; }
-    .kicker {
-      color: var(--accent-strong);
-      text-transform: uppercase;
-      letter-spacing: 0.11em;
-      font-size: 0.73rem;
-      font-weight: 900;
-      margin-bottom: 0.55rem;
-    }
-    .section h2 {
-      font-family: "Georgia", "Times New Roman", serif;
-      font-size: clamp(1.6rem, 3.1vw, 2.45rem);
-      margin-bottom: 0.82rem;
-      line-height: 1.15;
-      letter-spacing: -0.01em;
-    }
-    .section .lead {
-      color: var(--ink-soft);
-      max-width: 66ch;
-      font-size: 1rem;
-    }
+    /* Features */
+    .features-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1rem; margin-top: 2rem; }
+    .feature { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 1.25rem; }
+    .feature-tag { display: inline-block; font-size: 0.65rem; font-weight: 700; padding: 0.15rem 0.5rem; border-radius: 4px; margin-bottom: 0.75rem; text-transform: uppercase; }
+    .feature-tag.new { background: #1a2e1a; color: var(--green); }
+    .feature-tag.core { background: #1e293b; color: #93c5fd; }
+    .feature h3 { font-size: 0.95rem; font-weight: 700; margin-bottom: 0.4rem; }
+    .feature p { font-size: 0.8rem; color: var(--muted); }
 
-    .grid-4 {
-      margin-top: 1.28rem;
-      display: grid;
-      grid-template-columns: repeat(4, minmax(0, 1fr));
-      gap: 0.8rem;
-    }
-    .card {
-      border: 1px solid var(--line);
-      border-radius: 14px;
-      background: #fff;
-      padding: 1rem;
-    }
-    .card h3 { font-size: 0.95rem; margin-bottom: 0.4rem; }
-    .card p { color: #5d768d; font-size: 0.85rem; }
+    /* Comparison */
+    .compare-table { width: 100%; border-collapse: collapse; margin-top: 2rem; font-size: 0.875rem; }
+    .compare-table th { padding: 0.75rem 1rem; text-align: left; border-bottom: 1px solid var(--border); color: var(--muted); font-weight: 600; }
+    .compare-table th:not(:first-child) { text-align: center; }
+    .compare-table td { padding: 0.75rem 1rem; border-bottom: 1px solid #1a1d2e; }
+    .compare-table td:not(:first-child) { text-align: center; }
+    .compare-table tr:last-child td { border-bottom: none; }
+    .check { color: var(--green); font-size: 1rem; }
+    .cross { color: var(--red); font-size: 1rem; }
+    .ours { background: rgba(129, 140, 248, 0.06); }
 
-    .feature-grid {
-      margin-top: 1.24rem;
-      display: grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap: 0.85rem;
-    }
-    .feature {
-      border: 1px solid var(--line);
-      border-radius: 14px;
-      padding: 1rem;
-      background: linear-gradient(180deg, #fff, #f9fcfd);
-    }
-    .tag {
-      display: inline-block;
-      font-size: 0.66rem;
-      text-transform: uppercase;
-      letter-spacing: 0.08em;
-      padding: 0.14rem 0.46rem;
-      border-radius: 999px;
-      margin-bottom: 0.55rem;
-      color: #ffffff;
-      background: #1a7992;
-    }
-    .feature h3 { font-size: 0.94rem; margin-bottom: 0.35rem; }
-    .feature p { color: #5d768d; font-size: 0.84rem; }
+    /* Pricing */
+    .pricing-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1rem; margin-top: 2rem; }
+    .plan { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 1.75rem; position: relative; }
+    .plan.featured { border-color: var(--purple); }
+    .plan-badge { position: absolute; top: -0.65rem; left: 50%; transform: translateX(-50%); background: var(--purple); color: #0f1117; font-size: 0.65rem; font-weight: 700; padding: 0.2rem 0.7rem; border-radius: 99px; white-space: nowrap; }
+    .plan-name { font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); margin-bottom: 0.5rem; }
+    .plan-price { font-size: 2.25rem; font-weight: 800; color: var(--text); }
+    .plan-price span { font-size: 1rem; color: var(--muted); font-weight: 400; }
+    .plan-desc { font-size: 0.8rem; color: var(--muted); margin: 0.5rem 0 1.25rem; }
+    .plan-features { list-style: none; display: flex; flex-direction: column; gap: 0.5rem; margin-bottom: 1.5rem; }
+    .plan-features li { font-size: 0.82rem; display: flex; gap: 0.5rem; align-items: flex-start; }
+    .plan-features li::before { content: "✓"; color: var(--green); font-weight: 700; flex-shrink: 0; }
+    .plan-cta { display: block; text-align: center; padding: 0.65rem; border-radius: 8px; font-weight: 600; font-size: 0.875rem; }
+    .early-badge { background: #2d1f00; border: 1px solid #92400e; color: #fbbf24; border-radius: 6px; padding: 0.75rem 1rem; font-size: 0.82rem; margin-top: 1.5rem; text-align: center; }
 
-    .trust-links {
-      margin-top: 1rem;
-      display: flex;
-      flex-wrap: wrap;
-      gap: 0.76rem 1rem;
-      font-size: 0.84rem;
-      font-weight: 700;
-    }
+    /* Demo */
+    .demo-box { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 2rem; text-align: center; margin-top: 2rem; }
+    .demo-box h3 { font-size: 1.1rem; font-weight: 700; margin-bottom: 0.5rem; }
+    .demo-box p { color: var(--muted); font-size: 0.875rem; margin-bottom: 1.25rem; }
+    .demo-links { display: flex; gap: 0.75rem; justify-content: center; flex-wrap: wrap; }
 
-    .pricing {
-      margin-top: 1.3rem;
-      display: grid;
-      grid-template-columns: repeat(4, minmax(0, 1fr));
-      gap: 0.85rem;
-    }
-    .plan {
-      border: 1px solid var(--line);
-      border-radius: 16px;
-      background: #fff;
-      padding: 1rem;
-      display: flex;
-      flex-direction: column;
-      gap: 0.6rem;
-    }
-    .plan.featured {
-      border-color: #79b8c6;
-      background: linear-gradient(180deg, #f4fbfd, #ffffff);
-      box-shadow: 0 10px 28px rgba(15, 108, 123, 0.12);
-    }
-    .plan .name {
-      font-size: 0.76rem;
-      text-transform: uppercase;
-      letter-spacing: 0.09em;
-      color: #597289;
-      font-weight: 800;
-    }
-    .plan .price { font-size: 2rem; font-weight: 900; }
-    .plan .price small { font-size: 0.95rem; color: #60788e; font-weight: 500; }
-    .plan p { color: #5d768d; font-size: 0.82rem; }
-    .plan ul { list-style: none; display: grid; gap: 0.35rem; margin-top: 0.25rem; }
-    .plan li { font-size: 0.81rem; color: #3f5a73; }
-    .plan li::before { content: "+ "; color: var(--ok); font-weight: 900; }
+    /* Footer */
+    footer { border-top: 1px solid var(--border); padding: 2rem; text-align: center; color: var(--muted); font-size: 0.8rem; margin-top: 4rem; }
 
-    .cta-band {
-      margin: 2.2rem 0 0;
-      border: 1px solid var(--line);
-      border-radius: 16px;
-      background: linear-gradient(130deg, #0f2438, #1f425d);
-      color: #eef7ff;
-      padding: 1.6rem;
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: space-between;
-      gap: 0.9rem;
-      align-items: center;
-    }
-    .cta-band p { color: #cfe1f2; font-size: 0.9rem; }
-    .cta-band .btn-ghost { background: rgba(255, 255, 255, 0.08); border-color: rgba(255, 255, 255, 0.3); color: #fff; }
-
-    footer {
-      margin-top: 3.4rem;
-      border-top: 1px solid var(--line);
-      background: #ffffff;
-      padding: 2rem 0 2.4rem;
-      color: #5d768d;
-      font-size: 0.84rem;
-    }
-    .footer-links {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 0.7rem 0.9rem;
-      margin-top: 0.55rem;
-      font-weight: 700;
-    }
-
-    /* Color override: keep new layout, restore classic enterprise dark palette */
-    .btn-primary { color: #0f1117; box-shadow: 0 8px 20px rgba(124, 155, 255, 0.24); }
-    .btn-primary:hover { background: #93adff; }
-    .btn-ghost { background: rgba(15, 22, 43, 0.7); color: var(--ink); border-color: var(--line); }
-    nav { background: rgba(10, 15, 29, 0.92); border-bottom: 1px solid var(--line); }
-    .brand-mark svg { width: 100%; height: 100%; display: block; }
-    .eyebrow { border-color: #3a4f7b; background: #1e2130; color: #b9c8ef; }
-    .hero-panel { background: linear-gradient(160deg, rgba(19, 30, 56, 0.95), rgba(12, 18, 36, 0.95)); }
-    .kpi { background: var(--surface-soft); }
-    .kpi .label, .kpi .hint { color: var(--ink-soft); }
-    .snippet { border-color: var(--line); background: #0f1730; color: #c8d7fa; }
-    .proof-strip { background: var(--surface); color: #bac7e6; }
-    .card { background: var(--surface); }
-    .card p { color: var(--ink-soft); }
-    .feature { background: var(--surface-soft); }
-    .tag { color: #091127; background: var(--accent); }
-    .feature p { color: var(--ink-soft); }
-    .plan { background: var(--surface); }
-    .plan.featured {
-      border-color: #3a4f7b;
-      background: linear-gradient(180deg, rgba(19, 30, 56, 0.95), rgba(12, 18, 36, 0.95));
-      box-shadow: 0 10px 28px rgba(124, 155, 255, 0.12);
-    }
-    .plan .name, .plan .price small, .plan p { color: var(--ink-soft); }
-    .plan li { color: #c8d7fa; }
-    .cta-band { border-color: var(--line); background: linear-gradient(130deg, #0f1730, #17254a); color: #e7ecff; }
-    .cta-band p { color: #9aa8c6; }
-    .cta-band .btn-ghost { color: #e7ecff; border-color: #345187; }
-    footer { border-top-color: var(--line); background: transparent; color: var(--ink-soft); }
-    .nav-links .btn-primary { color: #0f1117; }
-    .nav-links .btn-primary:hover { color: #0f1117; }
-    #cookieBanner { background: #0f1730 !important; border-top: 1px solid #263556 !important; }
-    #cookieBanner p { color: #9aa8c6 !important; }
-    #cookieBanner button { background: #7c9bff !important; color: #0f1117 !important; }
-
-    @media (max-width: 1080px) {
-      .hero { grid-template-columns: 1fr; }
-      .grid-4 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-      .feature-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-      .pricing { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-    }
-    @media (max-width: 760px) {
-      .wrap { width: min(1180px, calc(100% - 1.4rem)); }
+    @media (max-width: 600px) {
+      nav { padding: 1rem; }
       .nav-links a:not(.btn) { display: none; }
-      .grid-4, .feature-grid, .pricing, .panel-grid { grid-template-columns: 1fr; }
-      .hero { padding-top: 3rem; }
-      .hero h1 { max-width: 100%; }
-      .cta-band { padding: 1.2rem; }
     }
   </style>
 </head>
 <body>
-  <nav>
-    <div class="wrap nav-row">
-      <a class="brand" href="/">
-        <span class="brand-mark">
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" fill="none" aria-hidden="true">
-            <defs>
-              <linearGradient id="nlg" x1="0%" y1="0%" x2="100%" y2="100%">
-                <stop offset="0%" stop-color="#818cf8"/>
-                <stop offset="100%" stop-color="#c084fc"/>
-              </linearGradient>
-            </defs>
-            <circle cx="16" cy="16" r="14" stroke="url(#nlg)" stroke-width="1.5"/>
-            <circle cx="16" cy="16" r="8" stroke="url(#nlg)" stroke-width="1.5"/>
-            <line x1="16" y1="16" x2="16" y2="10" stroke="#818cf8" stroke-width="1.2" opacity="0.85"/>
-            <line x1="16" y1="16" x2="22" y2="16" stroke="#818cf8" stroke-width="1.2" opacity="0.85"/>
-            <line x1="16" y1="16" x2="16" y2="22" stroke="#818cf8" stroke-width="1.2" opacity="0.85"/>
-            <line x1="16" y1="16" x2="10" y2="16" stroke="#818cf8" stroke-width="1.2" opacity="0.85"/>
-            <circle cx="16" cy="9.5" r="1.5" fill="url(#nlg)"/>
-            <circle cx="22.5" cy="16" r="1.5" fill="url(#nlg)"/>
-            <circle cx="16" cy="22.5" r="1.5" fill="url(#nlg)"/>
-            <circle cx="9.5" cy="16" r="1.5" fill="url(#nlg)"/>
-            <circle cx="16" cy="16" r="2.8" fill="url(#nlg)"/>
-          </svg>
-        </span>
-        <span>Agent<span class="lens">Lens</span></span>
-      </a>
-      <div class="nav-links">
-        <a href="#platform">Platform</a>
-        <a href="#trust">Trust</a>
-        <a href="#pricing">Pricing</a>
-        <a href="https://github.com/Soufianeazz/agentlens" target="_blank" rel="noopener">GitHub</a>
-        <a href="/app" class="btn btn-ghost">Login</a>
-        <a href="/app" class="btn btn-ghost">Sign up</a>
-        <a href="/dashboard?demo=1&api_key=al_demo_agentlens" class="btn btn-ghost">Live Demo</a>
-        <a href="/book-demo?source=landing-nav" class="btn btn-primary">Book Demo</a>
-      </div>
-    </div>
-  </nav>
 
-  <main class="wrap">
-    <section class="hero">
-      <div>
-        <div class="eyebrow">Self-hosted | Open source | Procurement-ready</div>
-        <h1>Observability for LLM products that need enterprise trust.</h1>
-        <p>AgentLens gives product and platform teams shared visibility on quality, cost, and agent execution while keeping application data inside your own infrastructure.</p>
-        <div class="hero-ctas">
-          <a href="/book-demo?source=landing-hero" class="btn btn-primary">Book a Demo</a>
-          <a href="/app" class="btn btn-ghost">Sign up / Login</a>
-          <a href="/dashboard?demo=1&api_key=al_demo_agentlens" class="btn btn-ghost">Explore Live Console</a>
-        </div>
-        <p class="hero-note">Two-line integration. Audit-ready data flows. Built for teams moving from pilot to production.</p>
-        <div class="proof-strip">
-          <span>Native MCP support</span>
-          <span>GDPR export and retention flows</span>
-          <span>Agent-level trace debugger</span>
-          <span>Open source core (MIT)</span>
-        </div>
-      </div>
-
-      <div class="hero-panel">
-        <div class="panel-top">
-          <strong>Live platform signal</strong>
-          <span>Updated in real time</span>
-        </div>
-        <div class="panel-grid">
-          <div class="kpi"><div class="label">Quality trend</div><div class="value">0.89</div><div class="hint">24h rolling average</div></div>
-          <div class="kpi"><div class="label">Bad response rate</div><div class="value">2.8%</div><div class="hint">Threshold alerting on</div></div>
-          <div class="kpi"><div class="label">Trace visibility</div><div class="value">100%</div><div class="hint">Multi-step span capture</div></div>
-          <div class="kpi"><div class="label">Budget posture</div><div class="value">$25/day</div><div class="hint">Slack alert configured</div></div>
-        </div>
-        <div class="snippet">
-          import agentlens
-          <br />
-          agentlens.init("https://agentlens.your-company.com")
-          <br />
-          agentlens.patch_openai()
-        </div>
-      </div>
-    </section>
-
-    <section class="section product-preview">
-      <div class="kicker">Product Preview</div>
-      <h2>See what teams monitor in production.</h2>
-      <p class="lead">Live view of quality, spend, and risk signals in one dashboard. Use this preview in shares and customer threads.</p>
-      <figure class="product-shot">
-        <img src="/assets/dashboard-preview.png" alt="AgentLens dashboard screenshot showing live call quality and cost metrics" loading="lazy" />
-        <figcaption class="shot-caption">Dashboard overview with live call count, quality trend, bad response categories, and cost monitoring.</figcaption>
-      </figure>
-    </section>
-
-    <section class="section">
-      <div class="kicker">The gap we close</div>
-      <h2>Most LLM teams can ship features. Fewer can run them safely at scale.</h2>
-      <p class="lead">Production AI systems fail quietly. Quality regresses, spend drifts, and multi-step agents become opaque. AgentLens turns these blind spots into measurable operational controls.</p>
-      <div class="grid-4">
-        <article class="card"><h3>Quality regressions</h3><p>Detect output degradation before support volume spikes.</p></article>
-        <article class="card"><h3>Cost drift</h3><p>Track per-call spend and trigger budget alerts automatically.</p></article>
-        <article class="card"><h3>Agent opacity</h3><p>See each span, duration, and error in one debugger view.</p></article>
-        <article class="card"><h3>Compliance pressure</h3><p>Export, retention, and audit log workflows are built in.</p></article>
-      </div>
-    </section>
-
-    <section class="section" id="platform">
-      <div class="kicker">Platform</div>
-      <h2>One control plane for quality, traces, cost, and governance.</h2>
-      <p class="lead">AgentLens is designed to be useful for engineering and legible for security, legal, and procurement stakeholders.</p>
-      <div class="feature-grid">
-        <article class="feature"><span class="tag">Core</span><h3>Automatic quality scoring</h3><p>Every call receives a consistent quality score and failure signal for trend analysis.</p></article>
-        <article class="feature"><span class="tag">Core</span><h3>Hallucination detection</h3><p>Built-in detection for low-confidence outputs, refusal loops, and empty responses.</p></article>
-        <article class="feature"><span class="tag">Core</span><h3>Agent waterfall debugger</h3><p>Trace every multi-step run with per-span timing, cost, and status visibility.</p></article>
-        <article class="feature"><span class="tag">Core</span><h3>Cost observability</h3><p>Per-model and per-feature spend breakdowns with alert thresholds and daily controls.</p></article>
-        <article class="feature"><span class="tag">Core</span><h3>Regression monitoring</h3><p>Window-based quality drift detection for early warning in production environments.</p></article>
-        <article class="feature"><span class="tag">Core</span><h3>Compliance workflows</h3><p>Data export, retention policies, and immutable audit logs available from one interface.</p></article>
-      </div>
-    </section>
-
-    <section class="section" id="trust">
-      <div class="kicker">Enterprise trust</div>
-      <h2>Security and procurement conversations start faster when trust artifacts are public.</h2>
-      <p class="lead">AgentLens provides direct access to security policy, legal pack, SLA commitments, and questionnaire responses so enterprise buyers can evaluate quickly.</p>
-      <div class="grid-4">
-        <article class="card"><h3>Security policy</h3><p>Published controls, vulnerability intake path, and operating model.</p></article>
-        <article class="card"><h3>Legal and DPA pack</h3><p>Customer-shareable legal artifacts prepared for procurement review.</p></article>
-        <article class="card"><h3>SLA commitments</h3><p>Clear uptime, support, and response expectations for paid plans.</p></article>
-        <article class="card"><h3>Operational evidence</h3><p>Health endpoints, backup protocol, and readiness verification workflow.</p></article>
-      </div>
-      <div class="trust-links">
-        <a href="/enterprise">Enterprise Trust Center</a>
-        <a href="/security">Security</a>
-        <a href="/subprocessors">Subprocessors</a>
-        <a href="/security-questionnaire">Security Questionnaire</a>
-        <a href="/security-questionnaire-v2">Security Q and A</a>
-        <a href="/sla">SLA</a>
-        <a href="/legal-pack">Legal Pack</a>
-      </div>
-    </section>
-
-    <section class="section" id="pricing">
-      <div class="kicker">Pricing</div>
-      <h2>Simple tiers for team growth and enterprise rollout.</h2>
-      <p class="lead">Self-host the open source core or choose managed hosting with audit and support coverage. Starter, Team, and Scale use 12-month terms billed monthly. Prices exclude VAT.</p>
-      <div class="pricing">
-        <article class="plan">
-          <div class="name">Starter</div>
-          <div class="price">EUR 299 <small>/ month · 12-month term</small></div>
-          <p>For one team shipping one AI product.</p>
-          <ul>
-            <li>Managed hosting</li>
-            <li>1M calls per month</li>
-            <li>Core observability stack</li>
-            <li>12-month term, billed monthly</li>
-          </ul>
-          <a href="/billing/checkout/starter" class="btn btn-ghost">Get Started</a>
-        </article>
-        <article class="plan featured">
-          <div class="name">Team</div>
-          <div class="price">EUR 999 <small>/ month · 12-month term</small></div>
-          <p>For EU teams that need procurement-ready controls.</p>
-          <ul>
-            <li>10M calls per month</li>
-            <li>DPA/AVV and compliance exports</li>
-            <li>Monthly review cadence</li>
-            <li>12-month term, billed monthly</li>
-          </ul>
-          <a href="/billing/checkout/team" class="btn btn-primary">Start Team Plan</a>
-        </article>
-        <article class="plan">
-          <div class="name">Scale</div>
-          <div class="price">EUR 2,999 <small>/ month · 12-month term</small></div>
-          <p>For multiple products and dedicated deployment support.</p>
-          <ul>
-            <li>50M calls per month</li>
-            <li>Dedicated instance</li>
-            <li>99.9% SLA path</li>
-            <li>12-month term, billed monthly</li>
-          </ul>
-          <a href="/billing/checkout/scale" class="btn btn-ghost">Start Scale Plan</a>
-        </article>
-        <article class="plan">
-          <div class="name">Enterprise</div>
-          <div class="price">EUR 5,000+ <small>/ month</small></div>
-          <p>Private cloud or on-prem contracts with custom scope.</p>
-          <ul>
-            <li>Custom annual terms</li>
-            <li>Security package and reviews</li>
-            <li>Dedicated technical contact</li>
-          </ul>
-          <a href="/book-demo?plan=enterprise&source=landing-pricing" class="btn btn-ghost">Plan Rollout</a>
-        </article>
-      </div>
-      <p class="lead" style="margin-top:0.9rem; font-size:0.9rem;">
-        Standard checkout supports card payments (including Apple Pay and Google Pay where available) and SEPA direct debit.
-      </p>
-    </section>
-
-    <section class="cta-band">
-      <div>
-        <h3 style="font-family:Georgia,serif; font-size:1.5rem; margin-bottom:0.3rem;">See the full product without signup friction.</h3>
-        <p>Open the live dashboard, traces view, and compliance console with demo data.</p>
-      </div>
-      <div style="display:flex; gap:0.6rem; flex-wrap:wrap;">
-        <a href="/dashboard?demo=1&api_key=al_demo_agentlens" class="btn btn-primary">Open Dashboard</a>
-        <a href="/traces.html?demo=1&api_key=al_demo_agentlens" class="btn btn-ghost">Open Traces</a>
-        <a href="/compliance.html?demo=1&api_key=al_demo_agentlens" class="btn btn-ghost">Open Compliance</a>
-      </div>
-    </section>
-  </main>
-
-  <footer>
-    <div class="wrap">
-      <p>AgentLens | MIT License | <a href="https://github.com/Soufianeazz/agentlens" target="_blank" rel="noopener">GitHub</a> | <a href="https://pypi.org/project/agentlens-monitor" target="_blank" rel="noopener">PyPI</a> | <a href="mailto:contact@agentlens.one">contact@agentlens.one</a></p>
-      <div class="footer-links">
-        <a href="/enterprise">Enterprise</a>
-        <a href="/security">Security</a>
-        <a href="/subprocessors">Subprocessors</a>
-        <a href="/security-questionnaire">Security Questionnaire</a>
-        <a href="/security-questionnaire-v2">Security Q and A</a>
-        <a href="/sla">SLA</a>
-        <a href="/legal-pack">Legal Pack</a>
-        <a href="/case-study">Case Study</a>
-        <a href="/impressum.html">Impressum</a>
-        <a href="/datenschutz.html">Datenschutz</a>
-        <a href="/nutzungsbedingungen.html">Nutzungsbedingungen</a>
-      </div>
-    </div>
-  </footer>
-
-  <div id="cookieBanner" style="display:none; position:fixed; bottom:0; left:0; right:0; background:#ffffff; border-top:1px solid #dbe3ea; padding:0.9rem 1rem; display:flex; justify-content:space-between; align-items:center; gap:0.8rem; flex-wrap:wrap; z-index:999;">
-    <p style="margin:0; font-size:0.84rem; color:#4f6880;">
-      Diese Website verwendet technisch notwendige Cookies fuer den Zahlungsvorgang (Stripe). Keine Tracking-Cookies.
-      <a href="/datenschutz.html">Mehr erfahren</a>
-    </p>
-    <button onclick="document.getElementById('cookieBanner').style.display='none'; localStorage.setItem('cookieOk','1')"
-      style="background:#0f6c7b; color:#ffffff; border:none; padding:0.52rem 1rem; border-radius:999px; font-weight:800; cursor:pointer;">
-      Verstanden
-    </button>
+<!-- Nav -->
+<nav>
+  <div class="nav-logo" style="display:flex;align-items:center;gap:0.5rem;">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="28" height="28" fill="none">
+      <defs><linearGradient id="nlg" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#818cf8"/><stop offset="100%" stop-color="#c084fc"/></linearGradient></defs>
+      <circle cx="16" cy="16" r="14" stroke="url(#nlg)" stroke-width="1.5"/>
+      <circle cx="16" cy="16" r="8" stroke="url(#nlg)" stroke-width="1.5"/>
+      <line x1="16" y1="16" x2="16" y2="10" stroke="#818cf8" stroke-width="1.2" opacity="0.8"/>
+      <line x1="16" y1="16" x2="22" y2="16" stroke="#818cf8" stroke-width="1.2" opacity="0.8"/>
+      <line x1="16" y1="16" x2="16" y2="22" stroke="#818cf8" stroke-width="1.2" opacity="0.8"/>
+      <line x1="16" y1="16" x2="10" y2="16" stroke="#818cf8" stroke-width="1.2" opacity="0.8"/>
+      <circle cx="16" cy="9.5" r="1.5" fill="url(#nlg)"/>
+      <circle cx="22.5" cy="16" r="1.5" fill="url(#nlg)"/>
+      <circle cx="16" cy="22.5" r="1.5" fill="url(#nlg)"/>
+      <circle cx="9.5" cy="16" r="1.5" fill="url(#nlg)"/>
+      <circle cx="16" cy="16" r="2.8" fill="url(#nlg)"/>
+    </svg>
+    <span style="color:var(--text)">Agent<span style="color:var(--purple)">Lens</span></span>
   </div>
-  <script>
-    if (!localStorage.getItem("cookieOk")) {
-      document.getElementById("cookieBanner").style.display = "flex";
-    }
-  </script>
+  <div class="nav-links">
+    <a href="#features">Features</a>
+    <a href="#pricing">Pricing</a>
+    <a href="https://github.com/Soufianeazz/agentlens" target="_blank">GitHub</a>
+    <a href="/dashboard?api_key=al_demo_agentlens" class="btn btn-outline">Live Demo</a>
+    <a href="#" onclick="openContactModal();return false;" class="btn btn-primary">Book a Demo</a>
+  </div>
+</nav>
+
+<!-- Hero -->
+<section class="hero">
+  <div class="badge">Native MCP Support · GDPR-native · Self-hosted · Open Source</div>
+  <h1>LLM Observability<br/><span>that stays in your cloud</span></h1>
+  <p>The only LLM observability tool with native MCP support — self-hosted, open source, with built-in audit trails.</p>
+  <div class="hero-ctas">
+    <a href="#" onclick="openContactModal();return false;" class="btn btn-primary">Book a Demo</a>
+    <a href="/dashboard?api_key=al_demo_agentlens" class="btn btn-outline" style="font-weight:400; color:var(--muted);">See it live →</a>
+  </div>
+  <p class="hero-sub">Self-hosted · MIT License · GDPR Article 28 ready · <strong style="color:var(--text)">2-line integration</strong> · No data leaves your infrastructure</p>
+
+  <div class="code-block">
+    <div><span class="code-key">import</span> agentlens</div>
+    <div>&nbsp;</div>
+    <div><span class="code-comment"># Full setup. Nothing else needed.</span></div>
+    <div>agentlens.<span class="code-fn">init</span>(<span class="code-str">"https://agentlens.your-company.com"</span>)</div>
+    <div>agentlens.<span class="code-fn">patch_openai</span>()  <span class="code-comment"># every call tracked automatically</span></div>
+  </div>
+</section>
+
+<!-- Pain -->
+<section class="section">
+  <div class="section-label">The Problem</div>
+  <h2>You're flying blind</h2>
+  <p>Every LLM app in production has the same three problems — and most teams don't notice until users complain.</p>
+  <div class="pain-grid">
+    <div class="pain-card">
+      <div class="pain-icon">🔥</div>
+      <h3>Silent quality drops</h3>
+      <p>A prompt change tanks your output quality. You find out via user churn, not alerts.</p>
+    </div>
+    <div class="pain-card">
+      <div class="pain-icon">💸</div>
+      <h3>Runaway costs</h3>
+      <p>One bad loop in an agent burns $200 in 10 minutes. No one notices until the invoice arrives.</p>
+    </div>
+    <div class="pain-card">
+      <div class="pain-icon">🕵️</div>
+      <h3>Agent black boxes</h3>
+      <p>Your 5-step agent fails on step 3. Good luck figuring out which step, why, and how long it took.</p>
+    </div>
+    <div class="pain-card">
+      <div class="pain-icon">🔒</div>
+      <h3>GDPR exposure</h3>
+      <p>User prompts and outputs in a third-party SaaS. Legal says no. No audit trail either.</p>
+    </div>
+  </div>
+</section>
+
+<!-- Features -->
+<section class="section" id="features">
+  <div class="section-label">Solution</div>
+  <h2>Full visibility — self-hosted</h2>
+  <p>Everything you need to understand, debug, and improve your LLM app. Your data stays on your server.</p>
+  <div class="features-grid">
+    <div class="feature">
+      <span class="feature-tag core">Core</span>
+      <h3>Auto Quality Scoring</h3>
+      <p>Every response gets a 0–1 quality score automatically. Heuristic-based or powered by Claude as judge.</p>
+    </div>
+    <div class="feature">
+      <span class="feature-tag core">Core</span>
+      <h3>Hallucination Detection</h3>
+      <p>Flags responses with confident-sounding false claims, repetition, refusals, and empty outputs.</p>
+    </div>
+    <div class="feature">
+      <span class="feature-tag core">Core</span>
+      <h3>Cost Tracking</h3>
+      <p>Per-call cost calculated from token counts. Daily budget alerts via webhook or email before you overspend.</p>
+    </div>
+    <div class="feature">
+      <h3>Agent Debugger</h3>
+      <p>Waterfall timeline of every agent step. See which span is slow, expensive, or failing — at a glance.</p>
+    </div>
+    <div class="feature">
+      <span class="feature-tag core">Core</span>
+      <h3>Regression Alerts</h3>
+      <p>Compares current quality window vs previous. Alerts when quality drops more than your threshold.</p>
+    </div>
+    <div class="feature">
+      <span class="feature-tag core">Core</span>
+      <h3>GDPR Compliance</h3>
+      <p>Export all data as JSON/CSV. Set retention policies. Delete by request ID. Full audit log.</p>
+    </div>
+  </div>
+</section>
+
+<!-- Proof / Case Study Teaser -->
+<section class="section">
+  <div class="section-label">Scenario</div>
+  <h2>What a typical deployment looks like</h2>
+  <p>A 12-person legal tech team in Germany. AI contract analyzer. Three problems they couldn't solve with LangSmith or Helicone. <span style="font-size:0.8rem; color:var(--muted);">(Illustrative scenario based on internal testing.)</span></p>
+  <div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:1rem; margin:2rem 0;">
+    <div style="background:var(--surface); border:1px solid var(--border); border-radius:10px; padding:1.25rem; text-align:center;">
+      <div style="font-size:2rem; font-weight:800; color:var(--purple);">90%</div>
+      <div style="font-size:0.78rem; color:var(--muted); margin-top:0.25rem;">faster agent debugging</div>
+    </div>
+    <div style="background:var(--surface); border:1px solid var(--border); border-radius:10px; padding:1.25rem; text-align:center;">
+      <div style="font-size:2rem; font-weight:800; color:#4ade80;">€1,200</div>
+      <div style="font-size:0.78rem; color:var(--muted); margin-top:0.25rem;">in API costs prevented</div>
+    </div>
+    <div style="background:var(--surface); border:1px solid var(--border); border-radius:10px; padding:1.25rem; text-align:center;">
+      <div style="font-size:1.4rem; font-weight:800; color:var(--purple);">3 days → 90 min</div>
+      <div style="font-size:0.78rem; color:var(--muted); margin-top:0.25rem;">to detect quality regressions</div>
+    </div>
+    <div style="background:var(--surface); border:1px solid var(--border); border-radius:10px; padding:1.25rem; text-align:center;">
+      <div style="font-size:2rem; font-weight:800; color:#4ade80;">0</div>
+      <div style="font-size:0.78rem; color:var(--muted); margin-top:0.25rem;">GDPR audit findings</div>
+    </div>
+  </div>
+  <div style="background:var(--surface); border:1px solid var(--border); border-left:3px solid var(--purple); border-radius:8px; padding:1.25rem 1.5rem; margin-bottom:1.5rem;">
+    <p style="font-style:italic; color:var(--text); font-size:0.9rem; line-height:1.7; margin-bottom:0.5rem;">"We had a prompt change tank quality by 22% on a Friday afternoon. We found out on Monday via support tickets. With AgentLens, we would have caught it in 90 minutes — automatically."</p>
+    <div style="font-size:0.78rem; color:var(--muted);"><strong style="color:var(--text);">CTO</strong> · German Legal Tech SaaS · 12-person team</div>
+  </div>
+  <a href="/case_study.html" class="btn btn-outline" style="font-size:0.875rem;">Read the full case study →</a>
+</section>
+
+<!-- Comparison -->
+<section class="section">
+  <div class="section-label">How we compare</div>
+  <h2>Built for teams that own their data</h2>
+  <p>AgentLens is designed around one constraint: your LLM data never leaves your infrastructure. That shapes everything — from how it deploys to how it's priced.</p>
+
+  <table class="compare-table" style="margin-top:2rem;">
+    <thead>
+      <tr>
+        <th>Capability</th>
+        <th class="ours" style="color:var(--purple)">AgentLens</th>
+        <th>LangSmith</th>
+        <th>Helicone</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Self-hosted deployment</td>
+        <td class="ours"><span class="check">✓</span> <span style="font-size:0.8rem;color:var(--muted)">default</span></td>
+        <td style="font-size:0.8rem;color:var(--muted)">Enterprise plan only</td>
+        <td style="font-size:0.8rem;color:var(--muted)">Cloud only</td>
+      </tr>
+      <tr>
+        <td>EU data residency / GDPR DPA</td>
+        <td class="ours"><span class="check">✓</span> <span style="font-size:0.8rem;color:var(--muted)">Team plan+</span></td>
+        <td style="font-size:0.8rem;color:var(--muted)">Enterprise plan only</td>
+        <td style="font-size:0.8rem;color:var(--muted)">Not available</td>
+      </tr>
+      <tr>
+        <td>Automatic quality scoring</td>
+        <td class="ours"><span class="check">✓</span> <span style="font-size:0.8rem;color:var(--muted)">zero config</span></td>
+        <td style="font-size:0.8rem;color:var(--muted)">Manual eval setup required</td>
+        <td style="font-size:0.8rem;color:var(--muted)">Not available</td>
+      </tr>
+      <tr>
+        <td>Hallucination detection</td>
+        <td class="ours"><span class="check">✓</span> <span style="font-size:0.8rem;color:var(--muted)">built-in</span></td>
+        <td style="font-size:0.8rem;color:var(--muted)">Not available</td>
+        <td style="font-size:0.8rem;color:var(--muted)">Not available</td>
+      </tr>
+      <tr>
+        <td>Agent waterfall debugger</td>
+        <td class="ours"><span class="check">✓</span></td>
+        <td><span class="check">✓</span></td>
+        <td style="font-size:0.8rem;color:var(--muted)">Not available</td>
+      </tr>
+      <tr>
+        <td>2-line integration</td>
+        <td class="ours"><span class="check">✓</span></td>
+        <td><span class="check">✓</span></td>
+        <td><span class="check">✓</span></td>
+      </tr>
+      <tr>
+        <td>Managed hosting — entry price</td>
+        <td class="ours" style="color:var(--green); font-weight:700">€299 / mo</td>
+        <td style="color:var(--muted); font-size:0.85rem;">from $39 / seat / mo</td>
+        <td style="color:var(--muted); font-size:0.85rem;">from $0 / mo (cloud)</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <p style="margin-top:1.25rem; font-size:0.75rem; color:var(--muted); line-height:1.6;">
+    Comparison based on publicly available information as of April 2026. Features and pricing may have changed —
+    verify at <a href="https://www.langchain.com/pricing" target="_blank" rel="noopener">langchain.com/pricing</a>
+    and <a href="https://www.helicone.ai/pricing" target="_blank" rel="noopener">helicone.ai/pricing</a>.
+    "Enterprise plan only" indicates the feature requires a paid enterprise contract with the respective vendor.
+  </p>
+
+  <div style="margin-top:1.5rem; display:flex; gap:.5rem; flex-wrap:wrap; font-size:.85rem;">
+    <span style="color:var(--muted);">Detailed comparisons:</span>
+    <a href="/vs/langsmith">AgentLens vs LangSmith</a> ·
+    <a href="/vs/langfuse">vs Langfuse</a> ·
+    <a href="/vs/helicone">vs Helicone</a> ·
+    <a href="/alternatives/datadog-llm">vs Datadog LLM</a>
+  </div>
+</section>
+
+<!-- Pricing -->
+<section class="section" id="pricing">
+  <div class="section-label">Pricing</div>
+  <h2>Pricing that scales with your team</h2>
+  <p>Self-host the open source version on your own infrastructure. Upgrade for managed hosting, compliance packages, and dedicated support.</p>
+
+  <div class="pricing-grid" style="grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));">
+    <div class="plan">
+      <div class="plan-name">Starter</div>
+      <div class="plan-price">€299 <span>/ month</span></div>
+      <div class="plan-desc">One team shipping one LLM product.</div>
+      <ul class="plan-features">
+        <li>Managed hosting (we run it)</li>
+        <li>1M calls / month</li>
+        <li>1 project</li>
+        <li>Quality scoring + hallucination detection</li>
+        <li>Agent debugger</li>
+        <li>Email support (24h)</li>
+        <li>Onboarding call included</li>
+      </ul>
+      <a href="/billing/checkout/starter" class="plan-cta btn-outline btn">Get Started →</a>
+    </div>
+
+    <div class="plan featured">
+      <div class="plan-badge">Best for EU Teams</div>
+      <div class="plan-name">Team</div>
+      <div class="plan-price">€999 <span>/ month</span></div>
+      <div class="plan-desc">For EU teams shipping LLM features that need GDPR-grade audit trails, not a SaaS in Virginia.</div>
+      <ul class="plan-features">
+        <li>Everything in Starter</li>
+        <li>10M calls / month</li>
+        <li>5 projects</li>
+        <li>GDPR DPA (Art. 28) + AVV on request</li>
+        <li>Data residency in EU (Frankfurt / Amsterdam)</li>
+        <li>Audit log + compliance CSV exports</li>
+        <li>Custom retention policies (delete after N days)</li>
+        <li>Slack support + monthly review call</li>
+        <li>14-day trial, no credit card</li>
+      </ul>
+      <a href="mailto:contact@agentlens.one?subject=Team Plan — Book a Demo" class="plan-cta btn-primary btn">Book a Demo →</a>
+    </div>
+
+    <div class="plan">
+      <div class="plan-name">Scale</div>
+      <div class="plan-price">€2,999 <span>/ month</span></div>
+      <div class="plan-desc">Multiple products, dedicated deployment.</div>
+      <ul class="plan-features">
+        <li>Everything in Team</li>
+        <li>50M calls / month</li>
+        <li>Unlimited projects</li>
+        <li>Dedicated cloud instance (your region)</li>
+        <li>99.9% SLA</li>
+        <li>Security package (pen test results)</li>
+        <li>Custom integrations</li>
+        <li>Dedicated Slack channel</li>
+      </ul>
+      <a href="mailto:contact@agentlens.one?subject=Scale Plan — Book a Demo" class="plan-cta btn-outline btn">Book a Demo →</a>
+    </div>
+
+    <div class="plan">
+      <div class="plan-name">Enterprise</div>
+      <div class="plan-price">€5,000+ <span>/ month</span></div>
+      <div class="plan-desc">On-premise on your own cloud infrastructure.</div>
+      <ul class="plan-features">
+        <li>Deploy on AWS / GCP / Azure</li>
+        <li>Unlimited calls & projects</li>
+        <li>Data never leaves your VPC</li>
+        <li>Custom SLA + dedicated engineer</li>
+        <li>Invoice billing</li>
+        <li>Security review + compliance audit</li>
+        <li>Custom model support</li>
+      </ul>
+      <a href="mailto:contact@agentlens.one?subject=Enterprise Inquiry" class="plan-cta btn-outline btn">Talk to Us →</a>
+    </div>
+  </div>
+
+  <div style="margin-top:1.5rem; background:var(--surface); border:1px solid var(--border); border-radius:10px; padding:1.25rem 1.5rem; font-size:0.82rem; color:var(--muted);">
+    <strong style="color:var(--text);">Add-ons available on any plan:</strong>
+    Extra projects (+€99/project/mo) · Extra call volume (+€49/1M calls) · Compliance report package (+€299/mo) · Priority SLA (+€199/mo)
+  </div>
+
+  <div style="margin-top:1rem; background:#0f1c0f; border:1px solid #1a3a1a; border-radius:10px; padding:1rem 1.5rem; font-size:0.82rem; text-align:center;">
+    <strong style="color:#4ade80;">Open Source:</strong>
+    <span style="color:var(--muted);"> Deploy the full stack on your own infrastructure. MIT License.
+    <a href="https://github.com/Soufianeazz/agentlens" target="_blank" style="color:#4ade80;">GitHub →</a></span>
+  </div>
+</section>
+
+<!-- Demo -->
+<section class="section">
+  <div class="demo-box">
+    <h3>See it live — no signup needed</h3>
+    <p>The full dashboard is running with demo data. Click around, explore the Agent Debugger, try the filters.</p>
+    <div class="demo-links">
+      <a href="/dashboard?api_key=al_demo_agentlens" class="btn btn-primary">Main Dashboard</a>
+      <a href="/traces.html?api_key=al_demo_agentlens" class="btn btn-outline">Agent Debugger</a>
+      <a href="/debug.html?api_key=al_demo_agentlens" class="btn btn-outline">Prompt Debugger</a>
+      <a href="/compliance.html?api_key=al_demo_agentlens" class="btn btn-outline">Compliance</a>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <p>AgentLens · MIT License · <a href="https://github.com/Soufianeazz/agentlens">GitHub</a> · <a href="https://pypi.org/project/agentlens-monitor">PyPI</a> · <a href="mailto:contact@agentlens.one">contact@agentlens.one</a></p>
+  <p style="margin-top:0.5rem;">
+    <a href="/impressum.html">Impressum</a> ·
+    <a href="/datenschutz.html">Datenschutz</a> ·
+    <a href="/nutzungsbedingungen.html">Nutzungsbedingungen</a>
+  </p>
+</footer>
+
+<!-- Contact Form Modal -->
+<div id="contactModal" style="display:none; position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,0.7); z-index:1000; display:none; align-items:center; justify-content:center;">
+  <div style="background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:2rem; max-width:460px; width:90%; position:relative;">
+    <button onclick="closeContactModal()" style="position:absolute; top:1rem; right:1rem; background:none; border:none; color:var(--muted); font-size:1.5rem; cursor:pointer;">&times;</button>
+    <h3 style="font-size:1.2rem; font-weight:700; margin-bottom:0.5rem;">Book a Demo</h3>
+    <p style="color:var(--muted); font-size:0.85rem; margin-bottom:1.5rem;">20-minute call. We connect AgentLens to your stack and show you what it finds.</p>
+    <form id="contactForm" onsubmit="submitContact(event)" style="display:flex; flex-direction:column; gap:0.75rem;">
+      <input type="text" name="name" placeholder="Your name" required style="background:var(--bg); border:1px solid var(--border); border-radius:8px; padding:0.6rem 0.9rem; color:var(--text); font-size:0.875rem;" />
+      <input type="email" name="email" placeholder="Work email" required style="background:var(--bg); border:1px solid var(--border); border-radius:8px; padding:0.6rem 0.9rem; color:var(--text); font-size:0.875rem;" />
+      <input type="text" name="company" placeholder="Company (optional)" style="background:var(--bg); border:1px solid var(--border); border-radius:8px; padding:0.6rem 0.9rem; color:var(--text); font-size:0.875rem;" />
+      <input type="hidden" name="plan" id="contactPlan" value="" />
+      <textarea name="message" placeholder="Anything specific you'd like to see? (optional)" rows="3" style="background:var(--bg); border:1px solid var(--border); border-radius:8px; padding:0.6rem 0.9rem; color:var(--text); font-size:0.875rem; resize:vertical;"></textarea>
+      <button type="submit" id="contactSubmitBtn" class="btn btn-primary" style="width:100%; padding:0.7rem; border:none; font-size:0.9rem;">Send Request</button>
+    </form>
+    <div id="contactSuccess" style="display:none; text-align:center; padding:2rem 0;">
+      <div style="font-size:2rem; margin-bottom:0.75rem;">&#10003;</div>
+      <h3 style="font-size:1.1rem; font-weight:700; margin-bottom:0.5rem;">Request received!</h3>
+      <p style="color:var(--muted); font-size:0.85rem;">We'll get back to you within 24 hours.</p>
+    </div>
+  </div>
+</div>
+<script>
+function openContactModal(plan) {
+  document.getElementById('contactPlan').value = plan || '';
+  document.getElementById('contactForm').style.display = 'flex';
+  document.getElementById('contactSuccess').style.display = 'none';
+  document.getElementById('contactModal').style.display = 'flex';
+}
+function closeContactModal() {
+  document.getElementById('contactModal').style.display = 'none';
+}
+document.getElementById('contactModal').addEventListener('click', function(e) {
+  if (e.target === this) closeContactModal();
+});
+async function submitContact(e) {
+  e.preventDefault();
+  var btn = document.getElementById('contactSubmitBtn');
+  btn.textContent = 'Sending...';
+  btn.disabled = true;
+  var f = e.target;
+  var data = {
+    name: f.name.value,
+    email: f.email.value,
+    company: f.company.value,
+    plan: f.plan.value,
+    message: f.message.value,
+    source: 'landing'
+  };
+  try {
+    await fetch('/contact', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify(data) });
+    document.getElementById('contactForm').style.display = 'none';
+    document.getElementById('contactSuccess').style.display = 'block';
+  } catch(err) {
+    btn.textContent = 'Send Request';
+    btn.disabled = false;
+    alert('Something went wrong. Please try again or email contact@agentlens.one');
+  }
+}
+</script>
+
+<!-- Cookie Banner -->
+<div id="cookieBanner" style="display:none; position:fixed; bottom:0; left:0; right:0; background:#1e2130; border-top:1px solid #2d3148; padding:1rem 2rem; display:flex; justify-content:space-between; align-items:center; gap:1rem; flex-wrap:wrap; z-index:999;">
+  <p style="margin:0; font-size:0.85rem; color:#94a3b8;">
+    Diese Website verwendet technisch notwendige Cookies für den Zahlungsvorgang (Stripe). Keine Tracking-Cookies.
+    <a href="/datenschutz.html" style="color:#818cf8;">Mehr erfahren</a>
+  </p>
+  <button onclick="document.getElementById('cookieBanner').style.display='none'; localStorage.setItem('cookieOk','1')"
+    style="background:#818cf8; color:#0f1117; border:none; padding:0.5rem 1.25rem; border-radius:6px; font-weight:700; cursor:pointer; white-space:nowrap;">
+    Verstanden
+  </button>
+</div>
+<script>
+  if (!localStorage.getItem('cookieOk')) {
+    document.getElementById('cookieBanner').style.display = 'flex';
+  }
+</script>
+
 </body>
 </html>

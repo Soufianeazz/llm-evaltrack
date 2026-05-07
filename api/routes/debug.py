@@ -5,8 +5,8 @@ from fastapi import APIRouter, Depends, Query
 from sqlalchemy import select, text
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from api.auth import require_api_key
 from api.costing import compute_request_cost
+from api.license import require_feature
 from storage.database import get_session
 from storage.models import Evaluation, Request
 
@@ -26,7 +26,7 @@ async def search_requests(
     limit: int = Query(50, ge=1, le=200),
     offset: int = Query(0, ge=0),
     db: AsyncSession = Depends(get_session),
-    api_key: str = Depends(require_api_key),
+    api_key: str = Depends(require_feature("debug")),
 ):
     query = (
         select(Request, Evaluation)
@@ -81,7 +81,7 @@ async def search_requests(
 async def get_request_detail(
     request_id: str,
     db: AsyncSession = Depends(get_session),
-    api_key: str = Depends(require_api_key),
+    api_key: str = Depends(require_feature("debug")),
 ):
     result = await db.execute(
         select(Request, Evaluation)
@@ -119,7 +119,7 @@ async def get_request_detail(
 @router.get("/models")
 async def list_models(
     db: AsyncSession = Depends(get_session),
-    api_key: str = Depends(require_api_key),
+    api_key: str = Depends(require_feature("debug")),
 ):
     result = await db.execute(
         text("SELECT DISTINCT model FROM requests WHERE api_key = :api_key ORDER BY model"),
@@ -131,7 +131,7 @@ async def list_models(
 @router.get("/flags")
 async def list_flags(
     db: AsyncSession = Depends(get_session),
-    api_key: str = Depends(require_api_key),
+    api_key: str = Depends(require_feature("debug")),
 ):
     result = await db.execute(
         select(Evaluation.flags)
