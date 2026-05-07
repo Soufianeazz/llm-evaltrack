@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AgentLens | Customer Access</title>
+  <link rel="icon" href="/logo.svg" type="image/svg+xml" />
+  <style>
+    :root {
+      --bg: #f4f7fb;
+      --card: #ffffff;
+      --text: #0f172a;
+      --muted: #475569;
+      --line: #d9e3ee;
+      --primary: #0f766e;
+      --primary-ink: #ecfeff;
+      --danger: #b91c1c;
+      --ok: #166534;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      min-height: 100vh;
+      font-family: "Segoe UI Variable", "Segoe UI", "Trebuchet MS", sans-serif;
+      background: radial-gradient(1200px 440px at 0% -10%, #dceafe 0%, transparent 60%), var(--bg);
+      color: var(--text);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 18px;
+    }
+    .wrap {
+      width: min(900px, 100%);
+      display: grid;
+      grid-template-columns: 1.1fr 0.9fr;
+      gap: 14px;
+    }
+    .panel {
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      background: var(--card);
+      padding: 20px;
+      box-shadow: 0 14px 30px rgba(15, 23, 42, 0.06);
+    }
+    h1 {
+      font-size: 30px;
+      margin-bottom: 8px;
+    }
+    .lead {
+      color: var(--muted);
+      margin-bottom: 16px;
+      font-size: 15px;
+    }
+    .tabs {
+      display: inline-flex;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      overflow: hidden;
+      margin-bottom: 14px;
+    }
+    .tabs button {
+      border: 0;
+      background: transparent;
+      padding: 9px 14px;
+      font-weight: 700;
+      cursor: pointer;
+      color: var(--muted);
+    }
+    .tabs button.active {
+      background: #e6fffb;
+      color: #134e4a;
+    }
+    form {
+      display: grid;
+      gap: 10px;
+    }
+    label {
+      font-size: 12px;
+      color: var(--muted);
+      margin-bottom: 4px;
+      display: block;
+    }
+    input {
+      width: 100%;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 10px 12px;
+      font-size: 14px;
+      color: var(--text);
+      background: #fff;
+    }
+    button.submit {
+      margin-top: 4px;
+      border: 0;
+      border-radius: 10px;
+      padding: 11px 14px;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      background: var(--primary);
+      color: var(--primary-ink);
+    }
+    .msg {
+      margin-top: 10px;
+      border-radius: 10px;
+      padding: 9px 10px;
+      font-size: 13px;
+      display: none;
+    }
+    .msg.error { display: block; background: #fee2e2; color: var(--danger); border: 1px solid #fecaca; }
+    .msg.ok { display: block; background: #dcfce7; color: var(--ok); border: 1px solid #bbf7d0; }
+    .meta h2 {
+      font-size: 18px;
+      margin-bottom: 10px;
+    }
+    .meta p {
+      color: var(--muted);
+      font-size: 14px;
+      margin-bottom: 10px;
+    }
+    .list {
+      margin-top: 8px;
+      padding-left: 18px;
+      color: #1f2937;
+      font-size: 14px;
+      display: grid;
+      gap: 5px;
+    }
+    .hide { display: none; }
+    @media (max-width: 860px) {
+      .wrap { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <section class="panel">
+      <h1>AgentLens Access</h1>
+      <p class="lead">Create your account, wait for approval, then log in to your tenant dashboard.</p>
+
+      <div class="tabs">
+        <button id="tab-login" class="active" type="button">Login</button>
+        <button id="tab-signup" type="button">Sign up</button>
+      </div>
+
+      <form id="login-form">
+        <div>
+          <label for="login-email">Work email</label>
+          <input id="login-email" type="email" required />
+        </div>
+        <div>
+          <label for="login-password">Password</label>
+          <input id="login-password" type="password" required />
+        </div>
+        <button class="submit" type="submit">Log in</button>
+      </form>
+
+      <form id="signup-form" class="hide">
+        <div>
+          <label for="signup-name">Name</label>
+          <input id="signup-name" type="text" />
+        </div>
+        <div>
+          <label for="signup-company">Company</label>
+          <input id="signup-company" type="text" />
+        </div>
+        <div>
+          <label for="signup-email">Work email</label>
+          <input id="signup-email" type="email" required />
+        </div>
+        <div>
+          <label for="signup-password">Password (min. 10 chars)</label>
+          <input id="signup-password" type="password" minlength="10" required />
+        </div>
+        <button class="submit" type="submit">Create account</button>
+      </form>
+
+      <div id="msg" class="msg"></div>
+    </section>
+
+    <aside class="panel meta">
+      <h2>How access works</h2>
+      <p>Accounts are approval-based. Every approved customer gets an isolated tenant key and only sees their own data.</p>
+      <ul class="list">
+        <li>1. Sign up with company email</li>
+        <li>2. Admin approves account and creates tenant access</li>
+        <li>3. Pilot access starts (default 14 days)</li>
+        <li>4. Access auto-restricted when subscription is past due/canceled</li>
+      </ul>
+    </aside>
+  </div>
+
+  <script>
+    const msgEl = document.getElementById("msg");
+    const loginTab = document.getElementById("tab-login");
+    const signupTab = document.getElementById("tab-signup");
+    const loginForm = document.getElementById("login-form");
+    const signupForm = document.getElementById("signup-form");
+    const STORAGE_KEY = "agentlens_api_key";
+
+    function showMsg(text, ok = false) {
+      msgEl.textContent = text;
+      msgEl.className = `msg ${ok ? "ok" : "error"}`;
+    }
+
+    function clearMsg() {
+      msgEl.textContent = "";
+      msgEl.className = "msg";
+    }
+
+    function setMode(mode) {
+      clearMsg();
+      if (mode === "login") {
+        loginTab.classList.add("active");
+        signupTab.classList.remove("active");
+        loginForm.classList.remove("hide");
+        signupForm.classList.add("hide");
+      } else {
+        loginTab.classList.remove("active");
+        signupTab.classList.add("active");
+        loginForm.classList.add("hide");
+        signupForm.classList.remove("hide");
+      }
+    }
+
+    loginTab.addEventListener("click", () => setMode("login"));
+    signupTab.addEventListener("click", () => setMode("signup"));
+
+    signupForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      clearMsg();
+      const payload = {
+        name: document.getElementById("signup-name").value.trim() || null,
+        company: document.getElementById("signup-company").value.trim() || null,
+        email: document.getElementById("signup-email").value.trim(),
+        password: document.getElementById("signup-password").value
+      };
+      try {
+        const r = await fetch("/auth/signup", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload)
+        });
+        const data = await r.json();
+        if (!r.ok) {
+          showMsg(data.detail || "Signup failed.");
+          return;
+        }
+        showMsg("Signup submitted. We will approve your access shortly.", true);
+        signupForm.reset();
+      } catch (_) {
+        showMsg("Network error during signup.");
+      }
+    });
+
+    loginForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      clearMsg();
+      const payload = {
+        email: document.getElementById("login-email").value.trim(),
+        password: document.getElementById("login-password").value
+      };
+      try {
+        const r = await fetch("/auth/login", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload)
+        });
+        const data = await r.json();
+        if (!r.ok) {
+          showMsg(data.detail || "Login failed.");
+          return;
+        }
+        localStorage.setItem(STORAGE_KEY, data.api_key);
+        window.location.href = data.dashboard_url || "/dashboard";
+      } catch (_) {
+        showMsg("Network error during login.");
+      }
+    });
+  </script>
+</body>
+</html>

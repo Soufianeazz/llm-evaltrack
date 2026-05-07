@@ -17,6 +17,28 @@ class ApiKey(Base):
     active = Column(Boolean, default=True)
 
 
+class CustomerAccount(Base):
+    __tablename__ = "customer_accounts"
+
+    id = Column(String, primary_key=True)
+    email = Column(String, nullable=False, unique=True, index=True)
+    password_hash = Column(String, nullable=False)
+    name = Column(String, nullable=True)
+    company = Column(String, nullable=True)
+    status = Column(String, default="pending")  # pending | approved | rejected | suspended
+    access_state = Column(String, default="pending")  # pending | trialing | active | past_due | canceled | suspended
+    plan = Column(String, nullable=True)  # pilot | starter | team | scale
+    api_key = Column(String, nullable=True, index=True)
+    trial_ends_at = Column(Float, nullable=True)
+    stripe_customer_id = Column(String, nullable=True, index=True)
+    stripe_subscription_id = Column(String, nullable=True, index=True)
+    subscription_status = Column(String, nullable=True)  # Stripe status snapshot
+    created_at = Column(Float, nullable=False, index=True)
+    approved_at = Column(Float, nullable=True)
+    approved_by = Column(String, nullable=True)
+    last_login_at = Column(Float, nullable=True)
+
+
 class BudgetAlert(Base):
     __tablename__ = "budget_alerts"
 

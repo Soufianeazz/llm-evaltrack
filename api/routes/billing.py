@@ -9,9 +9,14 @@ from typing import Any
 
 import httpx
 import stripe
-from fastapi import APIRouter, HTTPException, Request
+from fastapi import APIRouter, Depends, HTTPException, Request
 from fastapi.responses import RedirectResponse
+from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
 
+from api.customer_access import evaluate_customer_access
+from storage.database import get_session
+from storage.models import ApiKey, CustomerAccount
 router = APIRouter(prefix="/billing")
 
 def _load_stripe_key() -> str:
@@ -142,6 +147,73 @@ ENTERPRISE_EMAIL = "contact@agentlens.one"
 CONTRACT_TERM_MONTHS = int((os.getenv("BILLING_CONTRACT_TERM_MONTHS") or "12").strip())
 
 
+async def _apply_account_access_state(db: AsyncSession, account: CustomerAccount) -> None:
+    if account.api_key:
+        key_result = await db.execute(select(ApiKey).where(ApiKey.key == account.api_key))
+        key_obj = key_result.scalar_one_or_none()
+        if key_obj:
+            allowed, _ = evaluate_customer_access(account)
+            key_obj.active = allowed
+
+
+async def _sync_checkout_completed_to_account(db: AsyncSession, session: dict[str, Any]) -> None:
+    customer_details = session.get("customer_details") or {}
+    email = (customer_details.get("email") or session.get("customer_email") or "").strip().lower()
+    if not email:
+        return
+
+    result = await db.execute(select(CustomerAccount).where(CustomerAccount.email == email))
+    account = result.scalar_one_or_none()
+    if not account:
+        return
+
+    account.stripe_customer_id = session.get("customer") or account.stripe_customer_id
+    account.stripe_subscription_id = session.get("subscription") or account.stripe_subscription_id
+    account.plan = (session.get("metadata") or {}).get("plan") or account.plan
+    payment_status = (session.get("payment_status") or "").lower()
+    if payment_status in {"paid", "no_payment_required"}:
+        account.subscription_status = "active"
+        if (account.status or "pending") == "approved":
+            account.access_state = "active"
+    await _apply_account_access_state(db, account)
+
+
+async def _sync_subscription_status_to_account(
+    db: AsyncSession,
+    customer_id: str | None,
+    subscription_id: str | None,
+    subscription_status: str,
+) -> None:
+    if not customer_id and not subscription_id:
+        return
+
+    query = select(CustomerAccount)
+    if subscription_id:
+        query = query.where(CustomerAccount.stripe_subscription_id == subscription_id)
+    elif customer_id:
+        query = query.where(CustomerAccount.stripe_customer_id == customer_id)
+    result = await db.execute(query)
+    account = result.scalar_one_or_none()
+    if not account:
+        return
+
+    if customer_id:
+        account.stripe_customer_id = customer_id
+    if subscription_id:
+        account.stripe_subscription_id = subscription_id
+    account.subscription_status = (subscription_status or "").lower() or None
+
+    sub = (subscription_status or "").lower()
+    if sub in {"active", "trialing"}:
+        account.access_state = sub
+    elif sub == "past_due":
+        account.access_state = "past_due"
+    elif sub in {"canceled", "unpaid", "paused", "incomplete", "incomplete_expired"}:
+        account.access_state = "canceled"
+
+    await _apply_account_access_state(db, account)
+
+
 @router.get("/checkout/{plan}")
 async def checkout(plan: str):
     if plan == "enterprise":
@@ -224,7 +296,7 @@ async def checkout(plan: str):
 
 
 @router.post("/webhook")
-async def stripe_webhook(request: Request):
+async def stripe_webhook(request: Request, db: AsyncSession = Depends(get_session)):
     stripe.api_key = _load_stripe_key()
     if not stripe.api_key:
         raise HTTPException(status_code=503, detail="Stripe not configured. Set STRIPE_SECRET_KEY.")
@@ -266,6 +338,45 @@ async def stripe_webhook(request: Request):
                 "payment_status": session.get("payment_status"),
             }
             await _notify_billing_event(notify_payload)
+            await _sync_checkout_completed_to_account(db, session)
+
+    if event.get("type") == "customer.subscription.updated":
+        sub = event["data"]["object"] or {}
+        await _sync_subscription_status_to_account(
+            db,
+            customer_id=sub.get("customer"),
+            subscription_id=sub.get("id"),
+            subscription_status=sub.get("status", ""),
+        )
+
+    if event.get("type") == "customer.subscription.deleted":
+        sub = event["data"]["object"] or {}
+        await _sync_subscription_status_to_account(
+            db,
+            customer_id=sub.get("customer"),
+            subscription_id=sub.get("id"),
+            subscription_status="canceled",
+        )
+
+    if event.get("type") == "invoice.payment_failed":
+        inv = event["data"]["object"] or {}
+        await _sync_subscription_status_to_account(
+            db,
+            customer_id=inv.get("customer"),
+            subscription_id=inv.get("subscription"),
+            subscription_status="past_due",
+        )
+
+    if event.get("type") == "invoice.paid":
+        inv = event["data"]["object"] or {}
+        await _sync_subscription_status_to_account(
+            db,
+            customer_id=inv.get("customer"),
+            subscription_id=inv.get("subscription"),
+            subscription_status="active",
+        )
+
+    await db.commit()
 
     return {"received": True}
 

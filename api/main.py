@@ -33,6 +33,7 @@ from api.routes.billing import router as billing_router
 from api.routes.waitlist import router as waitlist_router
 from api.routes.demo import router as demo_router
 from api.routes.admin import router as admin_router, seed_demo_on_startup
+from api.routes.portal_auth import router as portal_auth_router, admin_router as portal_admin_router
 from pipeline.worker import start_worker, stop_worker
 from storage.database import init_db
 
@@ -96,6 +97,8 @@ app.include_router(billing_router)
 app.include_router(waitlist_router)
 app.include_router(demo_router)
 app.include_router(admin_router)
+app.include_router(portal_auth_router)
+app.include_router(portal_admin_router)
 
 
 # Public entry point: landing page. Dashboard moves to /dashboard.
@@ -153,6 +156,11 @@ async def success():
 @app.get("/book-demo", include_in_schema=False)
 async def book_demo():
     return FileResponse("dashboard/book-demo.html")
+
+
+@app.get("/app", include_in_schema=False)
+async def app_portal():
+    return FileResponse("dashboard/app.html")
 
 
 @app.get("/case-study", include_in_schema=False)
