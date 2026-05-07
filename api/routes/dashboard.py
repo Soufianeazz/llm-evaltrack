@@ -11,7 +11,6 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from api.auth import ApiKeyContext, ensure_role, require_api_key, require_api_key_context
 from api.costing import compute_cost_from_tokens, compute_request_cost
-from api.license import require_feature, require_feature_ctx
 from storage.database import get_session
 from storage.models import CustomerAccount, Evaluation, Request, Span, Trace
 
@@ -186,7 +185,7 @@ async def run_live_demo(
 async def worst_responses(
     limit: int = Query(20, ge=1, le=100),
     db: AsyncSession = Depends(get_session),
-    api_key: str = Depends(require_feature("analytics")),
+    api_key: str = Depends(require_api_key),
 ):
     result = await db.execute(
         select(Request, Evaluation)
@@ -238,7 +237,7 @@ async def quality_trend(
 async def bad_response_clusters(
     quality_threshold: float = Query(0.7, ge=0.0, le=1.0),
     db: AsyncSession = Depends(get_session),
-    api_key: str = Depends(require_feature("analytics")),
+    api_key: str = Depends(require_api_key),
 ):
     result = await db.execute(
         select(Evaluation)
@@ -273,7 +272,7 @@ async def bad_response_clusters(
 async def root_cause_analysis(
     quality_threshold: float = Query(0.6, ge=0.0, le=1.0),
     db: AsyncSession = Depends(get_session),
-    api_key: str = Depends(require_feature("analytics")),
+    api_key: str = Depends(require_api_key),
 ):
     result = await db.execute(
         select(Request, Evaluation)
@@ -315,7 +314,7 @@ async def root_cause_analysis(
 @router.get("/requests/cost-quality")
 async def cost_quality_correlation(
     db: AsyncSession = Depends(get_session),
-    api_key: str = Depends(require_feature("analytics")),
+    api_key: str = Depends(require_api_key),
 ):
     result = await db.execute(
         select(Request, Evaluation)
@@ -398,7 +397,7 @@ async def regression_detection(
     window_minutes: int = Query(60, ge=5, le=1440),
     threshold: float = Query(0.1, ge=0.01, le=1.0),
     db: AsyncSession = Depends(get_session),
-    api_key: str = Depends(require_feature("analytics")),
+    api_key: str = Depends(require_api_key),
 ):
     sql = text(
         """

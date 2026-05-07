@@ -13,7 +13,6 @@ from typing import Any
 from api.admin_auth import require_admin_token
 from api.auth import ApiKeyContext, ensure_role, require_api_key, require_api_key_context
 from api.costing import compute_cost_from_tokens
-from api.license import require_feature_ctx
 from api.limiter import limiter
 from storage.database import get_session
 from storage.models import AuditLog, Span, Trace
@@ -93,7 +92,7 @@ async def create_trace(
     request: Request,
     payload: CreateTracePayload,
     db: AsyncSession = Depends(get_session),
-    ctx: ApiKeyContext = Depends(require_feature_ctx("traces")),
+    ctx: ApiKeyContext = Depends(require_api_key_context),
 ):
     ensure_role(ctx, "admin", "analyst")
     trace_id = str(uuid.uuid4())
@@ -118,7 +117,7 @@ async def end_trace(
     trace_id: str,
     payload: EndTracePayload,
     db: AsyncSession = Depends(get_session),
-    ctx: ApiKeyContext = Depends(require_feature_ctx("traces")),
+    ctx: ApiKeyContext = Depends(require_api_key_context),
 ):
     ensure_role(ctx, "admin", "analyst")
     result = await db.execute(select(Trace).where(Trace.id == trace_id, Trace.api_key == ctx.key))
@@ -151,7 +150,7 @@ async def create_span(
     trace_id: str,
     payload: CreateSpanPayload,
     db: AsyncSession = Depends(get_session),
-    ctx: ApiKeyContext = Depends(require_feature_ctx("traces")),
+    ctx: ApiKeyContext = Depends(require_api_key_context),
 ):
     ensure_role(ctx, "admin", "analyst")
     # Verify trace belongs to this api_key
@@ -185,7 +184,7 @@ async def end_span(
     span_id: str,
     payload: EndSpanPayload,
     db: AsyncSession = Depends(get_session),
-    ctx: ApiKeyContext = Depends(require_feature_ctx("traces")),
+    ctx: ApiKeyContext = Depends(require_api_key_context),
 ):
     ensure_role(ctx, "admin", "analyst")
     # Verify trace belongs to this api_key

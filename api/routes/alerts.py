@@ -10,7 +10,6 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from api.auth import ApiKeyContext, ensure_role, require_api_key_context
 from api.costing import compute_request_cost
-from api.license import require_feature_ctx
 from api.schemas import BudgetAlertPayload, BudgetAlertResponse
 from storage.database import get_session
 from storage.models import AuditLog, BudgetAlert, Request
@@ -38,7 +37,7 @@ async def _audit(db: AsyncSession, action: str, detail: str) -> None:
 async def set_budget(
     payload: BudgetAlertPayload,
     db: AsyncSession = Depends(get_session),
-    ctx: ApiKeyContext = Depends(require_feature_ctx("alerts")),
+    ctx: ApiKeyContext = Depends(require_api_key_context),
 ):
     ensure_role(ctx, "admin")
     result = await db.execute(select(BudgetAlert).where(BudgetAlert.id == "default"))
@@ -78,7 +77,7 @@ async def set_budget(
 @router.get("/budget")
 async def get_budget(
     db: AsyncSession = Depends(get_session),
-    ctx: ApiKeyContext = Depends(require_feature_ctx("alerts")),
+    ctx: ApiKeyContext = Depends(require_api_key_context),
 ):
     result = await db.execute(select(BudgetAlert).where(BudgetAlert.id == "default"))
     alert = result.scalar_one_or_none()
@@ -100,7 +99,7 @@ async def get_budget(
 @router.delete("/budget")
 async def delete_budget(
     db: AsyncSession = Depends(get_session),
-    ctx: ApiKeyContext = Depends(require_feature_ctx("alerts")),
+    ctx: ApiKeyContext = Depends(require_api_key_context),
 ):
     ensure_role(ctx, "admin")
     result = await db.execute(select(BudgetAlert).where(BudgetAlert.id == "default"))

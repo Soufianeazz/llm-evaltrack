@@ -14,7 +14,6 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from api.admin_auth import require_admin_token
 from api.auth import ApiKeyContext, ensure_role, require_api_key_context
 from api.costing import compute_request_cost
-from api.license import require_feature_ctx
 from storage.database import get_session
 from storage.models import AuditLog, Evaluation, Request, RetentionPolicy
 
@@ -34,7 +33,7 @@ async def export_data(
     format: str = Query("json", pattern="^(json|csv)$"),
     days: int | None = Query(None, ge=1, le=365),
     db: AsyncSession = Depends(get_session),
-    ctx: ApiKeyContext = Depends(require_feature_ctx("compliance")),
+    ctx: ApiKeyContext = Depends(require_api_key_context),
 ):
     """Export all LLM call data as JSON or CSV."""
     ensure_role(ctx, "admin", "analyst")
@@ -205,7 +204,7 @@ async def get_audit_log(
     from_ts: float | None = Query(None),
     to_ts: float | None = Query(None),
     db: AsyncSession = Depends(get_session),
-    ctx: ApiKeyContext = Depends(require_feature_ctx("compliance")),
+    ctx: ApiKeyContext = Depends(require_api_key_context),
 ):
     ensure_role(ctx, "admin", "analyst")
     query = select(AuditLog).order_by(AuditLog.timestamp.desc())
@@ -232,7 +231,7 @@ async def export_audit_log(
     to_ts: float | None = Query(None),
     limit: int = Query(500, ge=1, le=5000),
     db: AsyncSession = Depends(get_session),
-    ctx: ApiKeyContext = Depends(require_feature_ctx("compliance")),
+    ctx: ApiKeyContext = Depends(require_api_key_context),
 ):
     ensure_role(ctx, "admin", "analyst")
     query = select(AuditLog).order_by(AuditLog.timestamp.desc())
@@ -277,7 +276,7 @@ async def export_audit_log(
 @router.get("/stats")
 async def compliance_stats(
     db: AsyncSession = Depends(get_session),
-    ctx: ApiKeyContext = Depends(require_feature_ctx("compliance")),
+    ctx: ApiKeyContext = Depends(require_api_key_context),
 ):
     """Overview stats for the compliance page."""
     total = (await db.execute(text("SELECT COUNT(*) FROM requests WHERE api_key = :api_key"), {"api_key": ctx.key})).scalar()
