@@ -267,11 +267,14 @@
 
     function renderNotice(mode) {
       const el = document.getElementById("demoNotice");
-      if (mode === "live") return;
+      // Show notice only when demo mode is explicitly forced.
+      if (mode !== "forced") {
+        el.style.display = "none";
+        el.textContent = "";
+        return;
+      }
       el.style.display = "block";
-      el.textContent = mode === "forced"
-        ? "Presentation mode is active (?demo=1). Dashboard is fully populated with curated sample data."
-        : "Live traffic is currently sparse. Empty sections were auto-filled with presentation-safe sample data.";
+      el.textContent = "Presentation mode is active (?demo=1). Dashboard is fully populated with curated sample data.";
     }
 
     function renderReadiness(text, ok) {
