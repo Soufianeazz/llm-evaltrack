@@ -63,6 +63,7 @@
     .budget-track { height: 9px; border-radius: 999px; overflow: hidden; background: #081727; border: 1px solid #18344b; }
     .budget-fill { height: 100%; width: 0; transition: width .25s ease; }
     .toggle { margin-top: 10px; font-size: 12px; color: var(--muted); background: transparent; border: 1px solid var(--border); border-radius: 8px; padding: 7px 10px; cursor: pointer; }
+    .toggle.live { color: #c5f8e2; border-color: #2f6a54; background: rgba(16,50,37,0.35); margin-left: 8px; }
     .budget-form { display: none; margin-top: 10px; border: 1px solid var(--border); border-radius: 10px; background: rgba(9,22,38,0.88); padding: 12px; }
     .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 10px; align-items: end; }
     label { display: block; color: var(--muted); font-size: 12px; margin-bottom: 5px; }
@@ -146,9 +147,13 @@
       <div class="notice" id="demoNotice"></div>
       <div class="budget" id="budgetBanner">
         <div class="budget-top"><div><strong id="budgetTitle">Budget status</strong> - <span id="budgetText"></span></div><div id="budgetPct"></div></div>
-        <div class="budget-track"><div class="budget-fill" id="budgetFill"></div></div>
+      <div class="budget-track"><div class="budget-fill" id="budgetFill"></div></div>
       </div>
-      <button class="toggle" id="budgetToggle">Set Daily Budget</button>
+      <div>
+        <button class="toggle" id="budgetToggle">Set Daily Budget</button>
+        <button class="toggle live" id="liveDemoBtn">Run Live Demo</button>
+      </div>
+      <div class="notice" id="liveDemoStatus"></div>
       <div class="budget-form" id="budgetForm">
         <div class="form-grid">
           <div><label>Daily Budget (USD)</label><input id="budgetInput" type="number" step="0.01" min="0.01" placeholder="e.g. 25.00" /></div>
@@ -394,8 +399,33 @@
       document.getElementById("budgetDelete").addEventListener("click", async () => { await fetch(`${API}/alerts/budget`, { method: "DELETE" }); location.reload(); });
     }
 
+    function setupLiveDemo() {
+      const btn = document.getElementById("liveDemoBtn");
+      const status = document.getElementById("liveDemoStatus");
+      btn.addEventListener("click", async () => {
+        btn.disabled = true;
+        const prev = btn.textContent;
+        btn.textContent = "Running...";
+        status.style.display = "block";
+        status.textContent = "Generating live demo data...";
+        try {
+          const res = await fetch(`${API}/demo/live-run`, { method: "POST" });
+          const data = await res.json();
+          if (!res.ok) throw new Error(data.detail || "Demo run failed");
+          status.textContent = `Live demo ready: ${data.requests_created} calls, ${data.traces_created} traces, ${data.spans_created} spans. Reloading...`;
+          setTimeout(() => location.reload(), 1200);
+        } catch (e) {
+          status.textContent = `Live demo failed: ${e.message || e}`;
+        } finally {
+          btn.disabled = false;
+          btn.textContent = prev;
+        }
+      });
+    }
+
     async function main() {
       setupBudget();
+      setupLiveDemo();
       const forceDemo = new URLSearchParams(location.search).get("demo") === "1";
       const context = await getJson("/dashboard/context").catch(() => ({ plan: "pilot", is_enterprise: false }));
       applyDashboardBranding(context);
