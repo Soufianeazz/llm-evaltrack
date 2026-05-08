@@ -14,6 +14,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from api.admin_auth import require_admin_token
 from api.auth import ApiKeyContext, ensure_role, require_api_key_context
 from api.costing import compute_request_cost
+from api.plan_access import PlanContext, require_feature
 from storage.database import get_session
 from storage.models import AuditLog, Evaluation, Request, RetentionPolicy
 
@@ -34,6 +35,7 @@ async def export_data(
     days: int | None = Query(None, ge=1, le=365),
     db: AsyncSession = Depends(get_session),
     ctx: ApiKeyContext = Depends(require_api_key_context),
+    _feature: PlanContext = Depends(require_feature("compliance_gdpr")),
 ):
     """Export all LLM call data as JSON or CSV."""
     ensure_role(ctx, "admin", "analyst")
@@ -157,7 +159,10 @@ async def set_retention_policy(
 
 
 @router.get("/retention")
-async def get_retention_policy(db: AsyncSession = Depends(get_session)):
+async def get_retention_policy(
+    db: AsyncSession = Depends(get_session),
+    _feature: PlanContext = Depends(require_feature("compliance_gdpr")),
+):
     result = await db.execute(select(RetentionPolicy).where(RetentionPolicy.id == "default"))
     policy = result.scalar_one_or_none()
     if not policy:
@@ -205,6 +210,7 @@ async def get_audit_log(
     to_ts: float | None = Query(None),
     db: AsyncSession = Depends(get_session),
     ctx: ApiKeyContext = Depends(require_api_key_context),
+    _feature: PlanContext = Depends(require_feature("compliance_gdpr")),
 ):
     ensure_role(ctx, "admin", "analyst")
     query = select(AuditLog).order_by(AuditLog.timestamp.desc())
@@ -232,6 +238,7 @@ async def export_audit_log(
     limit: int = Query(500, ge=1, le=5000),
     db: AsyncSession = Depends(get_session),
     ctx: ApiKeyContext = Depends(require_api_key_context),
+    _feature: PlanContext = Depends(require_feature("compliance_gdpr")),
 ):
     ensure_role(ctx, "admin", "analyst")
     query = select(AuditLog).order_by(AuditLog.timestamp.desc())
@@ -277,6 +284,7 @@ async def export_audit_log(
 async def compliance_stats(
     db: AsyncSession = Depends(get_session),
     ctx: ApiKeyContext = Depends(require_api_key_context),
+    _feature: PlanContext = Depends(require_feature("compliance_gdpr")),
 ):
     """Overview stats for the compliance page."""
     total = (await db.execute(text("SELECT COUNT(*) FROM requests WHERE api_key = :api_key"), {"api_key": ctx.key})).scalar()

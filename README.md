@@ -23,6 +23,7 @@
 | Enterprise | EUR 5,000+ / month | + Private Deploy, SLA, Security Package |
 
 Starter, Team, and Scale run on 12-month terms billed monthly.
+Paid plans (Starter/Team/Scale/Enterprise) are managed-plan features with server-side entitlement checks.
 Qualified teams can request an official **14-day full-feature pilot** before committing to a paid tier.
 
 ---

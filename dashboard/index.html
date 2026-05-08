@@ -247,14 +247,15 @@
       return r.json();
     }
 
-    function sparse(live) {
+    function sparse(live, requireDeepData) {
+      if (!requireDeepData) return false;
       const calls = num(live.stats && live.stats.total_calls_24h, 0);
       return calls < 25 || !Array.isArray(live.trend) || live.trend.length < 6 || !Array.isArray(live.worst) || live.worst.length < 6;
     }
 
-    function merge(live, forceDemo) {
+    function merge(live, forceDemo, requireDeepData) {
       if (forceDemo) return { payload: DEMO, mode: "forced" };
-      if (!sparse(live)) return { payload: live, mode: "live" };
+      if (!sparse(live, requireDeepData)) return { payload: live, mode: "live" };
       return {
         payload: {
           stats: live.stats || DEMO.stats,
@@ -458,22 +459,40 @@
       applyDashboardBranding(context);
       applyPlanAccess(context);
       try {
-        const [stats, trend, regression, clusters, costQuality, rootCause, worst, budget] = await Promise.all([
-          getJson("/requests/stats"), getJson("/requests/trend"), getJson("/requests/regression?window_minutes=60&threshold=0.1"),
-          getJson("/requests/clusters?quality_threshold=0.7"), getJson("/requests/cost-quality"), getJson("/requests/root-cause?quality_threshold=0.6"),
-          getJson("/requests/worst?limit=20"), getJson("/alerts/budget").catch(() => null)
+        const features = (context && context.features) || {};
+        const advancedEnabled = Boolean(features.advanced_analytics);
+        const [stats, trend, budget] = await Promise.all([
+          getJson("/requests/stats"),
+          getJson("/requests/trend"),
+          getJson("/alerts/budget").catch(() => null),
         ]);
+        let regression = null;
+        let clusters = [];
+        let costQuality = [];
+        let rootCause = [];
+        let worst = [];
+        if (advancedEnabled) {
+          [regression, clusters, costQuality, rootCause, worst] = await Promise.all([
+            getJson("/requests/regression?window_minutes=60&threshold=0.1"),
+            getJson("/requests/clusters?quality_threshold=0.7"),
+            getJson("/requests/cost-quality"),
+            getJson("/requests/root-cause?quality_threshold=0.6"),
+            getJson("/requests/worst?limit=20"),
+          ]);
+        }
         const live = { stats, trend, regression, clusters, costQuality, rootCause, worst, budget };
-        const merged = merge(live, forceDemo);
+        const merged = merge(live, forceDemo, advancedEnabled);
         renderNotice(merged.mode);
-        renderRegression(merged.payload.regression);
+        if (advancedEnabled) renderRegression(merged.payload.regression);
         renderBudget(merged.payload.budget);
         renderKpis(merged.payload.stats, merged.payload.costQuality, merged.payload.clusters);
         renderTrend(merged.payload.trend);
-        renderClusters(merged.payload.clusters);
-        renderCost(merged.payload.costQuality);
-        renderRoot(merged.payload.rootCause);
-        renderWorst(merged.payload.worst);
+        if (advancedEnabled) {
+          renderClusters(merged.payload.clusters);
+          renderCost(merged.payload.costQuality);
+          renderRoot(merged.payload.rootCause);
+          renderWorst(merged.payload.worst);
+        }
         const calls = num(merged.payload.stats.total_calls_24h, 0);
         renderReadiness(merged.mode === "live" ? "Production healthy" : `Presentation ready (${calls} live calls)`, true);
       } catch (e) {

@@ -5,8 +5,8 @@ from fastapi import APIRouter, Depends, Query
 from sqlalchemy import select, text
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from api.auth import require_api_key
 from api.costing import compute_request_cost
+from api.plan_access import PlanContext, require_feature
 from storage.database import get_session
 from storage.models import Evaluation, Request
 
@@ -26,12 +26,12 @@ async def search_requests(
     limit: int = Query(50, ge=1, le=200),
     offset: int = Query(0, ge=0),
     db: AsyncSession = Depends(get_session),
-    api_key: str = Depends(require_api_key),
+    plan_ctx: PlanContext = Depends(require_feature("prompt_debugger")),
 ):
     query = (
         select(Request, Evaluation)
         .outerjoin(Evaluation, Evaluation.request_id == Request.id)
-        .where(Request.api_key == api_key)
+        .where(Request.api_key == plan_ctx.key)
         .order_by(Request.timestamp.desc())
     )
 
@@ -81,12 +81,12 @@ async def search_requests(
 async def get_request_detail(
     request_id: str,
     db: AsyncSession = Depends(get_session),
-    api_key: str = Depends(require_api_key),
+    plan_ctx: PlanContext = Depends(require_feature("prompt_debugger")),
 ):
     result = await db.execute(
         select(Request, Evaluation)
         .outerjoin(Evaluation, Evaluation.request_id == Request.id)
-        .where(Request.id == request_id, Request.api_key == api_key)
+        .where(Request.id == request_id, Request.api_key == plan_ctx.key)
     )
     row = result.one_or_none()
     if not row:
@@ -119,11 +119,11 @@ async def get_request_detail(
 @router.get("/models")
 async def list_models(
     db: AsyncSession = Depends(get_session),
-    api_key: str = Depends(require_api_key),
+    plan_ctx: PlanContext = Depends(require_feature("prompt_debugger")),
 ):
     result = await db.execute(
         text("SELECT DISTINCT model FROM requests WHERE api_key = :api_key ORDER BY model"),
-        {"api_key": api_key},
+        {"api_key": plan_ctx.key},
     )
     return [row[0] for row in result]
 
@@ -131,12 +131,12 @@ async def list_models(
 @router.get("/flags")
 async def list_flags(
     db: AsyncSession = Depends(get_session),
-    api_key: str = Depends(require_api_key),
+    plan_ctx: PlanContext = Depends(require_feature("prompt_debugger")),
 ):
     result = await db.execute(
         select(Evaluation.flags)
         .join(Request, Request.id == Evaluation.request_id)
-        .where(Request.api_key == api_key)
+        .where(Request.api_key == plan_ctx.key)
     )
     all_flags = set()
     for (flags,) in result:

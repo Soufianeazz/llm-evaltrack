@@ -11,9 +11,10 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from typing import Any
 
 from api.admin_auth import require_admin_token
-from api.auth import ApiKeyContext, ensure_role, require_api_key, require_api_key_context
+from api.auth import ApiKeyContext, ensure_role, require_api_key_context
 from api.costing import compute_cost_from_tokens
 from api.limiter import limiter
+from api.plan_access import PlanContext, require_feature
 from storage.database import get_session
 from storage.models import AuditLog, Span, Trace
 
@@ -93,12 +94,13 @@ async def create_trace(
     payload: CreateTracePayload,
     db: AsyncSession = Depends(get_session),
     ctx: ApiKeyContext = Depends(require_api_key_context),
+    plan_ctx: PlanContext = Depends(require_feature("agent_debugger")),
 ):
     ensure_role(ctx, "admin", "analyst")
     trace_id = str(uuid.uuid4())
     trace = Trace(
         id=trace_id,
-        api_key=ctx.key,
+        api_key=plan_ctx.key,
         name=payload.name,
         input=payload.input,
         status="running",
@@ -118,9 +120,10 @@ async def end_trace(
     payload: EndTracePayload,
     db: AsyncSession = Depends(get_session),
     ctx: ApiKeyContext = Depends(require_api_key_context),
+    plan_ctx: PlanContext = Depends(require_feature("agent_debugger")),
 ):
     ensure_role(ctx, "admin", "analyst")
-    result = await db.execute(select(Trace).where(Trace.id == trace_id, Trace.api_key == ctx.key))
+    result = await db.execute(select(Trace).where(Trace.id == trace_id, Trace.api_key == plan_ctx.key))
     trace = result.scalar_one_or_none()
     if not trace:
         raise HTTPException(status_code=404, detail="trace not found")
@@ -151,10 +154,11 @@ async def create_span(
     payload: CreateSpanPayload,
     db: AsyncSession = Depends(get_session),
     ctx: ApiKeyContext = Depends(require_api_key_context),
+    plan_ctx: PlanContext = Depends(require_feature("agent_debugger")),
 ):
     ensure_role(ctx, "admin", "analyst")
     # Verify trace belongs to this api_key
-    result = await db.execute(select(Trace).where(Trace.id == trace_id, Trace.api_key == ctx.key))
+    result = await db.execute(select(Trace).where(Trace.id == trace_id, Trace.api_key == plan_ctx.key))
     if not result.scalar_one_or_none():
         raise HTTPException(status_code=404, detail="trace not found")
 
@@ -185,10 +189,11 @@ async def end_span(
     payload: EndSpanPayload,
     db: AsyncSession = Depends(get_session),
     ctx: ApiKeyContext = Depends(require_api_key_context),
+    plan_ctx: PlanContext = Depends(require_feature("agent_debugger")),
 ):
     ensure_role(ctx, "admin", "analyst")
     # Verify trace belongs to this api_key
-    result = await db.execute(select(Trace).where(Trace.id == trace_id, Trace.api_key == ctx.key))
+    result = await db.execute(select(Trace).where(Trace.id == trace_id, Trace.api_key == plan_ctx.key))
     if not result.scalar_one_or_none():
         raise HTTPException(status_code=404, detail="trace not found")
 
@@ -236,9 +241,9 @@ async def list_traces(
     limit: int = Query(50, ge=1, le=200),
     offset: int = Query(0, ge=0),
     db: AsyncSession = Depends(get_session),
-    api_key: str = Depends(require_api_key),
+    plan_ctx: PlanContext = Depends(require_feature("agent_debugger")),
 ):
-    query = select(Trace).where(Trace.api_key == api_key).order_by(Trace.started_at.desc())
+    query = select(Trace).where(Trace.api_key == plan_ctx.key).order_by(Trace.started_at.desc())
     if name:
         query = query.where(Trace.name.contains(name))
     if status:
@@ -323,9 +328,9 @@ async def delete_trace(
 async def get_trace_detail(
     trace_id: str,
     db: AsyncSession = Depends(get_session),
-    api_key: str = Depends(require_api_key),
+    plan_ctx: PlanContext = Depends(require_feature("agent_debugger")),
 ):
-    result = await db.execute(select(Trace).where(Trace.id == trace_id, Trace.api_key == api_key))
+    result = await db.execute(select(Trace).where(Trace.id == trace_id, Trace.api_key == plan_ctx.key))
     trace = result.scalar_one_or_none()
     if not trace:
         raise HTTPException(status_code=404, detail="trace not found")

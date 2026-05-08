@@ -11,74 +11,14 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from api.auth import ApiKeyContext, ensure_role, require_api_key, require_api_key_context
 from api.costing import compute_cost_from_tokens, compute_request_cost
+from api.plan_access import require_feature, resolve_plan_context
 from storage.database import get_session
-from storage.models import CustomerAccount, Evaluation, Request, Span, Trace
+from storage.models import Evaluation, Request, Span, Trace
 
 router = APIRouter()
 _STATS_CACHE_TTL_SECONDS = 5.0
 _stats_cache: dict[str, tuple[float, dict]] = {}
 _stats_cache_lock = asyncio.Lock()
-
-_PLAN_ALIAS = {
-    "pilot": "enterprise",
-    "pilot14": "enterprise",
-    "pilot_14": "enterprise",
-    "full_pilot": "enterprise",
-    "trial": "enterprise",
-    "free": "free",
-    "starter": "starter",
-    "team": "team",
-    "scale": "scale",
-    "enterprise": "enterprise",
-}
-
-_PLAN_FEATURES = {
-    "free": {
-        "basic_stats_24h": True,
-        "prompt_debugger": False,
-        "agent_debugger": False,
-        "advanced_analytics": False,
-        "compliance_gdpr": False,
-        "private_deploy": False,
-        "sla_security_package": False,
-    },
-    "starter": {
-        "basic_stats_24h": True,
-        "prompt_debugger": True,
-        "agent_debugger": False,
-        "advanced_analytics": False,
-        "compliance_gdpr": False,
-        "private_deploy": False,
-        "sla_security_package": False,
-    },
-    "team": {
-        "basic_stats_24h": True,
-        "prompt_debugger": True,
-        "agent_debugger": True,
-        "advanced_analytics": True,
-        "compliance_gdpr": False,
-        "private_deploy": False,
-        "sla_security_package": False,
-    },
-    "scale": {
-        "basic_stats_24h": True,
-        "prompt_debugger": True,
-        "agent_debugger": True,
-        "advanced_analytics": True,
-        "compliance_gdpr": True,
-        "private_deploy": False,
-        "sla_security_package": False,
-    },
-    "enterprise": {
-        "basic_stats_24h": True,
-        "prompt_debugger": True,
-        "agent_debugger": True,
-        "advanced_analytics": True,
-        "compliance_gdpr": True,
-        "private_deploy": True,
-        "sla_security_package": True,
-    },
-}
 
 
 @router.get("/dashboard/context")
@@ -86,18 +26,12 @@ async def dashboard_context(
     db: AsyncSession = Depends(get_session),
     ctx: ApiKeyContext = Depends(require_api_key_context),
 ):
-    account_result = await db.execute(
-        select(CustomerAccount).where(CustomerAccount.api_key == ctx.key)
-    )
-    account = account_result.scalar_one_or_none()
-    raw_plan = (ctx.plan or (account.plan if account else None) or "free").lower()
-    plan = _PLAN_ALIAS.get(raw_plan, "free")
-    features = _PLAN_FEATURES.get(plan, _PLAN_FEATURES["free"])
+    plan_ctx = await resolve_plan_context(db=db, ctx=ctx)
     return {
-        "raw_plan": raw_plan,
-        "plan": plan,
-        "is_enterprise": plan == "enterprise",
-        "features": features,
+        "raw_plan": plan_ctx.raw_plan,
+        "plan": plan_ctx.plan,
+        "is_enterprise": plan_ctx.plan == "enterprise",
+        "features": plan_ctx.features,
     }
 
 
@@ -105,6 +39,7 @@ async def dashboard_context(
 async def run_live_demo(
     db: AsyncSession = Depends(get_session),
     ctx: ApiKeyContext = Depends(require_api_key_context),
+    _feature: object = Depends(require_feature("advanced_analytics")),
 ):
     """One-click live demo data generation (no terminal required)."""
     ensure_role(ctx, "admin", "analyst")
@@ -251,6 +186,7 @@ async def worst_responses(
     limit: int = Query(20, ge=1, le=100),
     db: AsyncSession = Depends(get_session),
     api_key: str = Depends(require_api_key),
+    _feature: object = Depends(require_feature("advanced_analytics")),
 ):
     result = await db.execute(
         select(Request, Evaluation)
@@ -303,6 +239,7 @@ async def bad_response_clusters(
     quality_threshold: float = Query(0.7, ge=0.0, le=1.0),
     db: AsyncSession = Depends(get_session),
     api_key: str = Depends(require_api_key),
+    _feature: object = Depends(require_feature("advanced_analytics")),
 ):
     result = await db.execute(
         select(Evaluation)
@@ -338,6 +275,7 @@ async def root_cause_analysis(
     quality_threshold: float = Query(0.6, ge=0.0, le=1.0),
     db: AsyncSession = Depends(get_session),
     api_key: str = Depends(require_api_key),
+    _feature: object = Depends(require_feature("advanced_analytics")),
 ):
     result = await db.execute(
         select(Request, Evaluation)
@@ -380,6 +318,7 @@ async def root_cause_analysis(
 async def cost_quality_correlation(
     db: AsyncSession = Depends(get_session),
     api_key: str = Depends(require_api_key),
+    _feature: object = Depends(require_feature("advanced_analytics")),
 ):
     result = await db.execute(
         select(Request, Evaluation)
@@ -463,6 +402,7 @@ async def regression_detection(
     threshold: float = Query(0.1, ge=0.01, le=1.0),
     db: AsyncSession = Depends(get_session),
     api_key: str = Depends(require_api_key),
+    _feature: object = Depends(require_feature("advanced_analytics")),
 ):
     sql = text(
         """
