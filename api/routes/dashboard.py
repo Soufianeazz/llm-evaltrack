@@ -21,6 +21,9 @@ _stats_cache_lock = asyncio.Lock()
 
 _PLAN_ALIAS = {
     "pilot": "enterprise",
+    "pilot14": "enterprise",
+    "pilot_14": "enterprise",
+    "full_pilot": "enterprise",
     "trial": "enterprise",
     "free": "free",
     "starter": "starter",

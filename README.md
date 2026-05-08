@@ -16,13 +16,14 @@
 
 | Plan | Price | Included Features |
 |---|---:|---|
-| Free | EUR 0 | Ingest API + Basic Stats (24h) |
+| Free | EUR 0 | Ingest API + Basic Stats (24h) + Prompt Debugger Preview (demo/read-only) |
 | Starter | EUR 299 / month | + Prompt Debugger |
-| Team | EUR 999 / month | + Agent Debugger + Advanced Analytics |
+| Team | EUR 999 / month | + Agent Debugger + Advanced Analytics (+ Compliance readiness preview) |
 | Scale | EUR 2,999 / month | + Compliance / GDPR workflows |
 | Enterprise | EUR 5,000+ / month | + Private Deploy, SLA, Security Package |
 
 Starter, Team, and Scale run on 12-month terms billed monthly.
+Qualified teams can request an official **14-day full-feature pilot** before committing to a paid tier.
 
 ---
 

@@ -120,6 +120,7 @@
           <label for="plan">Interested Plan</label>
           <select id="plan" name="plan">
             <option value="">Not sure yet</option>
+            <option value="pilot">14-day Full-Feature Pilot</option>
             <option value="starter">Starter</option>
             <option value="team">Team</option>
             <option value="scale">Scale</option>
@@ -152,7 +153,7 @@
     const params = new URLSearchParams(window.location.search);
     const plan = params.get("plan");
     if (plan) {
-      const allowed = new Set(["starter", "team", "scale", "enterprise"]);
+      const allowed = new Set(["pilot", "starter", "team", "scale", "enterprise"]);
       if (allowed.has(plan)) planSelect.value = plan;
     }
 
