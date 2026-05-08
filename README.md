@@ -1,136 +1,60 @@
 # AgentLens
 
 [![PyPI](https://img.shields.io/pypi/v/agentlens-monitor.svg)](https://pypi.org/project/agentlens-monitor/)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/)
 [![GitHub Stars](https://img.shields.io/github/stars/Soufianeazz/agentlens?style=social)](https://github.com/Soufianeazz/agentlens)
 
-> Drop-in observability for LLM applications — automatic quality scoring, hallucination detection, cost tracking, and agent run debugging.
+> Open-core observability for LLM applications: quality scoring, prompt debugging, agent tracing, cost control, and compliance workflows.
 
-**Live demo:** [www.agentlens.one](https://www.agentlens.one?api_key=al_demo_agentlens) · **Agent Debugger:** [/traces.html](https://www.agentlens.one/traces.html?api_key=al_demo_agentlens)
+**Live demo:** [www.agentlens.one](https://www.agentlens.one/dashboard?demo=1&api_key=al_demo_agentlens)
 
 ![AgentLens Dashboard](docs/dashboard.png)
 
 ---
 
-## Why
+## Plan Packaging (Current)
 
-Most LLM apps run blind. You don't know which prompts fail, which models waste money, when quality drops — or where exactly a multi-step agent gets stuck. AgentLens fixes that with **2 lines of code**.
+| Plan | Price | Included Features |
+|---|---:|---|
+| Free | EUR 0 | Ingest API + Basic Stats (24h) |
+| Starter | EUR 299 / month | + Prompt Debugger |
+| Team | EUR 999 / month | + Agent Debugger + Advanced Analytics |
+| Scale | EUR 2,999 / month | + Compliance / GDPR workflows |
+| Enterprise | EUR 5,000+ / month | + Private Deploy, SLA, Security Package |
 
-| | AgentLens | LangSmith | Langfuse | Helicone |
-|---|---|---|---|---|
-| Self-hosted | ✅ | ❌ | ✅ | ❌ |
-| GDPR / data on your server | ✅ | ❌ | ✅ | ❌ |
-| Auto quality scoring | ✅ | ❌ | ❌ | ❌ |
-| Hallucination detection | ✅ | ❌ | ❌ | ❌ |
-| Agent trace debugger | ✅ | ✅ | ✅ | ❌ |
-| Open source | ✅ | ❌ | ✅ | ❌ |
-| 2-line integration | ✅ | ✅ | ✅ | ✅ |
+Starter, Team, and Scale run on 12-month terms billed monthly.
 
 ---
 
-## Install
+## Why AgentLens
+
+Most LLM teams can ship features. Fewer can run them safely at scale.
+
+AgentLens gives you:
+
+- Automatic quality scoring and hallucination flags
+- Prompt-level debugging with detailed call inspection
+- Agent waterfall debugging with span-level visibility
+- Cost and budget observability
+- Compliance export, retention, and audit logs
+
+---
+
+## Quickstart
 
 ```bash
 pip install agentlens-monitor
 ```
 
----
-
-## LLM Call Tracking
-
-Auto-track every OpenAI or Anthropic call — zero changes to your existing code:
-
 ```python
 import agentlens
 
-agentlens.init(api_url="http://localhost:8000/ingest")  # or your deployed server
-agentlens.patch_openai()     # intercepts all client.chat.completions.create()
-agentlens.patch_anthropic()  # intercepts all client.messages.create()
+agentlens.init(api_url="http://localhost:8000/ingest")
+agentlens.patch_openai()
+agentlens.patch_anthropic()
 ```
 
-Head to [www.agentlens.one](https://www.agentlens.one) to see your traces appear in real time.
-
-Or track manually:
-
-```python
-agentlens.track_llm_call(
-    input="What is the capital of France?",
-    output="Paris.",
-    prompt="You are a helpful assistant.",
-    model="gpt-4o",
-    metadata={"feature": "qa", "user_id": "u_123", "cost_usd": 0.0003},
-)
-```
-
-**Auto-tracked per call:**
-
-| Field | Source |
-|---|---|
-| Input / Output | Message content |
-| Model | `response.model` |
-| Tokens | `response.usage` |
-| Cost (USD) | Calculated from token counts |
-| Quality Score | Heuristic evaluation or LLM judge |
-| Hallucination flags | Automatic detection |
-
----
-
-## Agent Debugging
-
-Trace multi-step agent runs to see every step, find where things break, and measure cost per span:
-
-```python
-from agentlens import trace_agent
-
-with trace_agent("research_agent", input="Research renewable energy trends") as trace:
-
-    with trace.span("web_search", span_type="retrieval") as s:
-        results = search("renewable energy 2024")
-        s.set_output(results)
-
-    with trace.span("llm_summarize", span_type="llm", model="gpt-4o") as s:
-        summary = llm.summarize(results)
-        s.set_output(summary)
-        s.set_tokens(1200)
-        s.set_cost(0.009)
-
-    with trace.span("fact_check", span_type="tool") as s:
-        verified = fact_check(summary)
-        s.set_output(verified)
-
-    trace.set_output("Report complete")
-```
-
-**Span types:** `llm` · `tool` · `retrieval` · `decision` · `custom`
-
-Each trace captures: total duration, tokens, cost, per-step timing, inputs/outputs, and errors.
-
----
-
-## Dashboard
-
-Self-host and open `http://localhost:8000`:
-
-| Page | URL | What it shows |
-|---|---|---|
-| Main Dashboard | `/` | Quality trend, bad response categories, cost vs quality per model, regression alerts |
-| Prompt Debugger | `/debug.html` | Search and inspect individual LLM calls by model, quality, flag, or content |
-| Agent Debugger | `/traces.html` | Waterfall timeline of agent runs — every span, duration, cost, error |
-| Compliance | `/compliance.html` | GDPR export, retention policies, audit log |
-
-### Agent Debugger — Waterfall View
-
-Click any trace to see the full execution timeline:
-
-- Color-coded span types (llm / tool / retrieval / decision)
-- Duration bar per step (proportional to total run time)
-- Click any span to expand: input, output, tokens, cost, error
-- Filter traces by name, status, date range, minimum duration, or minimum cost
-
----
-
-## Self-Host
+Run the API:
 
 ```bash
 git clone https://github.com/Soufianeazz/agentlens
@@ -139,84 +63,73 @@ pip install -r requirements.txt
 uvicorn api.main:app --reload
 ```
 
-Open `http://localhost:8000`.
+Open:
 
-Optional — enable LLM judge for higher-quality scoring:
+- `http://localhost:8000/dashboard`
+- `http://localhost:8000/debug.html`
+- `http://localhost:8000/traces.html`
+- `http://localhost:8000/compliance.html`
 
-```bash
-export ANTHROPIC_API_KEY=sk-ant-...
+---
+
+## SDK and Tracing
+
+Track single calls:
+
+```python
+agentlens.track_llm_call(
+    input="What is the capital of France?",
+    output="Paris.",
+    prompt="You are a helpful assistant.",
+    model="gpt-4o",
+    metadata={"feature": "qa", "cost_usd": 0.0003},
+)
 ```
 
-### Deploy to Railway
+Trace multi-step agents:
 
-[![Deploy on Railway](https://railway.com/button.svg)](https://railway.com)
+```python
+from agentlens import trace_agent
 
-Push to `main` → Railway auto-deploys. No manual steps.
+with trace_agent("research_agent", input="Research market trends") as trace:
+    with trace.span("retrieve_context", span_type="retrieval") as s:
+        s.set_output("Context ready")
 
----
+    with trace.span("reason_and_draft", span_type="llm", model="gpt-4o") as s:
+        s.set_output("Draft ready")
+        s.set_tokens(1200)
+        s.set_cost(0.009)
 
-## API Reference
-
-| Method | Endpoint | Description |
-|---|---|---|
-| `POST` | `/ingest` | Ingest an LLM call |
-| `GET` | `/requests/stats` | 24h KPIs |
-| `GET` | `/requests/trend` | Hourly quality trend |
-| `GET` | `/requests/worst` | Worst responses |
-| `GET` | `/requests/regression` | Quality regression detection |
-| `GET` | `/requests/root-cause` | Worst prompts by failure rate |
-| `GET` | `/requests/cost-quality` | Per-model cost vs quality |
-| `GET` | `/debug/requests` | Search/filter LLM calls |
-| `GET` | `/debug/requests/{id}` | Full detail view |
-| `POST` | `/traces` | Create agent trace |
-| `POST` | `/traces/{id}/end` | End trace |
-| `POST` | `/traces/{id}/spans` | Add span |
-| `POST` | `/traces/{id}/spans/{sid}/end` | End span |
-| `GET` | `/traces` | List/search traces |
-| `GET` | `/traces/{id}` | Trace detail with all spans |
-| `DELETE` | `/traces/{id}` | Delete trace and spans |
-| `GET/POST/DELETE` | `/alerts/budget` | Budget alert config |
-| `POST` | `/demo-request` | Public demo request submit (lead capture) |
-| `GET` | `/demo-request` | List demo requests (admin token required) |
-| `GET` | `/demo-request/weekly` | Weekly lead list JSON (admin token required) |
-| `GET` | `/demo-request/weekly.csv` | Weekly lead export CSV download (admin token required) |
-| `POST` | `/demo-request/notify-test` | Send test notification (admin token required) |
-| `GET` | `/compliance/export` | CSV/JSON export |
-| `POST` | `/compliance/retention` | Set retention policy |
-| `DELETE` | `/compliance/requests` | Bulk delete |
-| `GET` | `/compliance/audit-log` | Audit events |
+    trace.set_output("Report complete")
+```
 
 ---
 
-## Demo Request Notifications
+## API Overview
 
-Optional environment variables for instant lead notifications:
-
-- `DEMO_REQUEST_WEBHOOK_URL`: webhook URL (Slack incoming webhook works)
-- `RESEND_API_KEY`: Resend API key for email notifications
-- `DEMO_REQUEST_NOTIFY_EMAIL`: destination mailbox for new demo requests
-- `DEMO_REQUEST_FROM_EMAIL`: sender identity for Resend (optional)
-
-Spam protection on `/demo-request`:
-
-- Rate limit: `6/minute` per client IP
-- Honeypot field (`website`) ignored for real users, traps bots
-- Duplicate suppression for same email within 10 minutes
-
----
-
-## Stack
-
-- Python 3.10+, FastAPI, SQLite (aiosqlite), SQLAlchemy async
-- Dashboard: plain HTML + Chart.js — no frontend build step
-- SDK: zero dependencies beyond `httpx`
-
-## License
-
-[MIT](LICENSE)
+- `POST /ingest`
+- `GET /requests/stats`
+- `GET /requests/trend`
+- `GET /requests/worst`
+- `GET /requests/cost-quality`
+- `GET /requests/root-cause`
+- `GET /debug/requests`
+- `POST /traces`
+- `GET /traces`
+- `GET /compliance/export`
+- `POST /compliance/retention`
+- `GET /compliance/audit-log`
 
 ---
 
-## Cloud Option
+## Managed Cloud Option
 
-Prefer not to self-host? Try the live demo at [www.agentlens.one](https://www.agentlens.one?api_key=al_demo_agentlens) — no login needed. Paid plans start at €299/month for teams that need managed hosting, higher limits, and a GDPR DPA.
+Use [agentlens.one](https://www.agentlens.one) for managed rollout, buyer-ready trust artifacts, and plan-based feature access.
+
+---
+
+## Legacy Code Snapshot
+
+Earlier public snapshots remain available in repository history and tags. The active product direction is now **open core**.
+
+For historical snapshots, browse tags/commits in this repository.

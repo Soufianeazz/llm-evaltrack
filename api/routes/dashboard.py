@@ -19,6 +19,64 @@ _STATS_CACHE_TTL_SECONDS = 5.0
 _stats_cache: dict[str, tuple[float, dict]] = {}
 _stats_cache_lock = asyncio.Lock()
 
+_PLAN_ALIAS = {
+    "pilot": "enterprise",
+    "trial": "enterprise",
+    "free": "free",
+    "starter": "starter",
+    "team": "team",
+    "scale": "scale",
+    "enterprise": "enterprise",
+}
+
+_PLAN_FEATURES = {
+    "free": {
+        "basic_stats_24h": True,
+        "prompt_debugger": False,
+        "agent_debugger": False,
+        "advanced_analytics": False,
+        "compliance_gdpr": False,
+        "private_deploy": False,
+        "sla_security_package": False,
+    },
+    "starter": {
+        "basic_stats_24h": True,
+        "prompt_debugger": True,
+        "agent_debugger": False,
+        "advanced_analytics": False,
+        "compliance_gdpr": False,
+        "private_deploy": False,
+        "sla_security_package": False,
+    },
+    "team": {
+        "basic_stats_24h": True,
+        "prompt_debugger": True,
+        "agent_debugger": True,
+        "advanced_analytics": True,
+        "compliance_gdpr": False,
+        "private_deploy": False,
+        "sla_security_package": False,
+    },
+    "scale": {
+        "basic_stats_24h": True,
+        "prompt_debugger": True,
+        "agent_debugger": True,
+        "advanced_analytics": True,
+        "compliance_gdpr": True,
+        "private_deploy": False,
+        "sla_security_package": False,
+    },
+    "enterprise": {
+        "basic_stats_24h": True,
+        "prompt_debugger": True,
+        "agent_debugger": True,
+        "advanced_analytics": True,
+        "compliance_gdpr": True,
+        "private_deploy": True,
+        "sla_security_package": True,
+    },
+}
+
 
 @router.get("/dashboard/context")
 async def dashboard_context(
@@ -29,10 +87,14 @@ async def dashboard_context(
         select(CustomerAccount).where(CustomerAccount.api_key == ctx.key)
     )
     account = account_result.scalar_one_or_none()
-    plan = (ctx.plan or (account.plan if account else None) or "pilot").lower()
+    raw_plan = (ctx.plan or (account.plan if account else None) or "free").lower()
+    plan = _PLAN_ALIAS.get(raw_plan, "free")
+    features = _PLAN_FEATURES.get(plan, _PLAN_FEATURES["free"])
     return {
+        "raw_plan": raw_plan,
         "plan": plan,
         "is_enterprise": plan == "enterprise",
+        "features": features,
     }
 
 

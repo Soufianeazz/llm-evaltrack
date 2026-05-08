@@ -187,9 +187,9 @@
       </div>
       <nav class="actions">
         <button class="btn-link" type="button" onclick="agentlensLogout()">Logout</button>
-        <a class="btn-link active" href="/traces.html">Agent Debugger</a>
-        <a class="btn-link" href="/debug.html">Prompt Debugger</a>
-        <a class="btn-link" href="/compliance.html">Compliance</a>
+        <a class="btn-link active" id="navAgentDebugger" href="/traces.html">Agent Debugger</a>
+        <a class="btn-link" id="navPromptDebugger" href="/debug.html">Prompt Debugger</a>
+        <a class="btn-link" id="navCompliance" href="/compliance.html">Compliance</a>
       </nav>
     </div>
 
@@ -283,6 +283,44 @@
 
   <script>
     const API = "";
+    const PLAN_ORDER = ["free", "starter", "team", "scale", "enterprise"];
+
+    function lockNavLink(linkId, minPlanLabel) {
+      const link = document.getElementById(linkId);
+      if (!link) return;
+      link.href = "/#pricing";
+      link.textContent = `${link.textContent} (from ${minPlanLabel})`;
+      link.style.opacity = "0.65";
+    }
+
+    async function getContext() {
+      try {
+        const res = await fetch(`${API}/dashboard/context`);
+        if (!res.ok) return null;
+        return await res.json();
+      } catch {
+        return null;
+      }
+    }
+
+    function renderUpgradeGate(requiredPlan, featureLabel) {
+      const main = document.querySelector("main.wrap");
+      if (!main) return;
+      main.innerHTML = `
+        <div style="max-width:780px;margin:6rem auto 0;border:1px solid #263556;border-radius:14px;background:#11182f;padding:1.4rem;">
+          <h1 style="font-size:1.5rem;margin-bottom:0.6rem;">${featureLabel} is locked on your current plan</h1>
+          <p style="color:#9aa8c6;margin-bottom:1rem;">Upgrade to <strong>${requiredPlan}</strong> to access this feature.</p>
+          <div style="display:flex;gap:0.6rem;flex-wrap:wrap;">
+            <a class="btn-link" href="/dashboard">Back to Dashboard</a>
+            <a class="btn-link active" href="/#pricing">View Plans</a>
+          </div>
+        </div>
+      `;
+    }
+
+    function planAtLeast(current, required) {
+      return PLAN_ORDER.indexOf(current) >= PLAN_ORDER.indexOf(required);
+    }
 
     function fmtTime(ts) { return ts ? new Date(ts * 1000).toLocaleString() : "-"; }
     function fmtDuration(ms) {
@@ -444,7 +482,23 @@
       document.getElementById("listView").style.display = "block";
     });
 
-    loadTraces();
+    async function initPage() {
+      const context = await getContext();
+      const plan = String((context && context.plan) || "free").toLowerCase();
+      const features = (context && context.features) || {};
+
+      if (!features.prompt_debugger) lockNavLink("navPromptDebugger", "Starter");
+      if (!features.compliance_gdpr) lockNavLink("navCompliance", "Scale");
+
+      if (!planAtLeast(plan, "team") || !features.agent_debugger) {
+        renderUpgradeGate("Team", "Agent Debugger");
+        return;
+      }
+
+      await loadTraces();
+    }
+
+    initPage();
   </script>
 </body>
 </html>

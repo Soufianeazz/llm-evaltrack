@@ -304,7 +304,7 @@
     .pricing {
       margin-top: 1.3rem;
       display: grid;
-      grid-template-columns: repeat(4, minmax(0, 1fr));
+      grid-template-columns: repeat(5, minmax(0, 1fr));
       gap: 0.85rem;
     }
     .plan {
@@ -406,7 +406,7 @@
       .hero { grid-template-columns: 1fr; }
       .grid-4 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
       .feature-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-      .pricing { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .pricing { grid-template-columns: repeat(3, minmax(0, 1fr)); }
     }
     @media (max-width: 760px) {
       .wrap { width: min(1180px, calc(100% - 1.4rem)); }
@@ -559,16 +559,27 @@
     <section class="section" id="pricing">
       <div class="kicker">Pricing</div>
       <h2>Simple tiers for team growth and enterprise rollout.</h2>
-      <p class="lead">Deploy the open core in your own environment or choose managed hosting with audit and support coverage. Advanced enterprise modules are available on paid plans. Starter, Team, and Scale use 12-month terms billed monthly. Prices exclude VAT.</p>
+      <p class="lead">Clear open-core packaging from free evaluation to enterprise rollout. Starter, Team, and Scale use 12-month terms billed monthly. Prices exclude VAT.</p>
       <div class="pricing">
+        <article class="plan">
+          <div class="name">Free</div>
+          <div class="price">EUR 0 <small>/ month</small></div>
+          <p>For evaluation and early integration.</p>
+          <ul>
+            <li>Ingest API</li>
+            <li>Basic stats (24h)</li>
+            <li>API-key project isolation</li>
+          </ul>
+          <a href="/app" class="btn btn-ghost">Start Free</a>
+        </article>
         <article class="plan">
           <div class="name">Starter</div>
           <div class="price">EUR 299 <small>/ month Â· 12-month term</small></div>
           <p>For one team shipping one AI product.</p>
           <ul>
+            <li>Everything in Free</li>
+            <li>Prompt Debugger</li>
             <li>Managed hosting</li>
-            <li>1M calls per month</li>
-            <li>Core observability stack</li>
             <li>12-month term, billed monthly</li>
           </ul>
           <a href="/billing/checkout/starter" class="btn btn-ghost">Get Started</a>
@@ -576,11 +587,11 @@
         <article class="plan featured">
           <div class="name">Team</div>
           <div class="price">EUR 999 <small>/ month Â· 12-month term</small></div>
-          <p>For EU teams that need procurement-ready controls.</p>
+          <p>For growing teams that need deeper operational control.</p>
           <ul>
-            <li>10M calls per month</li>
-            <li>DPA/AVV and compliance exports</li>
-            <li>Monthly review cadence</li>
+            <li>Everything in Starter</li>
+            <li>Agent Debugger</li>
+            <li>Advanced analytics</li>
             <li>12-month term, billed monthly</li>
           </ul>
           <a href="/billing/checkout/team" class="btn btn-primary">Start Team Plan</a>
@@ -588,11 +599,11 @@
         <article class="plan">
           <div class="name">Scale</div>
           <div class="price">EUR 2,999 <small>/ month Â· 12-month term</small></div>
-          <p>For multiple products and dedicated deployment support.</p>
+          <p>For multi-product operations with governance requirements.</p>
           <ul>
-            <li>50M calls per month</li>
-            <li>Dedicated instance</li>
-            <li>99.9% SLA path</li>
+            <li>Everything in Team</li>
+            <li>Compliance / GDPR workflows</li>
+            <li>Governance-ready controls</li>
             <li>12-month term, billed monthly</li>
           </ul>
           <a href="/billing/checkout/scale" class="btn btn-ghost">Start Scale Plan</a>
@@ -600,11 +611,11 @@
         <article class="plan">
           <div class="name">Enterprise</div>
           <div class="price">EUR 5,000+ <small>/ month</small></div>
-          <p>Private cloud or on-prem contracts with custom scope.</p>
+          <p>Private deployment and security-critical workloads.</p>
           <ul>
-            <li>Custom annual terms</li>
-            <li>Security package and reviews</li>
-            <li>Dedicated technical contact</li>
+            <li>Everything in Scale</li>
+            <li>Private deploy</li>
+            <li>SLA and security package</li>
           </ul>
           <a href="/book-demo?plan=enterprise&source=landing-pricing" class="btn btn-ghost">Plan Rollout</a>
         </article>
