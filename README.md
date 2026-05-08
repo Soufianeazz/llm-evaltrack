@@ -26,6 +26,12 @@ Starter, Team, and Scale run on 12-month terms billed monthly.
 Paid plans (Starter/Team/Scale/Enterprise) are managed-plan features with server-side entitlement checks.
 Qualified teams can request an official **14-day full-feature pilot** before committing to a paid tier.
 
+Commercial-first positioning:
+
+- Open-core for evaluation
+- Paid plans for production operations
+- Entitlements enforced server-side per plan
+
 ---
 
 ## Why AgentLens
@@ -39,6 +45,16 @@ AgentLens gives you:
 - Agent waterfall debugging with span-level visibility
 - Cost and budget observability
 - Compliance export, retention, and audit logs
+
+## FAQ: Why pay if core code is public?
+
+The public core is intentionally limited to evaluation and integration speed.
+Paid plans cover production reliability and accountability:
+
+- Managed operation and updates
+- SLA-backed support response
+- Security package for enterprise procurement
+- Server-side gated advanced capabilities (Prompt Debugger, Agent Debugger, advanced analytics, compliance workflows)
 
 ---
 
