@@ -130,6 +130,18 @@ Use [agentlens.one](https://www.agentlens.one) for managed rollout, buyer-ready 
 
 ---
 
+## Operations Notes
+
+- Source of truth and deploy path: [docs/SOURCE_OF_TRUTH.md](docs/SOURCE_OF_TRUTH.md)
+- Pre-call deploy checklist: [docs/DEPLOY_CHECKLIST_PRECALL.md](docs/DEPLOY_CHECKLIST_PRECALL.md)
+- Smoke tests after deploy: [docs/SMOKE_TEST_RUNBOOK.md](docs/SMOKE_TEST_RUNBOOK.md)
+
+Recommended env hardening:
+
+- `CORS_ALLOWED_ORIGINS=https://www.agentlens.one,https://agentlens.one`
+
+---
+
 ## Legacy Code Snapshot
 
 Earlier public snapshots remain available in repository history and tags. The active product direction is now **open core**.

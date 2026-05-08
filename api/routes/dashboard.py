@@ -216,6 +216,7 @@ async def worst_responses(
 async def quality_trend(
     db: AsyncSession = Depends(get_session),
     api_key: str = Depends(require_api_key),
+    _feature: object = Depends(require_feature("basic_stats_24h")),
 ):
     sql = text(
         """
@@ -357,6 +358,7 @@ async def cost_quality_correlation(
 async def overview_stats(
     db: AsyncSession = Depends(get_session),
     api_key: str = Depends(require_api_key),
+    _feature: object = Depends(require_feature("basic_stats_24h")),
 ):
     now = time.monotonic()
     cached = _stats_cache.get(api_key)

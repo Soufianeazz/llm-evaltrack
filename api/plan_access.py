@@ -10,6 +10,7 @@ from storage.database import get_session
 from storage.models import CustomerAccount
 
 PLAN_ALIAS = {
+    "demo": "enterprise",
     "pilot": "enterprise",
     "pilot14": "enterprise",
     "pilot_14": "enterprise",
@@ -112,8 +113,12 @@ async def resolve_plan_context(
             raise HTTPException(status_code=403, detail=f"Access blocked: {reason}")
         raw_plan = (account.plan or raw_plan or "free").lower()
     else:
-        # Public/unmanaged keys remain on free core capabilities.
-        raw_plan = "free"
+        # Public/unmanaged keys default to free, except demo keys that are
+        # intentionally provisioned for full click-through previews.
+        if (raw_plan or "").lower() in {"demo", "preview", "demo_full"}:
+            raw_plan = "demo"
+        else:
+            raw_plan = "free"
 
     plan = normalize_plan(raw_plan)
     features = PLAN_FEATURES.get(plan, PLAN_FEATURES["free"])
