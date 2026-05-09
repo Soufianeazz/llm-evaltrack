@@ -1,0 +1,61 @@
+name: Pilot Pulse
+
+# Daily status + pre-call briefings for the VeritasGraph 14-day pilot.
+# Sends to OPS_EMAIL via SendGrid; uses Claude for talking points (with fallback).
+#
+# Schedule (UTC; CET is UTC+1, CEST is UTC+2):
+#   06:00 UTC every day        → daily pulse                          ≈ 08:00 CET
+#   17:00 UTC Mon, Thu          → pre-call brief for Tue 16/Fri 11 CET ≈ 19:00 CET
+
+on:
+  schedule:
+    - cron: '0 6 * * *'      # daily pulse
+    - cron: '0 17 * * 1,4'   # pre-call: Mon and Thu evenings
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: 'daily | pre-call'
+        required: true
+        default: 'daily'
+
+permissions:
+  contents: read
+
+jobs:
+  pulse:
+    runs-on: ubuntu-latest
+    concurrency:
+      group: pilot-pulse-${{ github.event.schedule || github.event.inputs.mode }}
+      cancel-in-progress: false
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: 'pip'
+
+      - name: Install dependencies
+        run: pip install anthropic sendgrid tzdata
+
+      - name: Determine mode
+        id: mode
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "mode=${{ github.event.inputs.mode }}" >> "$GITHUB_OUTPUT"
+          elif [ "${{ github.event.schedule }}" = "0 17 * * 1,4" ]; then
+            echo "mode=pre-call" >> "$GITHUB_OUTPUT"
+          else
+            echo "mode=daily" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Run pilot pulse
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          SENDGRID_API_KEY: ${{ secrets.SENDGRID_API_KEY }}
+          SENDER_EMAIL: ${{ secrets.SENDER_EMAIL }}
+          OPS_EMAIL: ${{ secrets.OPS_EMAIL }}
+        run: python agents/pilot_pulse.py --mode ${{ steps.mode.outputs.mode }}

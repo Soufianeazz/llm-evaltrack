@@ -1,0 +1,50 @@
+name: Backup Runner
+
+# Weekly Sunday 03:00 UTC: pull a SQLite snapshot from agentlens.one and attach
+# it as a GitHub Actions artifact (retained 90 days). Off-Railway DR copy.
+
+on:
+  schedule:
+    - cron: '0 3 * * 0'    # Sundays 03:00 UTC
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: backup-runner
+  cancel-in-progress: false
+
+jobs:
+  backup:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Pull production snapshot
+        env:
+          AGENTLENS_URL: https://www.agentlens.one
+          ADMIN_TOKEN: ${{ secrets.ADMIN_TOKEN }}
+          BACKUP_OUTPUT: backup.db
+        run: python agents/backup_runner.py
+
+      - name: Compute artifact name
+        id: name
+        run: echo "value=agentlens-backup-$(date -u +%Y-%m-%d)" >> "$GITHUB_OUTPUT"
+
+      - name: Upload snapshot artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ steps.name.outputs.value }}
+          path: backup.db
+          retention-days: 90
+          if-no-files-found: error
+
+      - name: Cleanup local file
+        if: always()
+        run: rm -f backup.db

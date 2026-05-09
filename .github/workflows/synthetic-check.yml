@@ -1,0 +1,42 @@
+name: Synthetic Check
+
+# Hourly: exercise 6 user-facing endpoints on agentlens.one with the public demo key.
+# Opens / closes a GitHub Issue (label `incident:errors`) if 5xx + network errors exceed 20%.
+
+on:
+  schedule:
+    - cron: '17 * * * *'   # 17 minutes past every hour (offset from uptime-watcher to spread load)
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+
+concurrency:
+  group: synthetic-check
+  cancel-in-progress: false
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 4
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install minimal deps
+        run: pip install sendgrid
+
+      - name: Run synthetic probes
+        env:
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          AGENTLENS_URL: https://www.agentlens.one
+          AGENTLENS_DEMO_KEY: al_demo_agentlens
+          SENDGRID_API_KEY: ${{ secrets.SENDGRID_API_KEY }}
+          SENDER_EMAIL: ${{ secrets.SENDER_EMAIL }}
+          OPS_EMAIL: ${{ secrets.OPS_EMAIL }}
+        run: python agents/synthetic_check.py

@@ -1,0 +1,33 @@
+name: Demo Freshness Keeper
+
+# Daily 06:30 UTC: top up demo data on agentlens.one so visitors always see
+# a lively dashboard. Calls the idempotent /admin/seed-demo endpoint.
+
+on:
+  schedule:
+    - cron: '30 6 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: demo-freshness
+  cancel-in-progress: false
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Run demo freshness agent
+        env:
+          AGENTLENS_URL: https://www.agentlens.one
+          ADMIN_TOKEN: ${{ secrets.ADMIN_TOKEN }}
+        run: python agents/demo_freshness.py

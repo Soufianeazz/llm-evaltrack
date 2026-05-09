@@ -1,0 +1,39 @@
+name: Pilot Instance Pulse
+
+# Twice a day (07:00 + 19:00 UTC): server-side pings opt-in healthcheck URLs
+# of registered pilot self-host instances. Emails Soufian on failures.
+
+on:
+  schedule:
+    - cron: '0 7,19 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: pilot-instance-pulse
+  cancel-in-progress: false
+
+jobs:
+  pulse:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install minimal deps
+        run: pip install sendgrid
+
+      - name: Run pilot instance pulse
+        env:
+          AGENTLENS_URL: https://www.agentlens.one
+          ADMIN_TOKEN: ${{ secrets.ADMIN_TOKEN }}
+          SENDGRID_API_KEY: ${{ secrets.SENDGRID_API_KEY }}
+          SENDER_EMAIL: ${{ secrets.SENDER_EMAIL }}
+          OPS_EMAIL: ${{ secrets.OPS_EMAIL }}
+        run: python agents/pilot_instance_pulse.py

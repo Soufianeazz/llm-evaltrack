@@ -10,7 +10,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from api.admin_auth import require_admin_token
 from storage.database import SessionFactory, get_session
-from storage.models import ApiKey, AuditLog, Evaluation, Request, Span, Trace
+from storage.models import ApiKey, AuditLog, Evaluation, Request, SelfHostInstance, Span, Trace
 
 router = APIRouter(prefix="/admin")
 
@@ -358,3 +358,143 @@ async def seed_demo(
     result = await _do_seed_demo(db)
     await _audit(db, "admin_seed_demo", f"status={result.get('status')} requests={result.get('requests', result.get('requests_total'))}")
     return result
+
+
+@router.post("/pilot-pulse")
+async def pilot_pulse(
+    _admin: None = Depends(require_admin_token),
+    db: AsyncSession = Depends(get_session),
+):
+    """
+    Pings opt-in healthcheck URLs of registered pilot self-host instances.
+    Updates `last_pinged_at` on success. Returns a per-instance report.
+
+    Read-only on the customer side (HTTP GET). Only instances that explicitly
+    opted in by setting `healthcheck_url` are touched.
+    """
+    import asyncio
+    import httpx as _httpx
+
+    result = await db.execute(
+        select(SelfHostInstance).where(
+            SelfHostInstance.pilot == True,  # noqa: E712 — SQLAlchemy comparison
+            SelfHostInstance.healthcheck_url.isnot(None),
+        )
+    )
+    instances = result.scalars().all()
+
+    if not instances:
+        return {"checked": 0, "results": []}
+
+    async def _probe(client: _httpx.AsyncClient, inst: SelfHostInstance) -> dict:
+        url = inst.healthcheck_url
+        out: dict[str, object] = {
+            "instance_id": inst.id,
+            "label": inst.label,
+            "url": url,
+        }
+        try:
+            r = await client.get(url, timeout=8)
+            out["ok"] = 200 <= r.status_code < 300
+            out["status"] = r.status_code
+        except Exception as exc:  # noqa: BLE001
+            out["ok"] = False
+            out["status"] = None
+            out["error"] = f"{type(exc).__name__}: {str(exc)[:100]}"
+        return out
+
+    async with _httpx.AsyncClient(follow_redirects=True) as client:
+        results = await asyncio.gather(*[_probe(client, i) for i in instances])
+
+    now = time.time()
+    for inst, res in zip(instances, results):
+        if res.get("ok"):
+            inst.last_pinged_at = now
+    await db.commit()
+    await _audit(
+        db,
+        "admin_pilot_pulse",
+        f"checked={len(results)} healthy={sum(1 for r in results if r.get('ok'))}",
+    )
+    return {"checked": len(results), "results": results, "timestamp": now}
+
+
+@router.post("/backup/snapshot")
+async def backup_snapshot(
+    _admin: None = Depends(require_admin_token),
+    db: AsyncSession = Depends(get_session),
+):
+    """
+    Returns a clean SQLite snapshot of the live database.
+
+    Uses the SQLite Backup API (`connection.backup`) which produces a consistent
+    copy even while writes are in flight — safer than `cp` of a hot DB file.
+
+    Read-only on the source DB. Available to:
+      - Our Railway production for weekly off-site backups (volume-backup-runner agent).
+      - Self-host customers (Bibin) who want their own backups via their admin token.
+    """
+    import asyncio
+    import shutil
+    import sqlite3
+    import tempfile
+    import time as _time
+    from pathlib import Path
+
+    from fastapi import HTTPException
+    from sqlalchemy.engine.url import make_url
+    from starlette.background import BackgroundTask
+    from starlette.responses import FileResponse
+
+    from storage.database import DATABASE_URL
+
+    # Only support SQLite — other backends would need a different mechanism.
+    if "sqlite" not in DATABASE_URL.lower():
+        raise HTTPException(status_code=400, detail="Backup endpoint only supports SQLite databases.")
+
+    try:
+        url = make_url(DATABASE_URL)
+    except Exception as exc:  # noqa: BLE001
+        raise HTTPException(status_code=500, detail=f"Cannot parse DATABASE_URL: {exc}") from exc
+
+    db_path_str = url.database or ""
+    # Resolve relative paths against current working directory (which the API runs in).
+    db_path = Path(db_path_str)
+    if not db_path.is_absolute():
+        db_path = Path.cwd() / db_path
+
+    if not db_path.exists():
+        raise HTTPException(
+            status_code=500,
+            detail=f"Database file not found at expected path: {db_path}",
+        )
+
+    tmp_dir = Path(tempfile.mkdtemp(prefix="agentlens-backup-"))
+    ts = _time.strftime("%Y%m%dT%H%M%SZ", _time.gmtime())
+    snap_path = tmp_dir / f"agentlens-{ts}.db"
+
+    def _do_backup() -> None:
+        src = sqlite3.connect(str(db_path))
+        dst = sqlite3.connect(str(snap_path))
+        try:
+            src.backup(dst)
+        finally:
+            dst.close()
+            src.close()
+
+    try:
+        await asyncio.to_thread(_do_backup)
+    except Exception as exc:  # noqa: BLE001
+        shutil.rmtree(tmp_dir, ignore_errors=True)
+        raise HTTPException(status_code=500, detail=f"Backup failed: {exc}") from exc
+
+    # Audit AFTER backup succeeds — failed backups should not leave a misleading log.
+    size_bytes = snap_path.stat().st_size
+    await _audit(db, "admin_backup_snapshot", f"size_bytes={size_bytes} file={snap_path.name}")
+
+    return FileResponse(
+        str(snap_path),
+        media_type="application/octet-stream",
+        filename=snap_path.name,
+        background=BackgroundTask(shutil.rmtree, str(tmp_dir), ignore_errors=True),
+    )

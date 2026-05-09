@@ -1,0 +1,42 @@
+name: Uptime Watcher
+
+# Pings agentlens.one/healthz every 5 minutes.
+# Opens / closes a GitHub Issue with label `incident:uptime` as state.
+# Emails Soufian on incident open and on recovery (if downtime ≥ 2 min).
+
+on:
+  schedule:
+    - cron: '*/5 * * * *'   # every 5 minutes
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+
+concurrency:
+  group: uptime-watcher
+  cancel-in-progress: false
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install minimal deps
+        run: pip install sendgrid
+
+      - name: Run uptime probe
+        env:
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          AGENTLENS_URL: https://www.agentlens.one
+          SENDGRID_API_KEY: ${{ secrets.SENDGRID_API_KEY }}
+          SENDER_EMAIL: ${{ secrets.SENDER_EMAIL }}
+          OPS_EMAIL: ${{ secrets.OPS_EMAIL }}
+        run: python agents/uptime_watcher.py
