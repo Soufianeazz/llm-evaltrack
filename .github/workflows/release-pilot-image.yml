@@ -1,0 +1,142 @@
+name: Release Pilot Image
+
+# Builds the AgentLens self-host image, runs end-to-end smoke tests inside CI,
+# and only pushes to GHCR if every test passes. This is the gate that protects
+# pilot customers (Bibin & later) from broken images.
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'api/**'
+      - 'agentlens/**'
+      - 'evaluation/**'
+      - 'pipeline/**'
+      - 'storage/**'
+      - 'dashboard/**'
+      - 'tests/e2e/**'
+      - 'requirements.txt'
+      - 'Dockerfile'
+      - '.dockerignore'
+      - '.github/workflows/release-pilot-image.yml'
+  workflow_dispatch:
+    inputs:
+      pilot_tag:
+        description: 'Optional explicit pilot tag, e.g. pilot-2026.05.12'
+        required: false
+
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  build-and-smoke-test:
+    runs-on: ubuntu-latest
+    outputs:
+      image_owner: ${{ steps.repo.outputs.owner }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Lowercase repo owner (GHCR requires lowercase)
+        id: repo
+        run: echo "owner=$(echo '${{ github.repository_owner }}' | tr '[:upper:]' '[:lower:]')" >> "$GITHUB_OUTPUT"
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install smoke-test deps
+        run: pip install requests
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build image (load locally for testing)
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: false
+          load: true
+          tags: agentlens:smoke
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Generate ADMIN_TOKEN for smoke test
+        id: token
+        run: echo "value=$(openssl rand -hex 32)" >> "$GITHUB_OUTPUT"
+
+      - name: Start container under test
+        run: |
+          docker run -d --name al-smoke \
+            -p 8000:8000 \
+            -e AGENTLENS_AIRGAP=1 \
+            -e ADMIN_TOKEN="${{ steps.token.outputs.value }}" \
+            agentlens:smoke
+
+      - name: Run smoke tests
+        env:
+          AGENTLENS_BASE: http://localhost:8000
+          ADMIN_TOKEN: ${{ steps.token.outputs.value }}
+          AGENTLENS_HEALTH_TIMEOUT: '90'
+        run: python tests/e2e/pilot_smoke_test.py
+
+      - name: Container logs (always — for debugging)
+        if: always()
+        run: docker logs al-smoke 2>&1 || true
+
+      - name: Cleanup
+        if: always()
+        run: |
+          docker stop al-smoke 2>/dev/null || true
+          docker rm   al-smoke 2>/dev/null || true
+
+  release:
+    needs: build-and-smoke-test
+    if: github.ref == 'refs/heads/main' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Lowercase repo owner
+        id: repo
+        run: echo "owner=$(echo '${{ github.repository_owner }}' | tr '[:upper:]' '[:lower:]')" >> "$GITHUB_OUTPUT"
+
+      - name: Compute tags
+        id: tags
+        run: |
+          OWNER='${{ steps.repo.outputs.owner }}'
+          BASE="ghcr.io/${OWNER}/agentlens"
+          DATE_TAG="pilot-$(date -u +%Y.%m.%d)"
+          SHA_TAG="sha-$(git rev-parse --short HEAD)"
+          PILOT_OVERRIDE='${{ github.event.inputs.pilot_tag }}'
+
+          TAGS="${BASE}:latest,${BASE}:pilot-latest,${BASE}:${DATE_TAG},${BASE}:${SHA_TAG}"
+          if [ -n "$PILOT_OVERRIDE" ]; then
+            TAGS="${TAGS},${BASE}:${PILOT_OVERRIDE}"
+          fi
+          echo "value=${TAGS}" >> "$GITHUB_OUTPUT"
+          echo "Image tags will be:"
+          echo "${TAGS}" | tr ',' '\n' | sed 's/^/  - /'
+
+      - name: Login to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build & push (smoke-tested)
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: true
+          tags: ${{ steps.tags.outputs.value }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
