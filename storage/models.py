@@ -160,3 +160,21 @@ class Evaluation(Base):
     score_explanation = Column(Text)
 
     request = relationship("Request", back_populates="evaluation")
+
+
+class SelfHostInstance(Base):
+    """
+    Tracking record for a customer's self-hosted AgentLens deployment.
+    Only metadata lives here (label, when registered, opt-in healthcheck).
+    The customer's actual data NEVER touches this row — it stays on their host.
+    """
+    __tablename__ = "self_host_instances"
+
+    id = Column(String, primary_key=True)
+    api_key = Column(String, nullable=False, index=True)  # tenant key from agentlens.one
+    label = Column(String, nullable=False)                # e.g. "veritasgraph-prod"
+    pilot = Column(Boolean, default=False)                # is this a 14-day pilot instance?
+    registered_at = Column(Float, nullable=False, index=True)
+    last_pinged_at = Column(Float, nullable=True)         # only if customer opts into healthcheck
+    healthcheck_url = Column(String, nullable=True)       # opt-in: customer's own URL we can ping
+    notes = Column(Text, nullable=True)                   # free-form, e.g. "Linux Ubuntu 22.04, 1vCPU"

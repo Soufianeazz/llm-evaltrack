@@ -17,6 +17,9 @@ build/
 .env
 .env.*
 *.env
+# …but keep example/template files in the repo.
+!.env.example
+!.env.*.example
 
 # Credentials
 .pypirc

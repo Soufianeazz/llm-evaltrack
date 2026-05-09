@@ -74,11 +74,20 @@ def _heuristic_evaluate(input_: str, output: str, prompt: str) -> dict:
     }
 
 
+def _airgap_enabled() -> bool:
+    """When AGENTLENS_AIRGAP=1, the LLM judge is forcibly disabled — heuristics only."""
+    return os.environ.get("AGENTLENS_AIRGAP", "").strip() in ("1", "true", "True", "yes")
+
+
 def evaluate_request(input_: str, output: str, prompt: str) -> dict:
     """
     Evaluate an LLM response.
     Uses Claude as judge when ANTHROPIC_API_KEY is available, otherwise heuristics.
+    Air-gap mode (AGENTLENS_AIRGAP=1) forces heuristics regardless of API key.
     """
+    if _airgap_enabled():
+        return _heuristic_evaluate(input_, output, prompt)
+
     has_key = os.environ.get("ANTHROPIC_API_KEY") or os.environ.get("anthropic-api-key")
     if has_key and _judge_allowed():
         try:

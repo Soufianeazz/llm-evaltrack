@@ -35,6 +35,7 @@ from api.routes.waitlist import router as waitlist_router
 from api.routes.demo import router as demo_router
 from api.routes.admin import router as admin_router, seed_demo_on_startup
 from api.routes.portal_auth import router as portal_auth_router, admin_router as portal_admin_router
+from api.routes.self_host import router as self_host_router
 from pipeline.worker import start_worker, stop_worker
 from storage.database import init_db
 
@@ -114,6 +115,7 @@ app.include_router(demo_router)
 app.include_router(admin_router)
 app.include_router(portal_auth_router)
 app.include_router(portal_admin_router)
+app.include_router(self_host_router)
 
 
 # Public entry point: landing page. Dashboard moves to /dashboard.
@@ -176,6 +178,48 @@ async def book_demo():
 @app.get("/app", include_in_schema=False)
 async def app_portal():
     return FileResponse("dashboard/app.html")
+
+
+@app.get("/app/deploy", include_in_schema=False)
+async def app_deploy():
+    """Customer-facing 'Deploy your instance' page (requires login client-side)."""
+    return FileResponse("dashboard/deploy.html")
+
+
+@app.get("/install", include_in_schema=False)
+async def install_script():
+    """Serves the self-host installer. Used by:  curl -fsSL https://www.agentlens.one/install | bash"""
+    return FileResponse(
+        "scripts/install.sh",
+        media_type="text/plain; charset=utf-8",
+        headers={
+            "Cache-Control": "no-store",
+            "Content-Disposition": "inline; filename=install.sh",
+        },
+    )
+
+
+@app.get("/install.sh", include_in_schema=False)
+async def install_script_sh():
+    return await install_script()
+
+
+@app.get("/uninstall", include_in_schema=False)
+async def uninstall_script():
+    """Serves the self-host uninstaller. Usage:  curl -fsSL https://www.agentlens.one/uninstall | bash"""
+    return FileResponse(
+        "scripts/uninstall.sh",
+        media_type="text/plain; charset=utf-8",
+        headers={
+            "Cache-Control": "no-store",
+            "Content-Disposition": "inline; filename=uninstall.sh",
+        },
+    )
+
+
+@app.get("/uninstall.sh", include_in_schema=False)
+async def uninstall_script_sh():
+    return await uninstall_script()
 
 
 @app.get("/case-study", include_in_schema=False)

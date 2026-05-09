@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AgentLens | Deploy Your Instance</title>
+  <link rel="icon" href="/logo.svg" type="image/svg+xml" />
+  <style>
+    :root {
+      --bg: #f4f7fb;
+      --card: #ffffff;
+      --text: #0f172a;
+      --muted: #475569;
+      --line: #d9e3ee;
+      --primary: #0f766e;
+      --primary-ink: #ecfeff;
+      --code-bg: #0f172a;
+      --code-text: #e2e8f0;
+      --code-accent: #5eead4;
+      --danger: #b91c1c;
+      --ok: #166534;
+      --warn-bg: #fef3c7;
+      --warn-line: #f59e0b;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      min-height: 100vh;
+      font-family: "Segoe UI Variable", "Segoe UI", "Trebuchet MS", sans-serif;
+      background: radial-gradient(1200px 440px at 0% -10%, #dceafe 0%, transparent 60%), var(--bg);
+      color: var(--text);
+      padding: 32px 18px 64px;
+    }
+    .wrap { max-width: 820px; margin: 0 auto; }
+    header {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 28px;
+    }
+    header .brand { display: flex; align-items: center; gap: 10px; font-weight: 600; }
+    header .brand img { width: 28px; height: 28px; }
+    header nav a {
+      color: var(--muted); text-decoration: none; margin-left: 16px; font-size: 14px;
+    }
+    header nav a:hover { color: var(--primary); }
+    h1 { font-size: 28px; margin-bottom: 6px; }
+    .lead { color: var(--muted); font-size: 15px; margin-bottom: 24px; }
+    .panel {
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      background: var(--card);
+      padding: 20px 24px;
+      box-shadow: 0 14px 30px rgba(15, 23, 42, 0.06);
+      margin-bottom: 18px;
+    }
+    .step-num {
+      display: inline-block;
+      width: 24px; height: 24px; line-height: 24px; text-align: center;
+      background: var(--primary); color: var(--primary-ink);
+      border-radius: 50%; font-size: 13px; font-weight: 600;
+      margin-right: 8px;
+    }
+    h2 { font-size: 18px; margin-bottom: 10px; display: flex; align-items: center; }
+    .help { color: var(--muted); font-size: 14px; margin: 6px 0 14px; }
+    .codeblock {
+      position: relative;
+      background: var(--code-bg);
+      color: var(--code-text);
+      border-radius: 10px;
+      padding: 16px 60px 16px 16px;
+      font-family: "JetBrains Mono", Menlo, Consolas, monospace;
+      font-size: 13.5px;
+      overflow-x: auto;
+      white-space: pre;
+      line-height: 1.55;
+    }
+    .codeblock .accent { color: var(--code-accent); }
+    .copy-btn {
+      position: absolute;
+      top: 10px; right: 10px;
+      background: rgba(255, 255, 255, 0.08);
+      color: var(--code-text);
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      border-radius: 6px;
+      padding: 5px 10px;
+      font-size: 12px;
+      cursor: pointer;
+    }
+    .copy-btn:hover { background: rgba(255, 255, 255, 0.14); }
+    .copy-btn.ok { color: var(--code-accent); border-color: var(--code-accent); }
+    label { display: block; font-size: 13px; font-weight: 600; margin: 10px 0 4px; color: var(--muted); }
+    input[type=text], input[type=url], textarea {
+      width: 100%;
+      padding: 10px 12px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      font: inherit;
+      font-size: 14px;
+      background: white;
+    }
+    textarea { min-height: 70px; resize: vertical; }
+    .row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .checkbox-row { display: flex; align-items: center; gap: 8px; margin: 12px 0; }
+    button.primary {
+      background: var(--primary);
+      color: var(--primary-ink);
+      border: none;
+      border-radius: 8px;
+      padding: 10px 18px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      margin-top: 12px;
+    }
+    button.primary:hover { background: #115e59; }
+    button.primary:disabled { background: var(--muted); cursor: not-allowed; }
+    button.danger-link {
+      background: none; border: none; color: var(--danger);
+      cursor: pointer; font-size: 13px; padding: 0;
+    }
+    button.danger-link:hover { text-decoration: underline; }
+    .msg { font-size: 13px; margin-top: 8px; }
+    .msg.ok { color: var(--ok); }
+    .msg.err { color: var(--danger); }
+    .instance-card {
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 12px 14px;
+      margin-bottom: 10px;
+      display: flex; align-items: center; justify-content: space-between;
+      gap: 12px;
+    }
+    .instance-card .meta { font-size: 12px; color: var(--muted); margin-top: 4px; }
+    .pill {
+      display: inline-block;
+      background: #ecfeff;
+      color: var(--primary);
+      border: 1px solid #99f6e4;
+      border-radius: 999px;
+      padding: 1px 8px;
+      font-size: 11px;
+      font-weight: 600;
+      margin-left: 6px;
+      vertical-align: middle;
+    }
+    .empty {
+      text-align: center; padding: 24px; color: var(--muted); font-size: 14px;
+    }
+    .airgap-banner {
+      background: var(--warn-bg);
+      border: 1px solid var(--warn-line);
+      border-radius: 10px;
+      padding: 12px 16px;
+      font-size: 13px;
+      color: #78350f;
+      margin-bottom: 18px;
+    }
+    .hide { display: none; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <div class="brand">
+        <img src="/logo.svg" alt="" />
+        <span>AgentLens</span>
+      </div>
+      <nav>
+        <a href="/dashboard">Dashboard</a>
+        <a href="/app/deploy">Deploy</a>
+        <a href="/" id="logout-link">Sign out</a>
+      </nav>
+    </header>
+
+    <h1>Deploy your AgentLens instance</h1>
+    <p class="lead">
+      Run AgentLens on your own infrastructure. Your LLM data never leaves your network.
+      This page only stores deployment metadata (label, registered date) — never your traces.
+    </p>
+
+    <div class="airgap-banner">
+      <strong>Air-gap mode is enabled by default.</strong> The container makes zero outbound
+      calls to Anthropic, Stripe, Resend, or any third-party. Verify with
+      <code>tcpdump -i any 'not port 8000'</code> after install.
+    </div>
+
+    <!-- ── Step 1: install ──────────────────────────────────────────────── -->
+    <div class="panel">
+      <h2><span class="step-num">1</span>Run the installer on your Linux host</h2>
+      <p class="help">
+        One command. Pulls a smoke-tested image from GitHub Container Registry, generates
+        a strong admin token locally, starts the container, and prints your tenant API key.
+      </p>
+      <div class="codeblock">
+<span class="accent">curl</span> -fsSL https://www.agentlens.one/install | <span class="accent">bash</span>
+        <button class="copy-btn" data-copy="curl -fsSL https://www.agentlens.one/install | bash">Copy</button>
+      </div>
+      <p class="help" style="margin-top: 14px;">
+        Want to pin a label or port? Pass via env:
+      </p>
+      <div class="codeblock">
+<span class="accent">AGENTLENS_LABEL</span>=veritasgraph <span class="accent">AGENTLENS_PORT</span>=8000 \
+  <span class="accent">curl</span> -fsSL https://www.agentlens.one/install | <span class="accent">bash</span>
+        <button class="copy-btn" data-copy="AGENTLENS_LABEL=veritasgraph AGENTLENS_PORT=8000 curl -fsSL https://www.agentlens.one/install | bash">Copy</button>
+      </div>
+    </div>
+
+    <!-- ── Step 2: register ─────────────────────────────────────────────── -->
+    <div class="panel">
+      <h2><span class="step-num">2</span>Register this deployment</h2>
+      <p class="help">
+        Lets us track that your instance was deployed (for pilot support, not data access).
+        Register one entry per host you run AgentLens on.
+      </p>
+      <form id="register-form">
+        <div class="row-2">
+          <div>
+            <label for="reg-label">Label</label>
+            <input id="reg-label" type="text" placeholder="veritasgraph-prod" required maxlength="120" />
+          </div>
+          <div>
+            <label for="reg-healthcheck">Healthcheck URL (optional)</label>
+            <input id="reg-healthcheck" type="url" placeholder="https://your-host:8000/healthz" />
+          </div>
+        </div>
+        <label for="reg-notes">Notes (optional)</label>
+        <textarea id="reg-notes" placeholder="Linux Ubuntu 22.04 / 1 vCPU / for VeritasGraph workflow" maxlength="2000"></textarea>
+        <div class="checkbox-row">
+          <input type="checkbox" id="reg-pilot" />
+          <label for="reg-pilot" style="margin: 0;">This is a 14-day pilot deployment</label>
+        </div>
+        <button type="submit" class="primary">Register instance</button>
+        <p class="msg" id="reg-msg"></p>
+      </form>
+    </div>
+
+    <!-- ── Step 3: SDK snippet ──────────────────────────────────────────── -->
+    <div class="panel">
+      <h2><span class="step-num">3</span>Add to your code</h2>
+      <p class="help">
+        Use the API key the installer printed at the end of step&nbsp;1 (not the agentlens.one
+        portal key — they're separate by design).
+      </p>
+      <div class="codeblock">
+<span class="accent">import</span> agentlens
+
+agentlens.init(
+    api_url=<span class="accent">"http://&lt;your-host&gt;:8000/ingest"</span>,
+    api_key=<span class="accent">"al_xxx_from_installer_output"</span>,
+)
+agentlens.patch_openai()  <span class="accent"># also covers Ollama (OpenAI-compatible)</span>
+        <button class="copy-btn" data-copy='import agentlens
+
+agentlens.init(
+    api_url="http://&lt;your-host&gt;:8000/ingest",
+    api_key="al_xxx_from_installer_output",
+)
+agentlens.patch_openai()'>Copy</button>
+      </div>
+      <p class="help" style="margin-top: 14px;">
+        For multi-step workflows (GraphRAG, reasoning chains), use <code>trace_agent()</code>:
+      </p>
+      <div class="codeblock">
+<span class="accent">from</span> agentlens <span class="accent">import</span> trace_agent
+
+<span class="accent">with</span> trace_agent(<span class="accent">"veritasgraph_query"</span>, input=user_question) <span class="accent">as</span> t:
+    <span class="accent">with</span> t.span(<span class="accent">"retrieve"</span>, span_type=<span class="accent">"retrieval"</span>) <span class="accent">as</span> s:
+        s.set_output(<span class="accent">f"{len(passages)} passages"</span>)
+    <span class="accent">with</span> t.span(<span class="accent">"synthesize"</span>, span_type=<span class="accent">"llm"</span>, model=<span class="accent">"llama3.1"</span>) <span class="accent">as</span> s:
+        s.set_output(answer)
+        s.set_tokens(usage.total_tokens)
+    t.set_output(answer)
+        <button class="copy-btn" data-copy='from agentlens import trace_agent
+
+with trace_agent("veritasgraph_query", input=user_question) as t:
+    with t.span("retrieve", span_type="retrieval") as s:
+        s.set_output(f"{len(passages)} passages")
+    with t.span("synthesize", span_type="llm", model="llama3.1") as s:
+        s.set_output(answer)
+        s.set_tokens(usage.total_tokens)
+    t.set_output(answer)'>Copy</button>
+      </div>
+    </div>
+
+    <!-- ── Registered instances ────────────────────────────────────────── -->
+    <div class="panel">
+      <h2 style="margin-bottom: 14px;">Your registered instances</h2>
+      <div id="instance-list">
+        <div class="empty">Loading…</div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const STORAGE_KEY = "agentlens_api_key";
+    const apiKey = localStorage.getItem(STORAGE_KEY);
+
+    if (!apiKey) {
+      // Not signed in — bounce to login.
+      window.location.href = "/app";
+    }
+
+    const authHeaders = { "X-API-Key": apiKey, "Content-Type": "application/json" };
+
+    // ── Copy buttons ────────────────────────────────────────────────────
+    document.querySelectorAll(".copy-btn").forEach((btn) => {
+      btn.addEventListener("click", async () => {
+        const text = btn.dataset.copy;
+        try {
+          await navigator.clipboard.writeText(text);
+          const original = btn.textContent;
+          btn.textContent = "Copied ✓";
+          btn.classList.add("ok");
+          setTimeout(() => { btn.textContent = original; btn.classList.remove("ok"); }, 1600);
+        } catch (_) {
+          btn.textContent = "Copy failed";
+        }
+      });
+    });
+
+    // ── Sign out ────────────────────────────────────────────────────────
+    document.getElementById("logout-link").addEventListener("click", (e) => {
+      e.preventDefault();
+      localStorage.removeItem(STORAGE_KEY);
+      window.location.href = "/app";
+    });
+
+    // ── Format helpers ──────────────────────────────────────────────────
+    function fmtDate(epoch) {
+      if (!epoch) return "—";
+      return new Date(epoch * 1000).toLocaleString();
+    }
+
+    // ── Load + render instance list ─────────────────────────────────────
+    async function loadInstances() {
+      const listEl = document.getElementById("instance-list");
+      try {
+        const r = await fetch("/portal/instances", { headers: authHeaders });
+        if (r.status === 401 || r.status === 403) {
+          localStorage.removeItem(STORAGE_KEY);
+          window.location.href = "/app";
+          return;
+        }
+        const data = await r.json();
+        const items = data.instances || [];
+        if (items.length === 0) {
+          listEl.innerHTML = '<div class="empty">No instances registered yet. Run the installer above, then register.</div>';
+          return;
+        }
+        listEl.innerHTML = items.map((i) => `
+          <div class="instance-card">
+            <div>
+              <div>
+                <strong>${escapeHtml(i.label)}</strong>
+                ${i.pilot ? '<span class="pill">14-day pilot</span>' : ''}
+              </div>
+              <div class="meta">
+                Registered ${fmtDate(i.registered_at)}
+                · Key ${escapeHtml(i.api_key_masked || '')}
+                ${i.healthcheck_url ? `· Health: <a href="${escapeAttr(i.healthcheck_url)}" target="_blank" rel="noopener">${escapeHtml(i.healthcheck_url)}</a>` : ''}
+              </div>
+              ${i.notes ? `<div class="meta" style="margin-top:6px; max-width: 540px;">${escapeHtml(i.notes)}</div>` : ''}
+            </div>
+            <button class="danger-link" data-id="${escapeAttr(i.id)}">Remove</button>
+          </div>
+        `).join("");
+        listEl.querySelectorAll(".danger-link").forEach((btn) => {
+          btn.addEventListener("click", () => removeInstance(btn.dataset.id));
+        });
+      } catch (err) {
+        listEl.innerHTML = '<div class="empty">Could not load instances. Check your connection.</div>';
+      }
+    }
+
+    function escapeHtml(s) {
+      return String(s == null ? "" : s)
+        .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;").replace(/'/g, "&#39;");
+    }
+    function escapeAttr(s) { return escapeHtml(s); }
+
+    async function removeInstance(id) {
+      if (!confirm("Remove this instance from the registry? Your local container is NOT touched.")) return;
+      try {
+        await fetch(`/portal/instances/${encodeURIComponent(id)}`, {
+          method: "DELETE",
+          headers: authHeaders,
+        });
+        await loadInstances();
+      } catch (_) {
+        alert("Failed to remove. Check your connection.");
+      }
+    }
+
+    // ── Register form ───────────────────────────────────────────────────
+    const regForm = document.getElementById("register-form");
+    const regMsg = document.getElementById("reg-msg");
+    regForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      regMsg.textContent = "";
+      regMsg.className = "msg";
+
+      const payload = {
+        label: document.getElementById("reg-label").value.trim(),
+        pilot: document.getElementById("reg-pilot").checked,
+      };
+      const hc = document.getElementById("reg-healthcheck").value.trim();
+      if (hc) payload.healthcheck_url = hc;
+      const notes = document.getElementById("reg-notes").value.trim();
+      if (notes) payload.notes = notes;
+
+      try {
+        const r = await fetch("/portal/instances", {
+          method: "POST",
+          headers: authHeaders,
+          body: JSON.stringify(payload),
+        });
+        const data = await r.json();
+        if (!r.ok) {
+          regMsg.textContent = data.detail || "Registration failed.";
+          regMsg.classList.add("err");
+          return;
+        }
+        regMsg.textContent = `Registered ✓  (${data.label})`;
+        regMsg.classList.add("ok");
+        regForm.reset();
+        await loadInstances();
+      } catch (_) {
+        regMsg.textContent = "Network error.";
+        regMsg.classList.add("err");
+      }
+    });
+
+    loadInstances();
+  </script>
+</body>
+</html>

@@ -1,0 +1,46 @@
+# Build context hygiene
+.git
+.github
+.venv
+venv
+__pycache__
+*.pyc
+*.pyo
+*.pyd
+.pytest_cache
+.mypy_cache
+.ruff_cache
+
+# Local data — never bake into image
+*.db
+*.db-journal
+data/
+observability.db
+demo_login.html
+
+# Local secrets
+.env
+.env.local
+.env.*.local
+
+# Editor / OS noise
+.idea
+.vscode
+.DS_Store
+Thumbs.db
+
+# Marketing assets — not needed in runtime image
+linkedin_assets/
+*.png
+*.jpg
+*.gif
+LinkedIn*.txt
+
+# Docs (not needed at runtime)
+docs/
+enterprise/
+*.md
+!README.md
+
+# Tests
+tests/

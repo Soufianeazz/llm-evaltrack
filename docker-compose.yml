@@ -1,0 +1,38 @@
+# AgentLens self-host — single-container, SQLite on a named volume.
+# Designed for air-gapped Linux hosts (Bibin's pilot setup).
+#
+# Quick start:
+#   cp .env.airgap.example .env
+#   # edit .env — set ADMIN_TOKEN to a long random string
+#   docker compose up -d
+#   # Dashboard: http://<host>:8000
+#
+# Persistence: SQLite file lives in the `agentlens-data` named volume.
+# Backup:  docker run --rm -v agentlens-data:/data -v $PWD:/backup alpine tar czf /backup/agentlens-$(date +%F).tgz /data
+
+services:
+  agentlens:
+    build: .
+    image: agentlens:self-host
+    container_name: agentlens
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    env_file:
+      - .env
+    environment:
+      # Hard-coded inside the container; overrides anything in .env.
+      AGENTLENS_AIRGAP: "1"
+      DATABASE_URL: "sqlite+aiosqlite:////data/agentlens.db"
+    volumes:
+      - agentlens-data:/data
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/healthz', timeout=3)"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 20s
+
+volumes:
+  agentlens-data:
+    driver: local

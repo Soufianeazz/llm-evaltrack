@@ -4,12 +4,37 @@ Drop-in replacement: swap _queue for an actual broker client later.
 """
 import asyncio
 import logging
+import os
 import time
 from typing import Any
+from urllib.parse import urlparse
 
 import httpx
 
 logger = logging.getLogger(__name__)
+
+
+def _airgap_enabled() -> bool:
+    return os.environ.get("AGENTLENS_AIRGAP", "").strip() in ("1", "true", "True", "yes")
+
+
+def _is_local_url(url: str) -> bool:
+    """Allow only loopback/private webhooks in air-gap mode (e.g. internal Slack relay)."""
+    try:
+        host = (urlparse(url).hostname or "").lower()
+    except Exception:
+        return False
+    if not host:
+        return False
+    if host in ("localhost", "127.0.0.1", "::1"):
+        return True
+    # RFC1918 and link-local — safe internal-only addresses.
+    return (
+        host.startswith("10.")
+        or host.startswith("192.168.")
+        or host.startswith("169.254.")
+        or any(host.startswith(f"172.{i}.") for i in range(16, 32))
+    )
 
 _queue: asyncio.Queue[dict[str, Any]] = asyncio.Queue(maxsize=1000)
 _task: asyncio.Task | None = None
@@ -87,6 +112,12 @@ async def _check_budget_alert(db) -> None:
             logger.warning("Budget alert triggered: $%.4f spent of $%.2f budget", spent, alert.daily_budget_usd)
 
             if alert.webhook_url:
+                if _airgap_enabled() and not _is_local_url(alert.webhook_url):
+                    logger.info(
+                        "Air-gap mode: skipping budget webhook to non-local URL %s",
+                        alert.webhook_url,
+                    )
+                    return
                 try:
                     async with httpx.AsyncClient(timeout=10) as client:
                         percent_used = round(spent / alert.daily_budget_usd * 100, 1)

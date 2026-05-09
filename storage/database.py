@@ -23,6 +23,11 @@ async def init_db() -> None:
             ("requests", "api_key TEXT"),
             ("traces", "api_key TEXT"),
             ("api_keys", "role TEXT DEFAULT 'admin'"),
+            # self_host_instances columns added in pilot release; safe no-op if table fresh.
+            ("self_host_instances", "pilot INTEGER DEFAULT 0"),
+            ("self_host_instances", "last_pinged_at REAL"),
+            ("self_host_instances", "healthcheck_url TEXT"),
+            ("self_host_instances", "notes TEXT"),
         ]:
             try:
                 await conn.execute(text(f"ALTER TABLE {table} ADD COLUMN {col_def}"))
