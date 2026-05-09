@@ -113,11 +113,9 @@ async def resolve_plan_context(
             raise HTTPException(status_code=403, detail=f"Access blocked: {reason}")
         raw_plan = (account.plan or raw_plan or "free").lower()
     else:
-        # Public/unmanaged keys default to free, except demo keys that are
-        # intentionally provisioned for full click-through previews.
-        if (raw_plan or "").lower() in {"demo", "preview", "demo_full"}:
-            raw_plan = "demo"
-        else:
+        # Admin-created API keys carry their plan directly on the key. Unknown
+        # public/unmanaged plans still fall back to free.
+        if raw_plan not in PLAN_ALIAS:
             raw_plan = "free"
 
     plan = normalize_plan(raw_plan)
