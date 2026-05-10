@@ -4,5 +4,11 @@
     "last_day": 2,
     "last_week": 72,
     "last_month": 723
+  },
+  {
+    "date": "2026-05-10",
+    "last_day": 0,
+    "last_week": 72,
+    "last_month": 723
   }
 ]
