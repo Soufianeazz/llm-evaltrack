@@ -34,4 +34,7 @@ ENV DATABASE_URL=sqlite+aiosqlite:////data/agentlens.db
 EXPOSE 8000
 
 # uvicorn workers=1 keeps SQLite simple; raise only with Postgres backend.
-CMD ["uvicorn", "api.main:app", "--host", "0.0.0.0", "--port", "8000", "--workers", "1"]
+# Shell-form CMD so ${PORT} expands at runtime:
+#   - Railway sets $PORT dynamically → bind to that
+#   - Self-host (docker-compose) leaves $PORT unset → fall back to 8000
+CMD ["sh", "-c", "uvicorn api.main:app --host 0.0.0.0 --port ${PORT:-8000} --workers 1"]
