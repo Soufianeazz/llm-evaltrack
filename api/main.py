@@ -43,7 +43,11 @@ from storage.database import init_db
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     await init_db()
-    await seed_demo_on_startup()
+    try:
+        await seed_demo_on_startup()
+    except Exception as exc:  # noqa: BLE001
+        import logging
+        logging.getLogger("startup").warning("seed_demo_on_startup failed (non-fatal): %s", exc)
     await start_worker()
     yield
     await stop_worker()
