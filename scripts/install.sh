@@ -2,11 +2,11 @@
 # AgentLens — One-line self-host installer.
 #
 # Quick run:
-#   curl -fsSL https://get.agentlens.one | bash
+#   curl -fsSL https://www.agentlens.one/install | bash
 #
 # Deterministic / unattended:
 #   AGENTLENS_LABEL=veritasgraph AGENTLENS_PORT=8000 \
-#     curl -fsSL https://get.agentlens.one | bash
+#     curl -fsSL https://www.agentlens.one/install | bash
 #
 # What it does:
 #   1. Verifies Linux + Docker
@@ -186,7 +186,7 @@ cat <<EOF
       docker logs -f $CONTAINER_NAME      # follow logs
       docker stop  $CONTAINER_NAME        # stop
       docker start $CONTAINER_NAME        # restart
-      curl -fsSL https://get.agentlens.one/uninstall.sh | bash
+      curl -fsSL https://www.agentlens.one/uninstall | bash
 
   ${BOLD}Air-gap status${NC}    ${GREEN}✓ enabled${NC}  (no outbound calls — verify with: tcpdump -i any 'not port ${PORT}')
   ${BOLD}Config${NC}            $ENV_FILE

@@ -3,7 +3,7 @@ from contextlib import asynccontextmanager
 
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import FileResponse, JSONResponse
+from fastapi.responses import FileResponse, JSONResponse, Response
 from fastapi.staticfiles import StaticFiles
 from slowapi import _rate_limit_exceeded_handler
 from slowapi.errors import RateLimitExceeded
@@ -40,8 +40,39 @@ from pipeline.worker import start_worker, stop_worker
 from storage.database import init_db
 
 
+_AIRGAP_EGRESS_VARS = (
+    "ANTHROPIC_API_KEY",
+    "OPENAI_API_KEY",
+    "STRIPE_SECRET_KEY",
+    "STRIPE_WEBHOOK_SECRET",
+    "RESEND_API_KEY",
+    "SENDGRID_API_KEY",
+    "DEMO_REQUEST_WEBHOOK_URL",
+    "SIGNUP_NOTIFY_WEBHOOK_URL",
+    "BILLING_EVENT_WEBHOOK_URL",
+)
+
+
+def _enforce_airgap() -> None:
+    """When AGENTLENS_AIRGAP=1, hard-clear every env var that any code path could
+    use to reach an external service. This is defense-in-depth on top of the
+    per-call-site checks in pipeline/worker.py and the empty defaults in
+    .env.airgap.example. Bibin's hard requirement is zero outbound; one stray
+    env var must never be enough to break that promise."""
+    if os.environ.get("AGENTLENS_AIRGAP", "").strip().lower() not in ("1", "true", "yes"):
+        return
+    import logging
+    log = logging.getLogger("airgap")
+    cleared = []
+    for var in _AIRGAP_EGRESS_VARS:
+        if os.environ.pop(var, None):
+            cleared.append(var)
+    log.warning("AGENTLENS_AIRGAP=1 active — cleared egress env vars: %s", cleared or "none set")
+
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    _enforce_airgap()
     await init_db()
     try:
         await seed_demo_on_startup()
@@ -190,17 +221,34 @@ async def app_deploy():
     return FileResponse("dashboard/deploy.html")
 
 
-@app.get("/install", include_in_schema=False)
-async def install_script():
-    """Serves the self-host installer. Used by:  curl -fsSL https://www.agentlens.one/install | bash"""
-    return FileResponse(
-        "scripts/install.sh",
+def _serve_shell_script(path: str, filename: str) -> Response:
+    """Serve a shell script, stripping any CRs that may have crept in from a
+    Windows checkout. `curl ... | bash` is unforgiving about CR — `\\r` on the
+    shebang or after a command name produces `bash\\r: No such file or
+    directory` or `$'\\r': command not found` and breaks every pilot install."""
+    try:
+        with open(path, "rb") as f:
+            body = f.read()
+    except FileNotFoundError:
+        return JSONResponse(
+            status_code=500,
+            content={"detail": f"installer asset missing: {path}"},
+        )
+    body = body.replace(b"\r\n", b"\n").replace(b"\r", b"\n")
+    return Response(
+        content=body,
         media_type="text/plain; charset=utf-8",
         headers={
             "Cache-Control": "no-store",
-            "Content-Disposition": "inline; filename=install.sh",
+            "Content-Disposition": f"inline; filename={filename}",
         },
     )
+
+
+@app.get("/install", include_in_schema=False)
+async def install_script():
+    """Serves the self-host installer. Used by:  curl -fsSL https://www.agentlens.one/install | bash"""
+    return _serve_shell_script("scripts/install.sh", "install.sh")
 
 
 @app.get("/install.sh", include_in_schema=False)
@@ -211,14 +259,7 @@ async def install_script_sh():
 @app.get("/uninstall", include_in_schema=False)
 async def uninstall_script():
     """Serves the self-host uninstaller. Usage:  curl -fsSL https://www.agentlens.one/uninstall | bash"""
-    return FileResponse(
-        "scripts/uninstall.sh",
-        media_type="text/plain; charset=utf-8",
-        headers={
-            "Cache-Control": "no-store",
-            "Content-Disposition": "inline; filename=uninstall.sh",
-        },
-    )
+    return _serve_shell_script("scripts/uninstall.sh", "uninstall.sh")
 
 
 @app.get("/uninstall.sh", include_in_schema=False)

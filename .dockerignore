@@ -18,10 +18,13 @@ data/
 observability.db
 demo_login.html
 
-# Local secrets
+# Local secrets — never bake into image even if Dockerfile changes
 .env
 .env.local
 .env.*.local
+ADMIN_TOKEN.txt
+*.token
+.audit/
 
 # Editor / OS noise
 .idea

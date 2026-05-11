@@ -201,6 +201,27 @@ def main() -> int:
         fail("instance list empty after registration")
     ok("instance list returned 1+ rows")
 
+    step("verifying /install endpoint serves the bash installer")
+    r = requests.get(f"{BASE}/install", timeout=10)
+    if r.status_code != 200:
+        fail(f"/install returned HTTP {r.status_code} — pilot customers cannot install. Body: {r.text[:300]}")
+    body = r.content
+    if not body.startswith(b"#!/usr/bin/env bash") and not body.startswith(b"#!/bin/bash"):
+        fail(f"/install body does not start with a bash shebang: {body[:80]!r}")
+    if b"\r\n" in body or b"\r" in body.replace(b"\r\n", b""):
+        fail("/install body contains CR characters — `curl ... | bash` will fail on Linux with $'\\r' errors")
+    if b"get.agentlens.one" in body:
+        fail("/install body still references get.agentlens.one (unregistered domain)")
+    ok(f"/install serves clean LF bash script ({len(body)} bytes)")
+
+    step("verifying /uninstall endpoint serves the bash uninstaller")
+    r = requests.get(f"{BASE}/uninstall", timeout=10)
+    if r.status_code != 200:
+        fail(f"/uninstall returned HTTP {r.status_code}")
+    if b"\r" in r.content.replace(b"\r\n", b""):
+        fail("/uninstall body contains CR characters")
+    ok("/uninstall serves clean script")
+
     step("verifying air-gap flag is wired")
     # The container under test runs with AGENTLENS_AIRGAP=1, so any evaluation must
     # be heuristic. Refresh once more in case the worker is still draining.

@@ -20,6 +20,10 @@ COPY storage ./storage
 COPY evaluation ./evaluation
 COPY agentlens ./agentlens
 COPY dashboard ./dashboard
+# scripts/ is required at runtime: /install and /uninstall endpoints serve
+# scripts/install.sh and scripts/uninstall.sh via FileResponse. Without this
+# COPY, the production /install returns HTTP 500 ("File not found").
+COPY scripts ./scripts
 
 # Persistent SQLite volume mount target.
 RUN mkdir -p /data
