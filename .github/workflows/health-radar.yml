@@ -1,0 +1,61 @@
+name: Health Radar
+
+# Detection-only 3x/day scan — finds problems and reports them as GitHub
+# Issues + email alerts. NEVER auto-applies fixes (intentional design choice
+# made 2026-05-11 after audit demonstrated the catastrophic-failure profile of
+# unsupervised auto-fix in a one-person production system).
+#
+# Schedule (UTC; CET = UTC+1, CEST = UTC+2):
+#   06:00 UTC → morning scan       ≈ 08:00 CET
+#   14:00 UTC → midday scan        ≈ 16:00 CET
+#   22:00 UTC → end-of-day scan    ≈ 00:00 CET (catches anything from late deploys)
+
+on:
+  schedule:
+    - cron: '0 6 * * *'
+    - cron: '0 14 * * *'
+    - cron: '0 22 * * *'
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: 'If true, do not create issues or send emails (just log)'
+        required: false
+        default: 'false'
+        type: choice
+        options:
+          - 'false'
+          - 'true'
+
+permissions:
+  contents: read
+  issues: write          # to create radar issues
+  actions: read          # to query workflow run status
+
+concurrency:
+  group: health-radar
+  cancel-in-progress: false
+
+jobs:
+  scan:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install minimal deps
+        run: pip install sendgrid
+
+      - name: Run radar scan
+        env:
+          AGENTLENS_URL: https://www.agentlens.one
+          AGENTLENS_DEMO_KEY: al_demo_agentlens
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SENDGRID_API_KEY: ${{ secrets.SENDGRID_API_KEY }}
+          SENDER_EMAIL: ${{ secrets.SENDER_EMAIL }}
+          OPS_EMAIL: ${{ secrets.OPS_EMAIL }}
+          RADAR_DRY_RUN: ${{ github.event.inputs.dry_run == 'true' && '1' || '' }}
+        run: python agents/health_radar.py

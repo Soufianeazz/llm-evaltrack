@@ -39,3 +39,6 @@ draft.txt
 *token*.txt
 *TOKEN*.txt
 enterprise/PILOT_ACCESS_*.md
+
+# Audit + Radar reports — generated locally and by CI scans, not committed
+.audit/
