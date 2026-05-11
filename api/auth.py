@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+import time
 
 from fastapi import Depends, Header, HTTPException, Query
 from sqlalchemy import select
@@ -22,6 +23,13 @@ def ensure_role(ctx: ApiKeyContext, *allowed_roles: str) -> None:
             status_code=403,
             detail=f"Insufficient role. Allowed roles: {', '.join(allowed_roles)}",
         )
+
+
+def is_api_key_expired(obj: ApiKey, now: float | None = None) -> bool:
+    expires_at = getattr(obj, "expires_at", None)
+    if expires_at is None:
+        return False
+    return float(expires_at) <= (time.time() if now is None else now)
 
 
 async def require_api_key(
@@ -48,6 +56,11 @@ async def require_api_key_context(
     obj = result.scalar_one_or_none()
     if not obj:
         raise HTTPException(status_code=403, detail="Invalid API key")
+    if is_api_key_expired(obj):
+        if obj.active:
+            obj.active = False
+            await db.commit()
+        raise HTTPException(status_code=403, detail="API key expired")
 
     customer_result = await db.execute(
         select(CustomerAccount).where(CustomerAccount.api_key == obj.key)

@@ -57,7 +57,14 @@ def _request(method: str, url: str, headers: dict[str, str], payload: dict | Non
     return status, body
 
 
-def _create_pilot_key(base_url: str, admin_token: str, label: str, plan: str, role: str) -> str:
+def _create_pilot_key(
+    base_url: str,
+    admin_token: str,
+    label: str,
+    plan: str,
+    role: str,
+    trial_days: int | None,
+) -> str:
     status, body = _request(
         "POST",
         f"{base_url}/admin/api-keys",
@@ -69,6 +76,7 @@ def _create_pilot_key(base_url: str, admin_token: str, label: str, plan: str, ro
             "label": label,
             "plan": plan,
             "role": role,
+            "trial_days": trial_days,
         },
     )
     if status != 200:
@@ -226,6 +234,7 @@ def main() -> int:
     parser.add_argument("--plan", default="pilot")
     parser.add_argument("--role", default="admin", choices=["admin", "analyst", "read_only"])
     parser.add_argument("--label-prefix", default="pilot")
+    parser.add_argument("--trial-days", type=int, default=14)
     parser.add_argument("--skip-smoke", action="store_true")
     parser.add_argument("--skip-guardian-once", action="store_true")
     parser.add_argument("--redact-output", action="store_true", help="Mask API key in stdout; full key is still written to the access package.")
@@ -250,6 +259,7 @@ def main() -> int:
                 label=label,
                 plan=args.plan,
                 role=args.role,
+                trial_days=args.trial_days,
             )
             created = True
     except urllib.error.HTTPError as exc:

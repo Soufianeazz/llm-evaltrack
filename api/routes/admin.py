@@ -21,10 +21,17 @@ class CreateKeyPayload(BaseModel):
     label: str
     plan: str = "pilot"
     role: str = "admin"
+    expires_at: float | None = None
+    trial_days: int | None = None
 
 
 class SetRolePayload(BaseModel):
     role: str
+
+
+class SetExpiryPayload(BaseModel):
+    expires_at: float | None = None
+    trial_days: int | None = None
 
 
 def _mask_key(key: str) -> str:
@@ -38,6 +45,24 @@ async def _audit(db: AsyncSession, action: str, detail: str) -> None:
     await db.commit()
 
 
+def resolve_key_expiry(
+    *,
+    plan: str,
+    trial_days: int | None,
+    expires_at: float | None,
+    now: float | None = None,
+) -> float | None:
+    if expires_at is not None:
+        return expires_at
+    if trial_days is not None:
+        if trial_days <= 0:
+            raise ValueError("trial_days must be greater than zero")
+        return (time.time() if now is None else now) + trial_days * 24 * 60 * 60
+    if plan in {"pilot", "pilot14", "pilot_14", "full_pilot"}:
+        return (time.time() if now is None else now) + 14 * 24 * 60 * 60
+    return None
+
+
 @router.post("/api-keys")
 async def create_api_key(
     payload: CreateKeyPayload,
@@ -47,15 +72,32 @@ async def create_api_key(
     if payload.role not in {"admin", "analyst", "read_only"}:
         raise HTTPException(status_code=422, detail="Invalid role. Use admin, analyst, or read_only.")
     key = "al_" + secrets.token_urlsafe(24)
-    obj = ApiKey(key=key, label=payload.label, plan=payload.plan, role=payload.role, created_at=time.time())
+    now = time.time()
+    try:
+        expires_at = resolve_key_expiry(
+            plan=payload.plan,
+            trial_days=payload.trial_days,
+            expires_at=payload.expires_at,
+            now=now,
+        )
+    except ValueError as exc:
+        raise HTTPException(status_code=422, detail=str(exc)) from exc
+    obj = ApiKey(
+        key=key,
+        label=payload.label,
+        plan=payload.plan,
+        role=payload.role,
+        created_at=now,
+        expires_at=expires_at,
+    )
     db.add(obj)
     await db.commit()
     await _audit(
         db,
         "api_key_created",
-        f"key={_mask_key(key)} plan={payload.plan} role={payload.role} label={payload.label}",
+        f"key={_mask_key(key)} plan={payload.plan} role={payload.role} expires_at={expires_at} label={payload.label}",
     )
-    return {"key": key, "label": payload.label, "plan": payload.plan, "role": payload.role}
+    return {"key": key, "label": payload.label, "plan": payload.plan, "role": payload.role, "expires_at": expires_at}
 
 
 @router.get("/api-keys")
@@ -66,7 +108,15 @@ async def list_api_keys(
     result = await db.execute(select(ApiKey).order_by(ApiKey.created_at.desc()))
     keys = result.scalars().all()
     return [
-        {"key": k.key, "label": k.label, "plan": k.plan, "role": k.role or "admin", "active": k.active, "created_at": k.created_at}
+        {
+            "key": k.key,
+            "label": k.label,
+            "plan": k.plan,
+            "role": k.role or "admin",
+            "active": k.active,
+            "created_at": k.created_at,
+            "expires_at": getattr(k, "expires_at", None),
+        }
         for k in keys
     ]
 
@@ -106,6 +156,34 @@ async def set_api_key_role(
     return {"key": key, "role": payload.role}
 
 
+@router.post("/api-keys/{key}/expiry")
+async def set_api_key_expiry(
+    key: str,
+    payload: SetExpiryPayload,
+    _admin: None = Depends(require_admin_token),
+    db: AsyncSession = Depends(get_session),
+):
+    result = await db.execute(select(ApiKey).where(ApiKey.key == key))
+    obj = result.scalar_one_or_none()
+    if not obj:
+        raise HTTPException(status_code=404, detail="Key not found")
+    try:
+        expires_at = resolve_key_expiry(
+            plan=obj.plan or "pilot",
+            trial_days=payload.trial_days,
+            expires_at=payload.expires_at,
+        )
+    except ValueError as exc:
+        raise HTTPException(status_code=422, detail=str(exc)) from exc
+    obj.expires_at = expires_at
+    if expires_at is None:
+        await _audit(db, "api_key_expiry_cleared", f"key={_mask_key(key)}")
+    else:
+        await _audit(db, "api_key_expiry_set", f"key={_mask_key(key)} expires_at={expires_at}")
+    await db.commit()
+    return {"key": _mask_key(key), "expires_at": expires_at}
+
+
 @router.post("/api-keys/{key}/rotate")
 async def rotate_api_key(
     key: str,
@@ -136,7 +214,9 @@ async def rotate_api_key(
         key=new_key,
         label=old_key.label,
         plan=old_key.plan,
+        role=old_key.role or "admin",
         created_at=time.time(),
+        expires_at=getattr(old_key, "expires_at", None),
         active=True,
     )
     db.add(new_obj)

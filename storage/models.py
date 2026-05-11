@@ -14,6 +14,7 @@ class ApiKey(Base):
     plan = Column(String, default="pilot")        # pilot | starter | team | scale
     role = Column(String, default="admin")        # admin | analyst | read_only
     created_at = Column(Float, nullable=False)
+    expires_at = Column(Float, nullable=True)     # unix epoch; null = no automatic expiry
     active = Column(Boolean, default=True)
 
 

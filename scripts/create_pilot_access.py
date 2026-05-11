@@ -46,6 +46,7 @@ def main() -> int:
     parser.add_argument("--plan", default="pilot", help="Plan value for API key (default: pilot)")
     parser.add_argument("--role", default="admin", choices=["admin", "analyst", "read_only"], help="API key role")
     parser.add_argument("--label-prefix", default="pilot", help="Label prefix for the API key")
+    parser.add_argument("--trial-days", type=int, default=14, help="Pilot key duration in days (default: 14)")
     args = parser.parse_args()
 
     base_url = os.getenv("AGENTLENS_BASE_URL", "https://www.agentlens.one").rstrip("/")
@@ -63,7 +64,7 @@ def main() -> int:
         "Content-Type": "application/json",
         "X-Admin-Token": admin_token,
     }
-    payload = {"label": label, "plan": args.plan, "role": args.role}
+    payload = {"label": label, "plan": args.plan, "role": args.role, "trial_days": args.trial_days}
 
     try:
         result = _post_json(create_url, payload, headers)
@@ -90,6 +91,7 @@ def main() -> int:
     print(f"Customer:      {args.customer}")
     print(f"Label:         {label}")
     print(f"Plan/Role:     {args.plan}/{args.role}")
+    print(f"Expires At:    {result.get('expires_at')}")
     print(f"API Key:       {api_key}")
     print(f"Ingest URL:    {ingest}")
     print(f"Dashboard:     {dashboard}")
