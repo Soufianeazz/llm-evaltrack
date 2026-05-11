@@ -11,7 +11,9 @@ import os
 import urllib.request
 
 
-def build_payload(days: int) -> dict:
+def build_payload(days: int, expires_at: float | None) -> dict:
+    if expires_at is not None:
+        return {"expires_at": expires_at}
     if days <= 0:
         raise ValueError("days must be greater than zero")
     return {"trial_days": days}
@@ -23,8 +25,14 @@ def mask_key(key: str) -> str:
     return f"{key[:6]}...{key[-4:]}"
 
 
-def set_remote_expiry(base_url: str, api_key: str, admin_token: str, days: int) -> dict:
-    payload = build_payload(days)
+def set_remote_expiry(
+    base_url: str,
+    api_key: str,
+    admin_token: str,
+    days: int,
+    expires_at: float | None,
+) -> dict:
+    payload = build_payload(days, expires_at)
     req = urllib.request.Request(
         f"{base_url.rstrip('/')}/admin/api-keys/{api_key}/expiry",
         data=json.dumps(payload).encode("utf-8"),
@@ -45,6 +53,7 @@ def main() -> int:
     parser = argparse.ArgumentParser(description="Set live AgentLens API key expiry via admin API.")
     parser.add_argument("--api-key", required=True)
     parser.add_argument("--days", type=int, default=14)
+    parser.add_argument("--expires-at", type=float, default=None)
     parser.add_argument("--base-url", default="https://www.agentlens.one")
     args = parser.parse_args()
 
@@ -56,6 +65,7 @@ def main() -> int:
         api_key=args.api_key,
         admin_token=admin_token,
         days=args.days,
+        expires_at=args.expires_at,
     )
     print(json.dumps(result, sort_keys=True))
     return 0
