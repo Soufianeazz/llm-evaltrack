@@ -4,17 +4,19 @@ name: Pilot Pulse
 # Sends to OPS_EMAIL via SendGrid; uses Claude for talking points (with fallback).
 #
 # Schedule (UTC; CET is UTC+1, CEST is UTC+2):
-#   06:00 UTC every day        → daily pulse                          ≈ 08:00 CET
-#   17:00 UTC Mon, Thu          → pre-call brief for Tue 16/Fri 11 CET ≈ 19:00 CET
+#   06:00 UTC every day        → daily pulse (to Soufian)              ≈ 08:00 CET
+#   07:30 UTC every day        → customer-reminder (no-op except Day 10/13/14/18)
+#   17:00 UTC Mon, Thu         → pre-call brief for Tue 16/Fri 11 CET  ≈ 19:00 CET
 
 on:
   schedule:
-    - cron: '0 6 * * *'      # daily pulse
+    - cron: '0 6 * * *'      # daily pulse (Soufian)
+    - cron: '30 7 * * *'     # customer-reminder (Bibin) — milestone-day-only
     - cron: '0 17 * * 1,4'   # pre-call: Mon and Thu evenings
   workflow_dispatch:
     inputs:
       mode:
-        description: 'daily | pre-call'
+        description: 'daily | pre-call | customer-reminder'
         required: true
         default: 'daily'
 
@@ -48,6 +50,8 @@ jobs:
             echo "mode=${{ github.event.inputs.mode }}" >> "$GITHUB_OUTPUT"
           elif [ "${{ github.event.schedule }}" = "0 17 * * 1,4" ]; then
             echo "mode=pre-call" >> "$GITHUB_OUTPUT"
+          elif [ "${{ github.event.schedule }}" = "30 7 * * *" ]; then
+            echo "mode=customer-reminder" >> "$GITHUB_OUTPUT"
           else
             echo "mode=daily" >> "$GITHUB_OUTPUT"
           fi

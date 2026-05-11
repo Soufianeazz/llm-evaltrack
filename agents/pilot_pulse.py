@@ -1,9 +1,12 @@
 """
 Pilot Pulse — Soufian's autonomous nudge for the VeritasGraph 14-day pilot.
 
-Two modes:
-  --mode daily       Daily status email (Day X of 14, hours-to-next-call, suggested today's actions).
-  --mode pre-call    Mon/Thu evening: pre-call briefing for tomorrow's Tue/Fri review slot.
+Three modes:
+  --mode daily             Daily status email TO SOUFIAN (Day X of 14, hours-to-next-call, suggested today's actions).
+  --mode pre-call          Mon/Thu evening: pre-call briefing for tomorrow's Tue/Fri review slot.
+  --mode customer-reminder Day 10/13/14/18 reminder TO THE CUSTOMER (soft-landing
+                           around the 14-day pilot end + 7-day grace period).
+                           No-op on every other day so daily cron is safe.
 
 Reads:   agents/pilot_state.json  (kickoff date, contact, workflow context)
 Sends:   email to OPS_EMAIL via SENDGRID_API_KEY (same channel as the marketing campaign)
@@ -210,6 +213,120 @@ def run_daily(state: dict) -> None:
     send_email(f"[Pilot Pulse] Day {day_x}/{state['pilot_days']} — next call in {hours}h", body)
 
 
+CUSTOMER_REMINDER_TEMPLATES = {
+    10: (
+        "Pilot Day 10 — quick heads-up",
+        "Hi {first_name},\n\n"
+        "Quick heads-up: we're at Day 10 of the 14-day {pilot_label} pilot. The "
+        "Day-14 review call (Tue/Fri slot, whichever lands first) is the natural "
+        "moment to decide on conversion to the Scale plan.\n\n"
+        "If it would help to align on pricing, contract, or anything procurement-side "
+        "before then, just reply and we'll set up a separate slot.\n\n"
+        "Also happy to keep it as is and discuss on the regular review call.\n\n"
+        "Best,\nSoufian\nhttps://www.agentlens.one\n",
+    ),
+    13: (
+        "Pilot Day 13 — tomorrow's call is the decision point",
+        "Hi {first_name},\n\n"
+        "Tomorrow's call wraps the 14-day {pilot_label} pilot. To make it easy:\n\n"
+        "  - If you want to convert to Scale (€2,999/mo): I'll send the contract "
+        "    after the call and we'll keep your existing instance running uninterrupted.\n"
+        "  - If you need more evaluation time: we have a 7-day grace window built in. "
+        "    Your API key keeps working until Day 21 so you can finish any in-flight "
+        "    workflows or share findings internally.\n"
+        "  - If it's not the right fit: just say so on the call and we'll part on "
+        "    good terms — I'll send you a 1-page write-up of what we measured.\n\n"
+        "All three are valid outcomes. See you tomorrow.\n\n"
+        "Best,\nSoufian\n",
+    ),
+    14: (
+        "Pilot Day 14 — final-day reminder",
+        "Hi {first_name},\n\n"
+        "Today's review call is the official end of the 14-day {pilot_label} pilot. "
+        "Whatever we decide on the call, here's what happens technically:\n\n"
+        "  - Convert to Scale: your existing API key is upgraded server-side, no "
+        "    container restart needed.\n"
+        "  - Keep evaluating: 7-day grace begins, key valid through Day 21.\n"
+        "  - Wind down: I'll send a final summary with extraction instructions for "
+        "    your trace data — your SQLite volume is yours, no lock-in.\n\n"
+        "Talk in a few hours.\n\n"
+        "Best,\nSoufian\n",
+    ),
+    18: (
+        "Pilot grace period — 3 days left",
+        "Hi {first_name},\n\n"
+        "Quick reminder: you're 4 days into the 7-day grace period after the "
+        "{pilot_label} pilot. Your API key remains valid through Day 21 (3 days from "
+        "today).\n\n"
+        "If the conversion call hasn't happened yet or you need more time, no problem — "
+        "just reply and we'll find another slot. After Day 21 the key stops accepting "
+        "new ingest, but your existing trace data remains on your container's local "
+        "SQLite volume and is fully exportable via the compliance endpoint.\n\n"
+        "Best,\nSoufian\n",
+    ),
+}
+
+
+def first_name(full: str) -> str:
+    return (full or "").split()[0] if full else "there"
+
+
+def run_customer_reminder(state: dict) -> None:
+    """Send the customer (not Soufian) a soft-landing email on milestone days.
+    No-op on every other day so daily cron is safe to run unconditionally."""
+    kickoff = parse_kickoff(state)
+    if kickoff is None:
+        logger.info("Kickoff date not set — customer reminders skipped.")
+        return
+
+    # Uncapped day count — customer-reminder needs to fire on grace-period days
+    # (15-21) which days_into_pilot() caps at pilot_days (14).
+    elapsed_days = (datetime.now(timezone.utc) - kickoff).days
+    day_x = max(1, elapsed_days + 1)
+    template = CUSTOMER_REMINDER_TEMPLATES.get(day_x)
+    if not template:
+        logger.info("Day %s — no customer reminder scheduled, skipping.", day_x)
+        return
+
+    contact_email = state.get("contact_email", "")
+    if not contact_email or "REPLACE" in contact_email:
+        logger.warning("contact_email not set in pilot_state.json — cannot send Day %s reminder.", day_x)
+        return
+
+    subject_tmpl, body_tmpl = template
+    fmt = {
+        "first_name": first_name(state.get("contact_name", "")),
+        "pilot_label": state.get("pilot_name", "AgentLens").split(" ")[0],
+    }
+    subject = subject_tmpl.format(**fmt)
+    body = body_tmpl.format(**fmt)
+
+    api_key = os.environ.get("SENDGRID_API_KEY")
+    sender = os.environ.get("SENDER_EMAIL")
+    if not (api_key and sender):
+        logger.warning("Email creds incomplete — printing customer reminder for manual send")
+        print(f"\n=== TO: {contact_email} | {subject} ===\n{body}\n")
+        return
+
+    try:
+        from sendgrid import SendGridAPIClient
+        from sendgrid.helpers.mail import Mail
+        cc = os.environ.get("OPS_EMAIL")  # cc Soufian so he sees what went out
+        message = Mail(
+            from_email=sender,
+            to_emails=contact_email,
+            subject=subject,
+            plain_text_content=body,
+        )
+        if cc:
+            message.add_cc(cc)
+        resp = SendGridAPIClient(api_key).send(message)
+        logger.info("Sent Day-%s reminder to %s (status=%s)", day_x, contact_email, resp.status_code)
+    except Exception:
+        logger.exception("Customer reminder send failed — body below for manual recovery")
+        print(f"\n=== TO: {contact_email} | {subject} ===\n{body}\n")
+
+
 def run_precall(state: dict) -> None:
     now_cet = _cet_now()
     next_call, hours = hours_to_next_call(now_cet)
@@ -250,14 +367,16 @@ def main() -> int:
             pass
 
     parser = argparse.ArgumentParser()
-    parser.add_argument("--mode", choices=["daily", "pre-call"], required=True)
+    parser.add_argument("--mode", choices=["daily", "pre-call", "customer-reminder"], required=True)
     args = parser.parse_args()
 
     state = load_state()
     if args.mode == "daily":
         run_daily(state)
-    else:
+    elif args.mode == "pre-call":
         run_precall(state)
+    else:
+        run_customer_reminder(state)
     return 0
 
 

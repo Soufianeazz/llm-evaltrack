@@ -3,6 +3,8 @@
 [![PyPI](https://img.shields.io/pypi/v/agentlens-monitor.svg)](https://pypi.org/project/agentlens-monitor/)
 [![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/)
 [![GitHub Stars](https://img.shields.io/github/stars/Soufianeazz/agentlens?style=social)](https://github.com/Soufianeazz/agentlens)
+[![License: BSL 1.1](https://img.shields.io/badge/server-BSL%201.1-yellow.svg)](LICENSE)
+[![SDK: MIT](https://img.shields.io/badge/sdk-MIT-green.svg)](agentlens/LICENSE)
 
 > Open-core observability for LLM applications: quality scoring, prompt debugging, agent tracing, cost control, and compliance workflows.
 
@@ -55,6 +57,23 @@ Paid plans cover production reliability and accountability:
 - SLA-backed support response
 - Security package for enterprise procurement
 - Server-side gated advanced capabilities (Prompt Debugger, Agent Debugger, advanced analytics, compliance workflows)
+
+## License
+
+AgentLens uses a **dual-license** model (Sentry / MongoDB pattern):
+
+- **Python SDK** (`agentlens/`, `pip install agentlens-monitor`) — **MIT**.
+  Embed it in any product, commercial or not. No restrictions.
+- **Server** (everything else in this repository) — **Business Source License 1.1**.
+  Free for self-hosting your own LLM observability. Converts to Apache 2.0 on
+  2030-05-11 (standard BSL clause).
+
+The BSL only restricts **offering AgentLens itself as a competing hosted service**
+to third parties. Internal production use, modification, and redistribution
+within your organization are explicitly permitted.
+
+See [LICENSING.md](LICENSING.md) for the plain-language guide and
+[LICENSE](LICENSE) for the binding terms.
 
 ---
 
