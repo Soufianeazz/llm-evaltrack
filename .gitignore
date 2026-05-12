@@ -40,5 +40,19 @@ draft.txt
 *TOKEN*.txt
 enterprise/PILOT_ACCESS_*.md
 
+# CRITICAL — customer-specific pilot artifacts contain personal data + sales
+# strategy. Must NEVER be committed to a public repo. (GDPR + reputation risk.)
+# Pattern is intentionally broad to catch any future customer's name in a filename.
+enterprise/PILOT_*.md
+enterprise/*PILOT*.md
+enterprise/*BIBIN*
+enterprise/*VERITAS*
+enterprise/CUSTOMER_*.md
+enterprise/CASE_STUDY_*.md
+scripts/build_*pilot*.py
+scripts/build_*customer*.py
+tests/test_*pilot*.py
+tests/test_*customer*.py
+
 # Audit + Radar reports — generated locally and by CI scans, not committed
 .audit/
