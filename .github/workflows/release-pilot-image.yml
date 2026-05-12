@@ -81,6 +81,13 @@ jobs:
           AGENTLENS_HEALTH_TIMEOUT: '90'
         run: python tests/e2e/pilot_smoke_test.py
 
+      - name: Run tenant isolation regression suite
+        env:
+          AGENTLENS_BASE: http://localhost:8000
+          ADMIN_TOKEN: ${{ steps.token.outputs.value }}
+          AGENTLENS_HEALTH_TIMEOUT: '30'
+        run: python tests/e2e/tenant_isolation_test.py
+
       - name: Container logs (always — for debugging)
         if: always()
         run: docker logs al-smoke 2>&1 || true
