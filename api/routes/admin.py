@@ -512,7 +512,7 @@ async def backup_snapshot(
 
     Read-only on the source DB. Available to:
       - Our Railway production for weekly off-site backups (volume-backup-runner agent).
-      - Self-host customers (Bibin) who want their own backups via their admin token.
+      - Self-host customers (the pilot customer) who want their own backups via their admin token.
     """
     import asyncio
     import shutil

@@ -16,7 +16,7 @@ Required env:
 Run:
 
 ```bash
-python scripts/setup_pilot_customer.py --customer "Bibin Prathap" --contact-email "bibin@company.com"
+python scripts/setup_pilot_customer.py --customer "the pilot customer" --contact-email "customer@company.com"
 ```
 
 Outputs:
@@ -32,7 +32,7 @@ Run in foreground:
 ```bash
 export AGENTLENS_BASE_URL="https://www.agentlens.one"
 export PILOT_ALERT_WEBHOOK_URL="<optional_slack_or_teams_webhook>"
-python scripts/pilot_guardian.py --api-key "<pilot_key>" --customer "Bibin" --interval-sec 300
+python scripts/pilot_guardian.py --api-key "<pilot_key>" --customer "the pilot customer" --interval-sec 300
 ```
 
 Run as Linux service:

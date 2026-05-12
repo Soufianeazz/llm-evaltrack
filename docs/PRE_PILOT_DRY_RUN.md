@@ -1,6 +1,6 @@
 # Pre-Pilot Dry-Run Runbook
 
-**Purpose:** Before Bibin (or any pilot customer) gets the install command, **you** run the
+**Purpose:** Before the pilot customer (or any pilot customer) gets the install command, **you** run the
 exact same flow on a fresh Linux VM that has never seen AgentLens. If anything breaks here,
 fix it BEFORE the customer touches it.
 
@@ -47,7 +47,7 @@ docker --version  # → Docker version 24.x or higher
 
 ✅ **Checkpoint 1:** `docker info` runs without error.
 
-## 3 · Run the AgentLens installer (the EXACT one-liner Bibin will run)
+## 3 · Run the AgentLens installer (the EXACT one-liner the pilot customer will run)
 
 ```bash
 # Inside the VM, as root or a sudo user:
@@ -74,7 +74,7 @@ open http://$VM_IP:8000               # macOS
 
 ## 5 · Verify air-gap with tcpdump
 
-This is the **most important check** — Bibin's reason for self-host.
+This is the **most important check** — the pilot customer's reason for self-host.
 
 ```bash
 # Back inside the VM, in a second SSH session:
@@ -97,7 +97,7 @@ done
 
 ✅ **Checkpoint 5:** tcpdump catches **ZERO packets** (timeout after 30s with no output).
    - This proves: no Anthropic, no Stripe, no Resend, no telemetry.
-   - If you see ANY traffic — STOP. Investigate before Bibin touches this.
+   - If you see ANY traffic — STOP. Investigate before the pilot customer touches this.
 
 ## 6 · Test the Python SDK end-to-end
 
@@ -199,11 +199,11 @@ Once all 8 checkpoints pass, mark the pilot image as **promoted to pilot tag**:
 gh workflow run release-pilot-image.yml -f pilot_tag=pilot-2026.05.12
 ```
 
-Then update Bibin's instructions to pin to that tag:
+Then update the pilot customer's instructions to pin to that tag:
 
 ```bash
 AGENTLENS_IMAGE=ghcr.io/soufianeazz/agentlens:pilot-2026.05.12 \
   curl -fsSL https://www.agentlens.one/install | bash
 ```
 
-This way, if you push changes to main during the 14-day pilot, Bibin's container is unaffected.
+This way, if you push changes to main during the 14-day pilot, the pilot customer's container is unaffected.

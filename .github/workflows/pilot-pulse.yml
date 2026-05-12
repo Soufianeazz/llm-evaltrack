@@ -1,6 +1,6 @@
 name: Pilot Pulse
 
-# Daily status + pre-call briefings for the VeritasGraph 14-day pilot.
+# Daily status + pre-call briefings for an active 14-day pilot.
 # Sends to OPS_EMAIL via SendGrid; uses Claude for talking points (with fallback).
 #
 # Schedule (UTC; CET is UTC+1, CEST is UTC+2):
@@ -11,7 +11,7 @@ name: Pilot Pulse
 on:
   schedule:
     - cron: '0 6 * * *'      # daily pulse (Soufian)
-    - cron: '30 7 * * *'     # customer-reminder (Bibin) — milestone-day-only
+    - cron: '30 7 * * *'     # customer-reminder (the pilot customer) — milestone-day-only
     - cron: '0 17 * * 1,4'   # pre-call: Mon and Thu evenings
   workflow_dispatch:
     inputs:

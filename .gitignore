@@ -42,13 +42,18 @@ enterprise/PILOT_ACCESS_*.md
 
 # CRITICAL — customer-specific pilot artifacts contain personal data + sales
 # strategy. Must NEVER be committed to a public repo. (GDPR + reputation risk.)
-# Pattern is intentionally broad to catch any future customer's name in a filename.
-enterprise/PILOT_*.md
-enterprise/*PILOT*.md
-enterprise/*BIBIN*
-enterprise/*VERITAS*
-enterprise/CUSTOMER_*.md
-enterprise/CASE_STUDY_*.md
+#
+# The entire enterprise/ folder is INTERNAL — sales decks, pilot plans, AVV/DPA
+# templates, security questionnaires, customer reply drafts. None of this
+# belongs in a public commercial-license repo. Stays on local disk only.
+enterprise/
+
+# Pilot state config — contains contact_email and personal data of the active
+# pilot customer. Cron jobs (pilot_pulse, etc.) read this locally; the example
+# template (pilot_state.example.json) is the only version that ships in git.
+agents/pilot_state.json
+
+# Customer-specific scripts/tests — must not bake customer names into git.
 scripts/build_*pilot*.py
 scripts/build_*customer*.py
 tests/test_*pilot*.py
@@ -56,3 +61,12 @@ tests/test_*customer*.py
 
 # Audit + Radar reports — generated locally and by CI scans, not committed
 .audit/
+
+# Marketing assets — internal drafts, not for public repo
+LinkedIn posts.txt
+Kommentare antworten.txt
+draft.txt
+linkedin_assets/
+*.pdf
+
+linkedin_assets${f}.png

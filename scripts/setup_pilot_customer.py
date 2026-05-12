@@ -9,7 +9,7 @@ What it does:
 5) Writes a markdown package to enterprise/
 
 Usage:
-  python scripts/setup_pilot_customer.py --customer "Bibin Prathap" --contact-email "bibin@example.com"
+  python scripts/setup_pilot_customer.py --customer "the pilot customer" --contact-email "customer@example.com"
 
 Required env vars:
   ADMIN_TOKEN

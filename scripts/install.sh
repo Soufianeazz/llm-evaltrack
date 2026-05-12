@@ -5,7 +5,7 @@
 #   curl -fsSL https://www.agentlens.one/install | bash
 #
 # Deterministic / unattended:
-#   AGENTLENS_LABEL=veritasgraph AGENTLENS_PORT=8000 \
+#   AGENTLENS_LABEL=my-workload AGENTLENS_PORT=8000 \
 #     curl -fsSL https://www.agentlens.one/install | bash
 #
 # What it does:

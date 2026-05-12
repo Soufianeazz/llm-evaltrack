@@ -1,6 +1,6 @@
 # AgentLens — Self-Hosted Air-Gapped Deployment
 
-Built for pilots like VeritasGraph / VeritasReason where **zero external data egress** is mandatory.
+Built for pilots like {primary_workflow} / {secondary_workflow} where **zero external data egress** is mandatory.
 
 ## What "air-gapped" means here
 
@@ -48,7 +48,7 @@ The first key is created from the host with the admin token:
 curl -X POST http://localhost:8000/admin/api-keys \
   -H "X-Admin-Token: $(grep ^ADMIN_TOKEN .env | cut -d= -f2)" \
   -H "Content-Type: application/json" \
-  -d '{"label": "veritasgraph-pilot", "role": "admin"}'
+  -d '{"label": "primary_workflow-pilot", "role": "admin"}'
 ```
 
 Save the returned `key` — that's what your workloads will use.
@@ -89,7 +89,7 @@ Wrap your multi-hop pipeline with `trace_agent` and one `span` per step. Citatio
 ```python
 from agentlens import trace_agent
 
-with trace_agent("veritasgraph_query", input=user_question) as t:
+with trace_agent("primary_workflow_query", input=user_question) as t:
     with t.span("expand_subgraph", span_type="retrieval") as s:
         nodes = graphrag.expand(user_question, hops=2)
         s.set_output(f"{len(nodes)} nodes, {len(edges)} edges")
@@ -108,10 +108,10 @@ with trace_agent("veritasgraph_query", input=user_question) as t:
     t.set_output(answer)
 ```
 
-### Policy reasoning (VeritasReason)
+### Policy reasoning ({secondary_workflow})
 
 ```python
-with trace_agent("veritasreason_sod_check", input=request_payload) as t:
+with trace_agent("secondary_workflow_sod_check", input=request_payload) as t:
     with t.span("load_policy", span_type="retrieval") as s:
         policy = load_yaml("policies/sod.yaml")
         s.set_output(policy["name"])

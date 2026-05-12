@@ -3,7 +3,7 @@ Health Radar — 3x/day full-spectrum scan of AgentLens infrastructure.
 
 PURPOSE
 -------
-Detect functional, security, and quality regressions BEFORE Bibin (or any pilot
+Detect functional, security, and quality regressions BEFORE the pilot customer (or any pilot
 customer) hits them. Classify findings by severity and route them:
   CRITICAL  → GitHub Issue (labelled `radar:critical`) + SendGrid email
   HIGH      → GitHub Issue (`radar:high`)
@@ -245,7 +245,7 @@ def check_workflow_status(report: RadarReport) -> None:
         name = r.get("name", "?")
         url = r.get("html_url", "")
         sha = (r.get("head_sha") or "")[:7]
-        # Workflows that gate Bibin's image build are HIGH; ops alerts are MEDIUM
+        # Workflows that gate the pilot customer's image build are HIGH; ops alerts are MEDIUM
         critical_workflows = {"Release Pilot Image"}
         sev = "HIGH" if name in critical_workflows else "MEDIUM"
         report.add(
@@ -374,7 +374,7 @@ def check_pilot_state(report: RadarReport) -> None:
             "MEDIUM", "pilot",
             "pilot contact_email not set",
             f"Current value: {contact!r}",
-            "After Bibin signs up, edit agents/pilot_state.json contact_email so "
+            "After the pilot customer signs up, edit agents/pilot_state.json contact_email so "
             "customer-reminder emails can fire on Day 10/13/14/18.",
         )
     kickoff = state.get("kickoff_date_utc", "")

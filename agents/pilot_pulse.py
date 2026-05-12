@@ -1,5 +1,5 @@
 """
-Pilot Pulse — Soufian's autonomous nudge for the VeritasGraph 14-day pilot.
+Pilot Pulse — Soufian's autonomous nudge for an active 14-day pilot.
 
 Three modes:
   --mode daily             Daily status email TO SOUFIAN (Day X of 14, hours-to-next-call, suggested today's actions).
@@ -34,6 +34,31 @@ logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(me
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 STATE_FILE = REPO_ROOT / "agents" / "pilot_state.json"
+EXAMPLE_FILE = REPO_ROOT / "agents" / "pilot_state.example.json"
+
+
+def _state_from_env() -> dict | None:
+    """Build pilot state entirely from PILOT_* env vars (preferred for CI/CD).
+    Returns None if no PILOT_CONTACT_EMAIL is set — caller falls back to JSON.
+    Customer PII never lives in the repo this way; secrets only in
+    GitHub Actions secrets / the runtime environment.
+    """
+    email = os.environ.get("PILOT_CONTACT_EMAIL", "").strip()
+    if not email:
+        return None
+    return {
+        "pilot_name": os.environ.get("PILOT_NAME", "Active Pilot"),
+        "contact_name": os.environ.get("PILOT_CONTACT_NAME", "Customer"),
+        "contact_email": email,
+        "kickoff_date_utc": os.environ.get("PILOT_KICKOFF_DATE_UTC", ""),
+        "pilot_days": int(os.environ.get("PILOT_DAYS", "14")),
+        "review_slots_cet": [s.strip() for s in os.environ.get("PILOT_REVIEW_SLOTS", "Tue 16:00,Fri 11:00").split(",")],
+        "workflows": [w.strip() for w in os.environ.get("PILOT_WORKFLOWS", "primary").split(",")],
+        "stack": [s.strip() for s in os.environ.get("PILOT_STACK", "self-hosted").split(",")],
+        "success_criteria": [s.strip() for s in os.environ.get("PILOT_SUCCESS_CRITERIA", "evaluation").split("|")],
+        "conversion_target_eur_mo": int(os.environ.get("PILOT_CONVERSION_TARGET_EUR_MO", "2999")),
+        "log": [],
+    }
 
 
 def _cet_now() -> datetime:
@@ -50,9 +75,22 @@ def _cet_now() -> datetime:
 # ── State helpers ─────────────────────────────────────────────────────────────
 
 def load_state() -> dict:
-    if not STATE_FILE.exists():
-        raise SystemExit(f"pilot_state.json not found at {STATE_FILE}")
-    return json.loads(STATE_FILE.read_text(encoding="utf-8"))
+    """Resolution order:
+    1. Environment variables (PILOT_CONTACT_EMAIL, etc.) — preferred for CI/CD
+       since customer PII never touches the repo.
+    2. Local pilot_state.json — gitignored; for local dev / one-off runs.
+    3. pilot_state.example.json — placeholder template; allows the script to
+       run cleanly in fresh checkouts but emits no real customer mail.
+    """
+    env_state = _state_from_env()
+    if env_state is not None:
+        return env_state
+    if STATE_FILE.exists():
+        return json.loads(STATE_FILE.read_text(encoding="utf-8"))
+    if EXAMPLE_FILE.exists():
+        logger.warning("Using pilot_state.example.json — no real pilot configured.")
+        return json.loads(EXAMPLE_FILE.read_text(encoding="utf-8"))
+    raise SystemExit(f"No pilot state found (env vars, {STATE_FILE}, or {EXAMPLE_FILE}).")
 
 
 def parse_kickoff(state: dict) -> datetime | None:
@@ -103,7 +141,7 @@ def fallback_daily(state: dict, day_x: int, days_left: int, next_call: str, hour
         f"Days left: {days_left}\n"
         f"Next call: {next_call} (in {hours} h)\n\n"
         "Suggested today:\n"
-        "  • If silent for >24h → ping Bibin with a one-liner ('quick check — anything blocking?')\n"
+        "  • If silent for >24h → ping the pilot customer with a one-liner ('quick check — anything blocking?')\n"
         "  • If first-call complete → confirm trace ingest is green via /healthz screenshot\n"
         "  • Mid-pilot (Day 7) → draft check-in email with his own dashboard numbers\n"
         "  • Day 12+ → start drafting pricing memo for conversion call\n"

@@ -9,7 +9,7 @@ WorkingDirectory=/opt/agentlens
 Environment=AGENTLENS_BASE_URL=https://www.agentlens.one
 Environment=PILOT_ALERT_WEBHOOK_URL=
 Environment=PYTHONUNBUFFERED=1
-ExecStart=/usr/bin/python3 /opt/agentlens/scripts/pilot_guardian.py --api-key <pilot_key> --customer "Bibin" --interval-sec 300
+ExecStart=/usr/bin/python3 /opt/agentlens/scripts/pilot_guardian.py --api-key <pilot_key> --customer "<customer-name>" --interval-sec 300
 Restart=always
 RestartSec=15
 User=agentlens

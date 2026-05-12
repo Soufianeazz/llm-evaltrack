@@ -8,8 +8,8 @@ What it does every interval:
 4) Sends webhook alerts on failures
 
 Usage:
-    python scripts/pilot_guardian.py --api-key <pilot_key> --customer "Bibin"
-    python scripts/pilot_guardian.py --api-key <pilot_key> --customer "Bibin" --once
+    python scripts/pilot_guardian.py --api-key <pilot_key> --customer "the pilot customer"
+    python scripts/pilot_guardian.py --api-key <pilot_key> --customer "the pilot customer" --once
 
 Optional env vars:
     AGENTLENS_BASE_URL=https://www.agentlens.one

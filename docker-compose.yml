@@ -1,5 +1,5 @@
 # AgentLens self-host — single-container, SQLite on a named volume.
-# Designed for air-gapped Linux hosts (Bibin's pilot setup).
+# Designed for air-gapped Linux hosts (the pilot customer's pilot setup).
 #
 # Quick start:
 #   cp .env.airgap.example .env

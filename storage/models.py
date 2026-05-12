@@ -173,7 +173,7 @@ class SelfHostInstance(Base):
 
     id = Column(String, primary_key=True)
     api_key = Column(String, nullable=False, index=True)  # tenant key from agentlens.one
-    label = Column(String, nullable=False)                # e.g. "veritasgraph-prod"
+    label = Column(String, nullable=False)                # e.g. "customer-prod"
     pilot = Column(Boolean, default=False)                # is this a 14-day pilot instance?
     registered_at = Column(Float, nullable=False, index=True)
     last_pinged_at = Column(Float, nullable=True)         # only if customer opts into healthcheck

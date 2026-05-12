@@ -197,9 +197,9 @@
         Want to pin a label or port? Pass via env:
       </p>
       <div class="codeblock">
-<span class="accent">AGENTLENS_LABEL</span>=veritasgraph <span class="accent">AGENTLENS_PORT</span>=8000 \
+<span class="accent">AGENTLENS_LABEL</span>=my-workload <span class="accent">AGENTLENS_PORT</span>=8000 \
   <span class="accent">curl</span> -fsSL https://www.agentlens.one/install | <span class="accent">bash</span>
-        <button class="copy-btn" data-copy="AGENTLENS_LABEL=veritasgraph AGENTLENS_PORT=8000 curl -fsSL https://www.agentlens.one/install | bash">Copy</button>
+        <button class="copy-btn" data-copy="AGENTLENS_LABEL=my-workload AGENTLENS_PORT=8000 curl -fsSL https://www.agentlens.one/install | bash">Copy</button>
       </div>
     </div>
 
@@ -214,7 +214,7 @@
         <div class="row-2">
           <div>
             <label for="reg-label">Label</label>
-            <input id="reg-label" type="text" placeholder="veritasgraph-prod" required maxlength="120" />
+            <input id="reg-label" type="text" placeholder="customer-prod" required maxlength="120" />
           </div>
           <div>
             <label for="reg-healthcheck">Healthcheck URL (optional)</label>
@@ -222,7 +222,7 @@
           </div>
         </div>
         <label for="reg-notes">Notes (optional)</label>
-        <textarea id="reg-notes" placeholder="Linux Ubuntu 22.04 / 1 vCPU / for VeritasGraph workflow" maxlength="2000"></textarea>
+        <textarea id="reg-notes" placeholder="Linux Ubuntu 22.04 / 1 vCPU / for my-workload-prod" maxlength="2000"></textarea>
         <div class="checkbox-row">
           <input type="checkbox" id="reg-pilot" />
           <label for="reg-pilot" style="margin: 0;">This is a 14-day pilot deployment</label>
@@ -261,7 +261,7 @@ agentlens.patch_openai()'>Copy</button>
       <div class="codeblock">
 <span class="accent">from</span> agentlens <span class="accent">import</span> trace_agent
 
-<span class="accent">with</span> trace_agent(<span class="accent">"veritasgraph_query"</span>, input=user_question) <span class="accent">as</span> t:
+<span class="accent">with</span> trace_agent(<span class="accent">"my_workload_query"</span>, input=user_question) <span class="accent">as</span> t:
     <span class="accent">with</span> t.span(<span class="accent">"retrieve"</span>, span_type=<span class="accent">"retrieval"</span>) <span class="accent">as</span> s:
         s.set_output(<span class="accent">f"{len(passages)} passages"</span>)
     <span class="accent">with</span> t.span(<span class="accent">"synthesize"</span>, span_type=<span class="accent">"llm"</span>, model=<span class="accent">"llama3.1"</span>) <span class="accent">as</span> s:
@@ -270,7 +270,7 @@ agentlens.patch_openai()'>Copy</button>
     t.set_output(answer)
         <button class="copy-btn" data-copy='from agentlens import trace_agent
 
-with trace_agent("veritasgraph_query", input=user_question) as t:
+with trace_agent("my_workload_query", input=user_question) as t:
     with t.span("retrieve", span_type="retrieval") as s:
         s.set_output(f"{len(passages)} passages")
     with t.span("synthesize", span_type="llm", model="llama3.1") as s:

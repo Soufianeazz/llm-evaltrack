@@ -2,7 +2,7 @@ name: Release Pilot Image
 
 # Builds the AgentLens self-host image, runs end-to-end smoke tests inside CI,
 # and only pushes to GHCR if every test passes. This is the gate that protects
-# pilot customers (Bibin & later) from broken images.
+# pilot customers (the active pilot & later) from broken images.
 
 on:
   push:

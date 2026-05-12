@@ -5,7 +5,7 @@ Twice a day: triggers /admin/pilot-pulse on agentlens.one. The endpoint pings
 every registered pilot instance's opt-in healthcheck URL and updates
 last_pinged_at. We then evaluate the report and email Soufian when a pilot
 instance has been unreachable for more than 6 hours — that's a signal the
-pilot customer (Bibin) might be stuck or the container died unattended.
+pilot customer (the pilot customer) might be stuck or the container died unattended.
 
 NOT pinging customer URLs from this agent directly — Railway → customer URL
 is more likely to succeed than GH-runner → customer URL (loopback / RFC1918

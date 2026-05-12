@@ -57,7 +57,7 @@ def _enforce_airgap() -> None:
     """When AGENTLENS_AIRGAP=1, hard-clear every env var that any code path could
     use to reach an external service. This is defense-in-depth on top of the
     per-call-site checks in pipeline/worker.py and the empty defaults in
-    .env.airgap.example. Bibin's hard requirement is zero outbound; one stray
+    .env.airgap.example. the pilot customer's hard requirement is zero outbound; one stray
     env var must never be enough to break that promise."""
     if os.environ.get("AGENTLENS_AIRGAP", "").strip().lower() not in ("1", "true", "yes"):
         return

@@ -4,7 +4,7 @@ Tenant isolation regression test — runs in CI before every image push.
 PURPOSE
 -------
 Cross-tenant data leaks killed real customer trust at companies like Datadog,
-Algolia, and Elastic. After the 2026-05-12 pre-Bibin audit found two real
+Algolia, and Elastic. After the 2026-05-12 pre-the pilot customer audit found two real
 leaks (audit-log + budget alerts), this test ensures EVERY data-returning
 endpoint enforces api_key filtering — and prevents anyone from re-introducing
 the same bug class via a future refactor.

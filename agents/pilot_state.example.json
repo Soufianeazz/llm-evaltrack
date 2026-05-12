@@ -1,0 +1,16 @@
+{
+  "pilot_name": "REPLACE_WITH_PILOT_NAME",
+  "contact_name": "REPLACE_WITH_CUSTOMER_NAME",
+  "contact_email": "REPLACE_WITH_CUSTOMER_EMAIL",
+  "kickoff_date_utc": "REPLACE_AFTER_KICKOFF",
+  "pilot_days": 14,
+  "review_slots_cet": ["Tue 16:00", "Fri 11:00"],
+  "workflows": ["REPLACE_WITH_WORKFLOW_LIST"],
+  "stack": ["REPLACE_WITH_STACK"],
+  "success_criteria": [
+    "REPLACE_WITH_SUCCESS_CRITERION_1",
+    "REPLACE_WITH_SUCCESS_CRITERION_2"
+  ],
+  "conversion_target_eur_mo": 2999,
+  "log": []
+}
