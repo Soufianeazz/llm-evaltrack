@@ -120,7 +120,7 @@ Push to main branch → Railway auto-deploys. No manual steps needed.
 - SQLite (not Postgres) — simple, no extra service needed for MVP
 - In-process asyncio.Queue (not Redis) — swap-ready but simple for now
 - Evaluation is async (fire-and-forget after ingest)
-- No auth on API — open CORS, intentional for MVP
+- API requires X-API-Key header (per-tenant); admin routes require X-Admin-Token; CORS locked to agentlens.one + localhost
 - Cost calculated in SDK at call time, stored in metadata JSON field
 
 ## Next Steps

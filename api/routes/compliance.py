@@ -211,7 +211,13 @@ async def get_audit_log(
     db: AsyncSession = Depends(get_session),
     ctx: ApiKeyContext = Depends(require_api_key_context),
     _feature: PlanContext = Depends(require_feature("compliance_gdpr")),
+    _admin_only: None = Depends(require_admin_token),
 ):
+    # SECURITY (2026-05-12): AuditLog is global (no api_key column), so a
+    # tenant-key holder with the compliance_gdpr feature would otherwise see
+    # every other tenant's signup / approval / key-creation events. Until
+    # AuditLog gains a tenant column + scoped writes, this endpoint requires
+    # an admin token. Tenant-scoped audit views are tracked as P1 work.
     ensure_role(ctx, "admin", "analyst")
     query = select(AuditLog).order_by(AuditLog.timestamp.desc())
     if action:
@@ -239,7 +245,10 @@ async def export_audit_log(
     db: AsyncSession = Depends(get_session),
     ctx: ApiKeyContext = Depends(require_api_key_context),
     _feature: PlanContext = Depends(require_feature("compliance_gdpr")),
+    _admin_only: None = Depends(require_admin_token),
 ):
+    # SECURITY: see comment on /audit-log above. Admin-token gated until
+    # AuditLog has tenant scoping.
     ensure_role(ctx, "admin", "analyst")
     query = select(AuditLog).order_by(AuditLog.timestamp.desc())
     if action:

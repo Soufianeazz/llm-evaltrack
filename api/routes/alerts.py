@@ -40,7 +40,7 @@ async def set_budget(
     ctx: ApiKeyContext = Depends(require_api_key_context),
 ):
     ensure_role(ctx, "admin")
-    result = await db.execute(select(BudgetAlert).where(BudgetAlert.id == "default"))
+    result = await db.execute(select(BudgetAlert).where(BudgetAlert.id == ctx.key))
     alert = result.scalar_one_or_none()
 
     if alert:
@@ -52,8 +52,13 @@ async def set_budget(
             alert.email = payload.email
         alert.triggered_today = False
     else:
+        # SECURITY (2026-05-12): use api_key as the BudgetAlert PK so each
+        # tenant has its OWN budget row. Previously id="default" meant a
+        # single global row shared across every tenant — webhook URL + email
+        # leaked between accounts. The legacy "default" row, if present, is
+        # now orphaned and unreachable; admin can clean it up via DB query.
         alert = BudgetAlert(
-            id="default",
+            id=ctx.key,
             daily_budget_usd=payload.daily_budget_usd,
             webhook_url=payload.webhook_url,
             email=payload.email,
@@ -79,7 +84,7 @@ async def get_budget(
     db: AsyncSession = Depends(get_session),
     ctx: ApiKeyContext = Depends(require_api_key_context),
 ):
-    result = await db.execute(select(BudgetAlert).where(BudgetAlert.id == "default"))
+    result = await db.execute(select(BudgetAlert).where(BudgetAlert.id == ctx.key))
     alert = result.scalar_one_or_none()
 
     if not alert:
@@ -102,7 +107,7 @@ async def delete_budget(
     ctx: ApiKeyContext = Depends(require_api_key_context),
 ):
     ensure_role(ctx, "admin")
-    result = await db.execute(select(BudgetAlert).where(BudgetAlert.id == "default"))
+    result = await db.execute(select(BudgetAlert).where(BudgetAlert.id == ctx.key))
     alert = result.scalar_one_or_none()
     if alert:
         await db.delete(alert)
