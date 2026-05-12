@@ -67,6 +67,41 @@ command -v curl >/dev/null 2>&1 || fail "curl not found. Install with: apt insta
 
 ok "Linux + Docker detected"
 
+# ── Port pre-check + auto-fallback ────────────────────────────────────────────
+# We check the requested port (default 8000). If occupied, we auto-search for
+# the next free port up to 8050 — installer never fails late at `docker run`
+# with a confusing "address already in use" anymore.
+port_in_use() {
+  # Returns 0 if $1 is bound on any interface.
+  if command -v ss >/dev/null 2>&1; then
+    ss -ltn 2>/dev/null | awk -v p=":$1\$" '$4 ~ p {found=1} END {exit !found}'
+  elif command -v netstat >/dev/null 2>&1; then
+    netstat -ltn 2>/dev/null | awk -v p=":$1\$" '$4 ~ p {found=1} END {exit !found}'
+  else
+    # No tool — try to bind via /dev/tcp; if the connect succeeds, port is in use.
+    (echo > /dev/tcp/127.0.0.1/"$1") >/dev/null 2>&1
+  fi
+}
+
+ORIGINAL_PORT="$PORT"
+if port_in_use "$PORT"; then
+  warn "Port $PORT is already in use on this host."
+  candidate="$PORT"
+  for try in $(seq 1 50); do
+    candidate=$((PORT + try))
+    if ! port_in_use "$candidate"; then
+      PORT="$candidate"
+      info "Auto-selected free port $PORT (override with AGENTLENS_PORT=...)."
+      break
+    fi
+  done
+  if [[ "$PORT" == "$ORIGINAL_PORT" ]]; then
+    fail "Could not find a free port in range $ORIGINAL_PORT-$((ORIGINAL_PORT + 50)). \
+Free a port manually or rerun with: AGENTLENS_PORT=<free_port> bash"
+  fi
+fi
+ok "Host port $PORT is free"
+
 # ── Generate admin token locally ──────────────────────────────────────────────
 ADMIN_TOKEN="$(LC_ALL=C tr -dc 'A-Za-z0-9_-' < /dev/urandom 2>/dev/null | head -c 48 || echo "fallback-$(date +%s%N)-$$")"
 [[ ${#ADMIN_TOKEN} -ge 32 ]] || fail "Failed to generate admin token (need /dev/urandom)."

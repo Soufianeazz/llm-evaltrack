@@ -17,7 +17,12 @@ services:
     container_name: agentlens
     restart: unless-stopped
     ports:
-      - "8000:8000"
+      # Host port is configurable via AGENTLENS_HOST_PORT in .env (default 8000).
+      # Pick a free port if 8000 is occupied — find one with:
+      #   sudo ss -ltn | awk 'NR>1 {sub(".*:","",$4); print $4}' | sort -un | \
+      #     awk 'BEGIN{p=8000} $1==p{p++} END{print p}'
+      # Container internal port stays 8000 — only the host-side mapping changes.
+      - "${AGENTLENS_HOST_PORT:-8000}:8000"
     env_file:
       - .env
     environment:
