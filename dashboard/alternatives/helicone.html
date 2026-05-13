@@ -3,17 +3,17 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Best Datadog LLM Observability Alternatives — Self-hosted LLM Observability | AgentLens</title>
-  <meta name="description" content="Looking for a self-hosted Datadog LLM Observability alternative? AgentLens offers quality scoring, hallucination detection, agent debugging, and GDPR compliance — without sending your prompts to Datadog LLM Observability's cloud." />
-  <link rel="canonical" href="https://www.agentlens.one/alternatives/datadog-llm" />
+  <title>Best Helicone Alternatives — Self-hosted LLM Observability | AgentLens</title>
+  <meta name="description" content="Looking for a self-hosted Helicone alternative? AgentLens offers quality scoring, hallucination detection, agent debugging, and GDPR compliance — without sending your prompts to Helicone's cloud." />
+  <link rel="canonical" href="https://www.agentlens.one/alternatives/helicone" />
   <link rel="icon" href="/logo.svg" type="image/svg+xml" />
-  <meta property="og:title" content="Datadog LLM Observability vs AgentLens — Self-hosted LLM Observability" />
-  <meta property="og:description" content="Datadog LLM Observability-alternative with open-core deployment, GDPR-native controls, and managed plans from €299/mo." />
-  <meta property="og:url" content="https://www.agentlens.one/alternatives/datadog-llm" />
+  <meta property="og:title" content="Helicone vs AgentLens — Self-hosted LLM Observability" />
+  <meta property="og:description" content="Helicone-alternative with open-core deployment, GDPR-native controls, and managed plans from €299/mo." />
+  <meta property="og:url" content="https://www.agentlens.one/alternatives/helicone" />
   <meta property="og:type" content="website" />
   <meta name="twitter:card" content="summary" />
   <script type="application/ld+json">
-  {"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Why pick AgentLens over Datadog LLM observability?", "acceptedAnswer": {"@type": "Answer", "text": "Cost (10x cheaper at the entry point), no agent footprint in your runtime, EU residency by default, and a free self-hosted path so you can evaluate without procurement."}}, {"@type": "Question", "name": "Can I run AgentLens alongside Datadog?", "acceptedAnswer": {"@type": "Answer", "text": "Yes — they're complementary. Datadog handles infrastructure + APM; AgentLens handles LLM-specific traces and evaluations."}}, {"@type": "Question", "name": "Does AgentLens have anything Datadog doesn't?", "acceptedAnswer": {"@type": "Answer", "text": "Built-in heuristic quality scoring, hallucination flags, verifiable air-gap mode, and a clear self-hostable path with no enterprise contract gate."}}]}
+  {"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Is AgentLens a drop-in Helicone replacement?", "acceptedAnswer": {"@type": "Answer", "text": "For proxy-style logging — yes, with patch_openai/patch_anthropic. For multi-step agents and quality scoring, AgentLens does more out of the box."}}, {"@type": "Question", "name": "Can I run AgentLens alongside Helicone during migration?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. AgentLens is independent of your LLM SDK proxy. Run both, compare, pick a winner."}}, {"@type": "Question", "name": "Does AgentLens require changing my code?", "acceptedAnswer": {"@type": "Answer", "text": "Two-line install: agentlens.init() + agentlens.patch_openai(). Optional: wrap multi-step agents with trace_agent for the waterfall view."}}, {"@type": "Question", "name": "Why pick AgentLens over Helicone?", "acceptedAnswer": {"@type": "Answer", "text": "If you need multi-step agent traces, automatic quality scoring, GDPR-native compliance, or air-gap mode — AgentLens is the answer. For pure proxy logging, Helicone is simpler."}}]}
   </script>
   <style>
     *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
@@ -83,11 +83,11 @@
 </nav>
 
 <section class="hero">
-  <div class="badge">Datadog LLM Observability Alternative · EU · Self-hosted · Open Core</div>
-  <h1>Looking for a Datadog LLM Observability alternative?<br/><span>LLM observability without enterprise contracts.</span></h1>
-  <p>Datadog's LLM observability is powerful — and locked behind enterprise contracts that start at multi-thousand monthly minimums. AgentLens delivers the core observability layer at a fraction of the cost, with EU residency and air-gap by default.</p>
+  <div class="badge">Helicone Alternative · EU · Self-hosted · Open Core</div>
+  <h1>Looking for a Helicone alternative?<br/><span>Beyond proxy logging. Full observability + compliance.</span></h1>
+  <p>Helicone is a great proxy-style logger — drop-in for OpenAI/Anthropic. AgentLens goes further: agent waterfalls for multi-step traces, automatic quality scoring, hallucination flags, and EU-native compliance built in.</p>
   <div class="hero-ctas">
-    <a href="/book-demo?source=migration-datadog-llm" class="btn btn-primary">Book a Migration Call</a>
+    <a href="/book-demo?source=migration-helicone" class="btn btn-primary">Book a Migration Call</a>
     <a href="/dashboard?demo=1&api_key=al_demo_agentlens" class="btn btn-outline">See Live Demo →</a>
   </div>
 </section>
@@ -100,22 +100,22 @@
       <tr>
         <th>Capability</th>
         <th class="ours" style="color:var(--purple)">AgentLens</th>
-        <th>Datadog LLM Observability</th>
+        <th>Helicone</th>
       </tr>
     </thead>
     <tbody>
-      <tr><td>Self-hosted (free path)</td><td class="ours"><span class="check">✓</span> open-core, BSL 1.1</td><td><span style="color:var(--muted);font-size:.85rem">Limited / managed cloud only</span></td></tr>
-      <tr><td>Starting price</td><td class="ours"><span class="check">✓</span> €299/mo flat</td><td><span style="color:var(--muted);font-size:.85rem">Custom enterprise (often $5k+/mo)</span></td></tr>
-      <tr><td>Multi-step agent waterfalls</td><td class="ours"><span class="check">✓</span> trace_agent + spans</td><td><span class="check">✓</span></td></tr>
-      <tr><td>Automatic quality + hallucination flags</td><td class="ours"><span class="check">✓</span> heuristic, zero config</td><td><span style="color:var(--muted);font-size:.85rem">Eval framework, manual</span></td></tr>
-      <tr><td>Air-gap mode (single env var)</td><td class="ours"><span class="check">✓</span> tcpdump-verified</td><td><span style="color:var(--muted);font-size:.85rem">Limited (Datadog requires data flow to their cloud)</span></td></tr>
-      <tr><td>EU-hosted (default for managed)</td><td class="ours"><span class="check">✓</span> Frankfurt</td><td><span style="color:var(--muted);font-size:.85rem">EU region available</span></td></tr>
-      <tr><td>Plan-tier feature gating</td><td class="ours"><span class="check">✓</span> Free / Starter / Team / Scale / Enterprise</td><td><span style="color:var(--muted);font-size:.85rem">Enterprise tiers</span></td></tr>
-      <tr><td>Compliance workflows (DPA, audit, retention)</td><td class="ours"><span class="check">✓</span> Scale plan</td><td><span class="check">✓</span></td></tr>
-      <tr><td>Vendor lock-in surface</td><td class="ours"><span style="color:var(--muted);font-size:.85rem">Low</span></td><td><span style="color:var(--muted);font-size:.85rem">Higher (Datadog agent + APM)</span></td></tr>
+      <tr><td>Proxy-style logging (drop-in for SDKs)</td><td class="ours"><span class="check">✓</span> via patch_openai / patch_anthropic</td><td><span class="check">✓</span></td></tr>
+      <tr><td>Multi-step agent waterfall traces</td><td class="ours"><span class="check">✓</span> trace_agent + spans</td><td><span class="cross">✗</span></td></tr>
+      <tr><td>Automatic quality scoring + hallucination flags</td><td class="ours"><span class="check">✓</span> heuristic, zero config</td><td><span class="cross">✗</span></td></tr>
+      <tr><td>Self-hosted deployment</td><td class="ours"><span class="check">✓</span> open-core, BSL 1.1</td><td><span style="color:var(--muted);font-size:.85rem">MIT</span></td></tr>
+      <tr><td>Air-gap mode (zero outbound)</td><td class="ours"><span class="check">✓</span> single env var, tcpdump-verified</td><td><span style="color:var(--muted);font-size:.85rem">Manual</span></td></tr>
+      <tr><td>EU-hosted managed cloud (default)</td><td class="ours"><span class="check">✓</span> Frankfurt</td><td><span style="color:var(--muted);font-size:.85rem">US default</span></td></tr>
+      <tr><td>DPA + audit log + retention policy</td><td class="ours"><span class="check">✓</span> Scale plan</td><td><span style="color:var(--muted);font-size:.85rem">Custom contract</span></td></tr>
+      <tr><td>Framework-agnostic SDK</td><td class="ours"><span class="check">✓</span></td><td><span style="color:var(--muted);font-size:.85rem">Proxy works for many</span></td></tr>
+      <tr><td>Cost + budget alerts</td><td class="ours"><span class="check">✓</span></td><td><span class="check">✓</span></td></tr>
     </tbody>
   </table>
-  <p style="margin-top:1rem;font-size:.75rem;color:var(--muted)">Based on public Datadog LLM Observability pricing as of May 2026. Verify at <a href="https://www.datadoghq.com/pricing/" target="_blank" rel="noopener">https://www.datadoghq.com/pricing/</a>.</p>
+  <p style="margin-top:1rem;font-size:.75rem;color:var(--muted)">Based on public Helicone pricing as of May 2026. Verify at <a href="https://www.helicone.ai/pricing" target="_blank" rel="noopener">https://www.helicone.ai/pricing</a>.</p>
 </section>
 
 <section class="section">
@@ -123,21 +123,22 @@
   <h2>Honest recommendation</h2>
   <div class="two-col">
     <div>
-      <h3>Choose Datadog LLM Observability if…</h3>
+      <h3>Choose Helicone if…</h3>
       <ul>
-        <li>You're already a Datadog customer for APM + infrastructure</li>
-        <li>You have enterprise-tier budget approved</li>
-        <li>Cross-stack correlation (logs + APM + LLM) is valuable</li>
-        <li>You want a single vendor for full observability</li>
+        <li>You only need proxy-style request logs</li>
+        <li>Your stack is purely OpenAI/Anthropic API calls (no multi-step agents)</li>
+        <li>You want US managed cloud at the lowest price point</li>
+        <li>You're not in regulated industry</li>
       </ul>
     </div>
     <div>
       <h3>Choose AgentLens if…</h3>
       <ul>
-        <li>Your budget is mid-market, not enterprise (€299–2,999/mo)</li>
-        <li>You want LLM-specific observability without an APM agent in your runtime</li>
-        <li>EU residency / air-gap matter</li>
-        <li>You want to start free (self-hosted) and grow into a paid plan when ready</li>
+        <li>You run multi-step agents and need waterfall debugging</li>
+        <li>You want quality + hallucination scoring without manual eval setup</li>
+        <li>Your buyer requires DPA, audit log, retention policy</li>
+        <li>EU residency / air-gap matter to you</li>
+        <li>You want compliance workflows out of the box</li>
       </ul>
     </div>
   </div>
@@ -145,12 +146,15 @@
 
 <section class="section">
   <div class="section-label">Migration</div>
-  <h2>Switching from Datadog LLM Observability takes ~30 minutes</h2>
+  <h2>Switching from Helicone takes ~30 minutes</h2>
   <p>Both tools share a similar mental model. The SDK surface is different but migration is mechanical.</p>
   <div class="code-block">
-    <div><span class="code-comment"># Before (Datadog LLM)</span></div>
-    <div>from datadog import initialize, statsd</div>
-    <div>initialize(api_key="...", app_key="...")</div>
+    <div><span class="code-comment"># Before (Helicone)</span></div>
+    <div>from openai import OpenAI</div>
+    <div>client = OpenAI(</div>
+    <div>    base_url="https://oai.helicone.ai/v1",</div>
+    <div>    default_headers={"Helicone-Auth": f"Bearer {KEY}"},</div>
+    <div>)</div>
     <div>&nbsp;</div>
     <div><span class="code-comment"># After (AgentLens)</span></div>
     <div><span class="code-key">import</span> agentlens</div>
@@ -163,18 +167,19 @@
   <div class="section-label">FAQ</div>
   <h2>Common questions</h2>
   <div class="faq">
-    <details><summary>Why pick AgentLens over Datadog LLM observability?</summary><p>Cost (10x cheaper at the entry point), no agent footprint in your runtime, EU residency by default, and a free self-hosted path so you can evaluate without procurement.</p></details>
-    <details><summary>Can I run AgentLens alongside Datadog?</summary><p>Yes — they're complementary. Datadog handles infrastructure + APM; AgentLens handles LLM-specific traces and evaluations.</p></details>
-    <details><summary>Does AgentLens have anything Datadog doesn't?</summary><p>Built-in heuristic quality scoring, hallucination flags, verifiable air-gap mode, and a clear self-hostable path with no enterprise contract gate.</p></details>
+    <details><summary>Is AgentLens a drop-in Helicone replacement?</summary><p>For proxy-style logging — yes, with patch_openai/patch_anthropic. For multi-step agents and quality scoring, AgentLens does more out of the box.</p></details>
+    <details><summary>Can I run AgentLens alongside Helicone during migration?</summary><p>Yes. AgentLens is independent of your LLM SDK proxy. Run both, compare, pick a winner.</p></details>
+    <details><summary>Does AgentLens require changing my code?</summary><p>Two-line install: agentlens.init() + agentlens.patch_openai(). Optional: wrap multi-step agents with trace_agent for the waterfall view.</p></details>
+    <details><summary>Why pick AgentLens over Helicone?</summary><p>If you need multi-step agent traces, automatic quality scoring, GDPR-native compliance, or air-gap mode — AgentLens is the answer. For pure proxy logging, Helicone is simpler.</p></details>
   </div>
 </section>
 
 <section class="section">
   <div class="cta-box">
     <h3>Ready to own your LLM data?</h3>
-    <p>15-minute migration call. We'll map your Datadog LLM Observability setup to AgentLens and get you running.</p>
+    <p>15-minute migration call. We'll map your Helicone setup to AgentLens and get you running.</p>
     <div class="hero-ctas">
-      <a href="/book-demo?source=migration-datadog-llm" class="btn btn-primary">Book a Migration Call</a>
+      <a href="/book-demo?source=migration-helicone" class="btn btn-primary">Book a Migration Call</a>
       <a href="https://github.com/Soufianeazz/agentlens" target="_blank" class="btn btn-outline">View Core Repo on GitHub</a>
     </div>
   </div>

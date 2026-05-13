@@ -3,17 +3,17 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Best Datadog LLM Observability Alternatives — Self-hosted LLM Observability | AgentLens</title>
-  <meta name="description" content="Looking for a self-hosted Datadog LLM Observability alternative? AgentLens offers quality scoring, hallucination detection, agent debugging, and GDPR compliance — without sending your prompts to Datadog LLM Observability's cloud." />
-  <link rel="canonical" href="https://www.agentlens.one/alternatives/datadog-llm" />
+  <title>Best Langfuse Alternatives — Self-hosted LLM Observability | AgentLens</title>
+  <meta name="description" content="Looking for a self-hosted Langfuse alternative? AgentLens offers quality scoring, hallucination detection, agent debugging, and GDPR compliance — without sending your prompts to Langfuse's cloud." />
+  <link rel="canonical" href="https://www.agentlens.one/alternatives/langfuse" />
   <link rel="icon" href="/logo.svg" type="image/svg+xml" />
-  <meta property="og:title" content="Datadog LLM Observability vs AgentLens — Self-hosted LLM Observability" />
-  <meta property="og:description" content="Datadog LLM Observability-alternative with open-core deployment, GDPR-native controls, and managed plans from €299/mo." />
-  <meta property="og:url" content="https://www.agentlens.one/alternatives/datadog-llm" />
+  <meta property="og:title" content="Langfuse vs AgentLens — Self-hosted LLM Observability" />
+  <meta property="og:description" content="Langfuse-alternative with open-core deployment, GDPR-native controls, and managed plans from €299/mo." />
+  <meta property="og:url" content="https://www.agentlens.one/alternatives/langfuse" />
   <meta property="og:type" content="website" />
   <meta name="twitter:card" content="summary" />
   <script type="application/ld+json">
-  {"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Why pick AgentLens over Datadog LLM observability?", "acceptedAnswer": {"@type": "Answer", "text": "Cost (10x cheaper at the entry point), no agent footprint in your runtime, EU residency by default, and a free self-hosted path so you can evaluate without procurement."}}, {"@type": "Question", "name": "Can I run AgentLens alongside Datadog?", "acceptedAnswer": {"@type": "Answer", "text": "Yes — they're complementary. Datadog handles infrastructure + APM; AgentLens handles LLM-specific traces and evaluations."}}, {"@type": "Question", "name": "Does AgentLens have anything Datadog doesn't?", "acceptedAnswer": {"@type": "Answer", "text": "Built-in heuristic quality scoring, hallucination flags, verifiable air-gap mode, and a clear self-hostable path with no enterprise contract gate."}}]}
+  {"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Can I migrate from Langfuse without rewriting my agent?", "acceptedAnswer": {"@type": "Answer", "text": "Yes — both use a span/trace model. The SDK call surface differs but the wrapper code is mechanical. ~30 min for a typical agent."}}, {"@type": "Question", "name": "Does AgentLens have feature parity with Langfuse?", "acceptedAnswer": {"@type": "Answer", "text": "Core observability — yes. Langfuse has a more mature LLM-as-judge eval framework. AgentLens leans on heuristic scoring + agent debugging + compliance workflows. Pick based on which mix you need."}}, {"@type": "Question", "name": "What's the licensing difference?", "acceptedAnswer": {"@type": "Answer", "text": "Langfuse is fully MIT. AgentLens server is BSL 1.1 (converts to Apache 2.0 in 2030); SDK is MIT. The BSL only restricts offering AgentLens itself as a competing hosted service — internal production use is unrestricted."}}, {"@type": "Question", "name": "Why pick AgentLens over a free MIT tool?", "acceptedAnswer": {"@type": "Answer", "text": "Compliance (DPA, audit log, retention), production support SLA, EU residency by default, and air-gap mode that's verifiable rather than configurable."}}]}
   </script>
   <style>
     *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
@@ -83,11 +83,11 @@
 </nav>
 
 <section class="hero">
-  <div class="badge">Datadog LLM Observability Alternative · EU · Self-hosted · Open Core</div>
-  <h1>Looking for a Datadog LLM Observability alternative?<br/><span>LLM observability without enterprise contracts.</span></h1>
-  <p>Datadog's LLM observability is powerful — and locked behind enterprise contracts that start at multi-thousand monthly minimums. AgentLens delivers the core observability layer at a fraction of the cost, with EU residency and air-gap by default.</p>
+  <div class="badge">Langfuse Alternative · EU · Self-hosted · Open Core</div>
+  <h1>Looking for a Langfuse alternative?<br/><span>Same observability. Stronger compliance posture.</span></h1>
+  <p>Langfuse is a solid open-source choice — but enterprise-grade compliance (DPA, SOC 2 readiness, audit logs, EU residency on managed cloud) and air-gap mode require effort. AgentLens ships those by default.</p>
   <div class="hero-ctas">
-    <a href="/book-demo?source=migration-datadog-llm" class="btn btn-primary">Book a Migration Call</a>
+    <a href="/book-demo?source=migration-langfuse" class="btn btn-primary">Book a Migration Call</a>
     <a href="/dashboard?demo=1&api_key=al_demo_agentlens" class="btn btn-outline">See Live Demo →</a>
   </div>
 </section>
@@ -100,22 +100,22 @@
       <tr>
         <th>Capability</th>
         <th class="ours" style="color:var(--purple)">AgentLens</th>
-        <th>Datadog LLM Observability</th>
+        <th>Langfuse</th>
       </tr>
     </thead>
     <tbody>
-      <tr><td>Self-hosted (free path)</td><td class="ours"><span class="check">✓</span> open-core, BSL 1.1</td><td><span style="color:var(--muted);font-size:.85rem">Limited / managed cloud only</span></td></tr>
-      <tr><td>Starting price</td><td class="ours"><span class="check">✓</span> €299/mo flat</td><td><span style="color:var(--muted);font-size:.85rem">Custom enterprise (often $5k+/mo)</span></td></tr>
-      <tr><td>Multi-step agent waterfalls</td><td class="ours"><span class="check">✓</span> trace_agent + spans</td><td><span class="check">✓</span></td></tr>
-      <tr><td>Automatic quality + hallucination flags</td><td class="ours"><span class="check">✓</span> heuristic, zero config</td><td><span style="color:var(--muted);font-size:.85rem">Eval framework, manual</span></td></tr>
-      <tr><td>Air-gap mode (single env var)</td><td class="ours"><span class="check">✓</span> tcpdump-verified</td><td><span style="color:var(--muted);font-size:.85rem">Limited (Datadog requires data flow to their cloud)</span></td></tr>
-      <tr><td>EU-hosted (default for managed)</td><td class="ours"><span class="check">✓</span> Frankfurt</td><td><span style="color:var(--muted);font-size:.85rem">EU region available</span></td></tr>
-      <tr><td>Plan-tier feature gating</td><td class="ours"><span class="check">✓</span> Free / Starter / Team / Scale / Enterprise</td><td><span style="color:var(--muted);font-size:.85rem">Enterprise tiers</span></td></tr>
-      <tr><td>Compliance workflows (DPA, audit, retention)</td><td class="ours"><span class="check">✓</span> Scale plan</td><td><span class="check">✓</span></td></tr>
-      <tr><td>Vendor lock-in surface</td><td class="ours"><span style="color:var(--muted);font-size:.85rem">Low</span></td><td><span style="color:var(--muted);font-size:.85rem">Higher (Datadog agent + APM)</span></td></tr>
+      <tr><td>Self-hosted deployment</td><td class="ours"><span class="check">✓</span> open-core, BSL 1.1</td><td><span style="color:var(--muted);font-size:.85rem">MIT, fully open-source</span></td></tr>
+      <tr><td>Air-gap mode (zero outbound)</td><td class="ours"><span class="check">✓</span> single env var, tcpdump-verified</td><td><span style="color:var(--muted);font-size:.85rem">Manual config</span></td></tr>
+      <tr><td>EU-hosted managed cloud (default)</td><td class="ours"><span class="check">✓</span> Frankfurt</td><td><span style="color:var(--muted);font-size:.85rem">EU optional</span></td></tr>
+      <tr><td>Audit log + GDPR right-to-erasure</td><td class="ours"><span class="check">✓</span> Scale plan</td><td><span style="color:var(--muted);font-size:.85rem">DIY</span></td></tr>
+      <tr><td>Automatic quality + hallucination scoring</td><td class="ours"><span class="check">✓</span> heuristic, no judge calls</td><td><span style="color:var(--muted);font-size:.85rem">Eval framework, paid LLM judge</span></td></tr>
+      <tr><td>Agent waterfall debugger</td><td class="ours"><span class="check">✓</span></td><td><span class="check">✓</span></td></tr>
+      <tr><td>Cost / budget alerts with webhooks</td><td class="ours"><span class="check">✓</span></td><td><span style="color:var(--muted);font-size:.85rem">Limited</span></td></tr>
+      <tr><td>Framework-agnostic SDK</td><td class="ours"><span class="check">✓</span></td><td><span class="check">✓</span></td></tr>
+      <tr><td>Production support SLA</td><td class="ours"><span class="check">✓</span> Scale+</td><td><span style="color:var(--muted);font-size:.85rem">Enterprise add-on</span></td></tr>
     </tbody>
   </table>
-  <p style="margin-top:1rem;font-size:.75rem;color:var(--muted)">Based on public Datadog LLM Observability pricing as of May 2026. Verify at <a href="https://www.datadoghq.com/pricing/" target="_blank" rel="noopener">https://www.datadoghq.com/pricing/</a>.</p>
+  <p style="margin-top:1rem;font-size:.75rem;color:var(--muted)">Based on public Langfuse pricing as of May 2026. Verify at <a href="https://langfuse.com/pricing" target="_blank" rel="noopener">https://langfuse.com/pricing</a>.</p>
 </section>
 
 <section class="section">
@@ -123,21 +123,22 @@
   <h2>Honest recommendation</h2>
   <div class="two-col">
     <div>
-      <h3>Choose Datadog LLM Observability if…</h3>
+      <h3>Choose Langfuse if…</h3>
       <ul>
-        <li>You're already a Datadog customer for APM + infrastructure</li>
-        <li>You have enterprise-tier budget approved</li>
-        <li>Cross-stack correlation (logs + APM + LLM) is valuable</li>
-        <li>You want a single vendor for full observability</li>
+        <li>You want a fully MIT-licensed stack with no commercial restrictions</li>
+        <li>Your compliance bar is low or you have time to DIY it</li>
+        <li>You're comfortable on a smaller managed plan ($59-200/mo)</li>
+        <li>You want LangChain integrations as a primary feature</li>
       </ul>
     </div>
     <div>
       <h3>Choose AgentLens if…</h3>
       <ul>
-        <li>Your budget is mid-market, not enterprise (€299–2,999/mo)</li>
-        <li>You want LLM-specific observability without an APM agent in your runtime</li>
-        <li>EU residency / air-gap matter</li>
-        <li>You want to start free (self-hosted) and grow into a paid plan when ready</li>
+        <li>Your buyer requires DPA + audit log + retention policy on day one</li>
+        <li>You need air-gap mode that's verifiable, not configurable</li>
+        <li>You want heuristic evaluation that doesn't make outbound LLM judge calls</li>
+        <li>You want an EU-first managed cloud (Frankfurt-hosted by default)</li>
+        <li>Production SLA matters</li>
       </ul>
     </div>
   </div>
@@ -145,12 +146,12 @@
 
 <section class="section">
   <div class="section-label">Migration</div>
-  <h2>Switching from Datadog LLM Observability takes ~30 minutes</h2>
+  <h2>Switching from Langfuse takes ~30 minutes</h2>
   <p>Both tools share a similar mental model. The SDK surface is different but migration is mechanical.</p>
   <div class="code-block">
-    <div><span class="code-comment"># Before (Datadog LLM)</span></div>
-    <div>from datadog import initialize, statsd</div>
-    <div>initialize(api_key="...", app_key="...")</div>
+    <div><span class="code-comment"># Before (Langfuse)</span></div>
+    <div>from langfuse import Langfuse</div>
+    <div>langfuse = Langfuse(public_key="...", secret_key="...")</div>
     <div>&nbsp;</div>
     <div><span class="code-comment"># After (AgentLens)</span></div>
     <div><span class="code-key">import</span> agentlens</div>
@@ -163,18 +164,19 @@
   <div class="section-label">FAQ</div>
   <h2>Common questions</h2>
   <div class="faq">
-    <details><summary>Why pick AgentLens over Datadog LLM observability?</summary><p>Cost (10x cheaper at the entry point), no agent footprint in your runtime, EU residency by default, and a free self-hosted path so you can evaluate without procurement.</p></details>
-    <details><summary>Can I run AgentLens alongside Datadog?</summary><p>Yes — they're complementary. Datadog handles infrastructure + APM; AgentLens handles LLM-specific traces and evaluations.</p></details>
-    <details><summary>Does AgentLens have anything Datadog doesn't?</summary><p>Built-in heuristic quality scoring, hallucination flags, verifiable air-gap mode, and a clear self-hostable path with no enterprise contract gate.</p></details>
+    <details><summary>Can I migrate from Langfuse without rewriting my agent?</summary><p>Yes — both use a span/trace model. The SDK call surface differs but the wrapper code is mechanical. ~30 min for a typical agent.</p></details>
+    <details><summary>Does AgentLens have feature parity with Langfuse?</summary><p>Core observability — yes. Langfuse has a more mature LLM-as-judge eval framework. AgentLens leans on heuristic scoring + agent debugging + compliance workflows. Pick based on which mix you need.</p></details>
+    <details><summary>What's the licensing difference?</summary><p>Langfuse is fully MIT. AgentLens server is BSL 1.1 (converts to Apache 2.0 in 2030); SDK is MIT. The BSL only restricts offering AgentLens itself as a competing hosted service — internal production use is unrestricted.</p></details>
+    <details><summary>Why pick AgentLens over a free MIT tool?</summary><p>Compliance (DPA, audit log, retention), production support SLA, EU residency by default, and air-gap mode that's verifiable rather than configurable.</p></details>
   </div>
 </section>
 
 <section class="section">
   <div class="cta-box">
     <h3>Ready to own your LLM data?</h3>
-    <p>15-minute migration call. We'll map your Datadog LLM Observability setup to AgentLens and get you running.</p>
+    <p>15-minute migration call. We'll map your Langfuse setup to AgentLens and get you running.</p>
     <div class="hero-ctas">
-      <a href="/book-demo?source=migration-datadog-llm" class="btn btn-primary">Book a Migration Call</a>
+      <a href="/book-demo?source=migration-langfuse" class="btn btn-primary">Book a Migration Call</a>
       <a href="https://github.com/Soufianeazz/agentlens" target="_blank" class="btn btn-outline">View Core Repo on GitHub</a>
     </div>
   </div>

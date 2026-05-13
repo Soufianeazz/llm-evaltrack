@@ -10,6 +10,7 @@
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
+  <!-- /vs/{competitor} — head-to-head comparison pages -->
   <url>
     <loc>https://www.agentlens.one/vs/langsmith</loc>
     <changefreq>monthly</changefreq>
@@ -26,10 +27,42 @@
     <priority>0.9</priority>
   </url>
   <url>
+    <loc>https://www.agentlens.one/vs/arize-phoenix</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://www.agentlens.one/vs/portkey</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://www.agentlens.one/vs/lunary</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <!-- /alternatives/{competitor} — distinct search intent ("X alternative") -->
+  <url>
+    <loc>https://www.agentlens.one/alternatives/langsmith</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://www.agentlens.one/alternatives/langfuse</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://www.agentlens.one/alternatives/helicone</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
     <loc>https://www.agentlens.one/alternatives/datadog-llm</loc>
     <changefreq>monthly</changefreq>
     <priority>0.9</priority>
   </url>
+  <!-- Trust + Sales pages -->
   <url>
     <loc>https://www.agentlens.one/case_study.html</loc>
     <changefreq>monthly</changefreq>

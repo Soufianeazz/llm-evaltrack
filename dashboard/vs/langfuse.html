@@ -1,39 +1,38 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Langfuse Alternative â€” Simpler LLM Observability | AgentLens</title>
-  <meta name="description" content="Langfuse vs AgentLens: both support self-hosting; AgentLens follows an open-core model. See which fits your team â€” quality scoring, hallucination detection, agent debugging, and pricing compared." />
+  <title>Langfuse Alternative — Self-hosted LLM Observability | AgentLens</title>
+  <meta name="description" content="Looking for a self-hosted Langfuse alternative? AgentLens offers quality scoring, hallucination detection, agent debugging, and GDPR compliance — without sending your prompts to Langfuse's cloud." />
   <link rel="canonical" href="https://www.agentlens.one/vs/langfuse" />
   <link rel="icon" href="/logo.svg" type="image/svg+xml" />
-  <meta property="og:title" content="Langfuse vs AgentLens â€” LLM Observability Compared" />
-  <meta property="og:description" content="Open-core comparison: features, pricing, and developer experience." />
+  <meta property="og:title" content="Langfuse vs AgentLens — Self-hosted LLM Observability" />
+  <meta property="og:description" content="Langfuse-alternative with open-core deployment, GDPR-native controls, and managed plans from €299/mo." />
   <meta property="og:url" content="https://www.agentlens.one/vs/langfuse" />
+  <meta property="og:type" content="website" />
+  <meta name="twitter:card" content="summary" />
   <script type="application/ld+json">
-  {
-    "@context":"https://schema.org","@type":"FAQPage","mainEntity":[
-      {"@type":"Question","name":"Is AgentLens open core like Langfuse?","acceptedAnswer":{"@type":"Answer","text":"AgentLens follows an open-core model with a public core repository and paid enterprise modules. Langfuse is MIT for core features with additional commercial features. Both support self-hosted deployment paths."}},
-      {"@type":"Question","name":"Why pick AgentLens over Langfuse?","acceptedAnswer":{"@type":"Answer","text":"AgentLens ships quality scoring and hallucination detection out of the box with zero configuration. Langfuse requires manual eval setup. AgentLens also runs on SQLite â€” Langfuse needs Postgres + ClickHouse, which is heavier to self-host."}},
-      {"@type":"Question","name":"Can I migrate from Langfuse to AgentLens?","acceptedAnswer":{"@type":"Answer","text":"Yes. Both use a decorator/SDK model. The migration is typically under an hour for standard tracing setups."}},
-      {"@type":"Question","name":"Which is cheaper to self-host?","acceptedAnswer":{"@type":"Answer","text":"AgentLens runs on SQLite and a single container â€” a â‚¬5 VPS is enough. Langfuse requires Postgres + ClickHouse + Redis, typically â‚¬30-50/mo in infrastructure."}}
-    ]
-  }
+  {"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Can I migrate from Langfuse without rewriting my agent?", "acceptedAnswer": {"@type": "Answer", "text": "Yes — both use a span/trace model. The SDK call surface differs but the wrapper code is mechanical. ~30 min for a typical agent."}}, {"@type": "Question", "name": "Does AgentLens have feature parity with Langfuse?", "acceptedAnswer": {"@type": "Answer", "text": "Core observability — yes. Langfuse has a more mature LLM-as-judge eval framework. AgentLens leans on heuristic scoring + agent debugging + compliance workflows. Pick based on which mix you need."}}, {"@type": "Question", "name": "What's the licensing difference?", "acceptedAnswer": {"@type": "Answer", "text": "Langfuse is fully MIT. AgentLens server is BSL 1.1 (converts to Apache 2.0 in 2030); SDK is MIT. The BSL only restricts offering AgentLens itself as a competing hosted service — internal production use is unrestricted."}}, {"@type": "Question", "name": "Why pick AgentLens over a free MIT tool?", "acceptedAnswer": {"@type": "Answer", "text": "Compliance (DPA, audit log, retention), production support SLA, EU residency by default, and air-gap mode that's verifiable rather than configurable."}}]}
   </script>
   <style>
     *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
     :root{--bg:#0f1117;--surface:#1e2130;--border:#2d3148;--purple:#818cf8;--green:#4ade80;--red:#f87171;--text:#e2e8f0;--muted:#64748b}
     body{font-family:system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--text);line-height:1.6}
-    a{color:var(--purple);text-decoration:none}a:hover{text-decoration:underline}
+    a{color:var(--purple);text-decoration:none}
+    a:hover{text-decoration:underline}
     nav{display:flex;justify-content:space-between;align-items:center;padding:1.25rem 2rem;border-bottom:1px solid var(--border);position:sticky;top:0;background:var(--bg);z-index:10}
-    .nav-logo{font-weight:800;font-size:1.1rem;color:var(--text)}.nav-logo span{color:var(--purple)}
+    .nav-logo{font-weight:800;font-size:1.1rem;color:var(--text)}
+    .nav-logo span{color:var(--purple)}
     .nav-links{display:flex;gap:1.5rem;align-items:center;font-size:.875rem}
     .btn{display:inline-block;padding:.5rem 1.25rem;border-radius:8px;font-weight:600;font-size:.875rem;cursor:pointer;transition:opacity .15s}
     .btn:hover{opacity:.85;text-decoration:none}
-    .btn-primary{background:var(--purple);color:#0f1117}.btn-outline{border:1px solid var(--border);color:var(--text);background:none}
+    .btn-primary{background:var(--purple);color:#0f1117}
+    .btn-outline{border:1px solid var(--border);color:var(--text);background:none}
     .hero{max-width:820px;margin:0 auto;text-align:center;padding:4rem 2rem 2rem}
     .badge{display:inline-block;background:#1e2130;border:1px solid var(--border);border-radius:99px;padding:.3rem .9rem;font-size:.75rem;color:var(--purple);margin-bottom:1.5rem}
-    .hero h1{font-size:clamp(2rem,5vw,3rem);font-weight:800;line-height:1.15;margin-bottom:1.25rem}.hero h1 span{color:var(--purple)}
+    .hero h1{font-size:clamp(2rem,5vw,3rem);font-weight:800;line-height:1.15;margin-bottom:1.25rem}
+    .hero h1 span{color:var(--purple)}
     .hero p{font-size:1.05rem;color:var(--muted);max-width:620px;margin:0 auto 2rem}
     .hero-ctas{display:flex;gap:.75rem;justify-content:center;flex-wrap:wrap}
     .section{padding:3rem 2rem;max-width:1000px;margin:0 auto}
@@ -45,18 +44,24 @@
     .compare-table th:not(:first-child){text-align:center}
     .compare-table td{padding:.75rem 1rem;border-bottom:1px solid #1a1d2e;vertical-align:top}
     .compare-table td:not(:first-child){text-align:center}
-    .check{color:var(--green);font-size:1rem}.cross{color:var(--red);font-size:1rem}
+    .check{color:var(--green);font-size:1rem}
+    .cross{color:var(--red);font-size:1rem}
     .ours{background:rgba(129,140,248,.06)}
     .two-col{display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;margin-top:1.5rem}
     .two-col > div{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:1.5rem}
     .two-col h3{font-size:1rem;font-weight:700;margin-bottom:.75rem;color:var(--text)}
     .two-col ul{list-style:none;display:flex;flex-direction:column;gap:.5rem}
     .two-col li{font-size:.85rem;color:var(--muted);display:flex;gap:.5rem;align-items:flex-start}
-    .two-col li::before{content:"â†’";color:var(--purple);flex-shrink:0}
+    .two-col li::before{content:"→";color:var(--purple);flex-shrink:0}
     .faq{margin-top:1.5rem;display:flex;flex-direction:column;gap:.75rem}
     .faq details{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:1rem 1.25rem}
     .faq summary{cursor:pointer;font-weight:600;font-size:.95rem;color:var(--text)}
     .faq p{margin-top:.75rem;color:var(--muted);font-size:.88rem}
+    .code-block{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:1rem 1.25rem;font-family:'Menlo','Consolas',monospace;font-size:.82rem;line-height:1.7;margin-top:1rem;overflow-x:auto}
+    .code-comment{color:var(--muted)}
+    .code-key{color:#a5b4fc}
+    .code-str{color:#86efac}
+    .code-fn{color:#f9a8d4}
     .cta-box{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:2rem;text-align:center;margin-top:2rem}
     .cta-box h3{font-size:1.15rem;font-weight:700;margin-bottom:.5rem}
     .cta-box p{color:var(--muted);font-size:.9rem;margin-bottom:1.25rem}
@@ -78,12 +83,12 @@
 </nav>
 
 <section class="hero">
-  <div class="badge">Langfuse Alternative Â· Simpler self-hosting Â· MIT</div>
-  <h1>AgentLens vs Langfuse<br/><span>Open-core trade-offs. Different strengths.</span></h1>
-  <p>Langfuse is a solid tool. But it runs on Postgres + ClickHouse + Redis, and the eval layer is DIY. AgentLens runs on SQLite, ships quality scoring out of the box, and focuses on what teams actually need on day one: <em>is my LLM output any good?</em></p>
+  <div class="badge">Langfuse Alternative · Self-hosted · Open Core</div>
+  <h1>AgentLens vs Langfuse<br/><span>Same observability. Stronger compliance posture.</span></h1>
+  <p>Langfuse is a solid open-source choice — but enterprise-grade compliance (DPA, SOC 2 readiness, audit logs, EU residency on managed cloud) and air-gap mode require effort. AgentLens ships those by default.</p>
   <div class="hero-ctas">
-    <a href="/book-demo?source=migration-langfuse" class="btn btn-primary">Book a Demo</a>
-    <a href="/dashboard?demo=1&api_key=al_demo_agentlens" class="btn btn-outline">See Live Demo â†’</a>
+    <a href="/book-demo?source=migration-langfuse" class="btn btn-primary">Book a Migration Call</a>
+    <a href="/dashboard?demo=1&api_key=al_demo_agentlens" class="btn btn-outline">See Live Demo →</a>
   </div>
 </section>
 
@@ -99,19 +104,18 @@
       </tr>
     </thead>
     <tbody>
-      <tr><td>Licensing model</td><td class="ours"><span class="check">âœ“</span> Open core (public core + paid enterprise modules)</td><td><span class="check">âœ“</span> <span style="color:var(--muted);font-size:.8rem">core MIT, some under EE</span></td></tr>
-      <tr><td>Self-hostable</td><td class="ours"><span class="check">âœ“</span></td><td><span class="check">âœ“</span></td></tr>
-      <tr><td>Minimum infra to self-host</td><td class="ours" style="color:var(--green);font-size:.85rem">1 container + SQLite</td><td style="color:var(--muted);font-size:.85rem">Postgres + ClickHouse + Redis</td></tr>
-      <tr><td>Fits on â‚¬5 VPS</td><td class="ours"><span class="check">âœ“</span></td><td><span class="cross">âœ—</span> <span style="color:var(--muted);font-size:.8rem">needs ~â‚¬30+/mo</span></td></tr>
-      <tr><td>Auto quality scoring (zero config)</td><td class="ours"><span class="check">âœ“</span></td><td style="color:var(--muted);font-size:.85rem">Manual eval setup</td></tr>
-      <tr><td>Hallucination detection</td><td class="ours"><span class="check">âœ“</span> built-in</td><td style="color:var(--muted);font-size:.85rem">Custom eval required</td></tr>
-      <tr><td>Agent waterfall debugger</td><td class="ours"><span class="check">âœ“</span></td><td><span class="check">âœ“</span></td></tr>
-      <tr><td>Prompt management</td><td style="color:var(--muted);font-size:.85rem">Debugger only</td><td><span class="check">âœ“</span> full prompt mgmt</td></tr>
-      <tr><td>Framework-agnostic SDK</td><td class="ours"><span class="check">âœ“</span></td><td><span class="check">âœ“</span></td></tr>
-      <tr><td>Managed hosting entry price</td><td class="ours" style="color:var(--green);font-weight:700">â‚¬299 / mo flat</td><td style="color:var(--muted);font-size:.85rem">Free tier + $59/seat Core</td></tr>
+      <tr><td>Self-hosted deployment</td><td class="ours"><span class="check">✓</span> open-core, BSL 1.1</td><td><span style="color:var(--muted);font-size:.85rem">MIT, fully open-source</span></td></tr>
+      <tr><td>Air-gap mode (zero outbound)</td><td class="ours"><span class="check">✓</span> single env var, tcpdump-verified</td><td><span style="color:var(--muted);font-size:.85rem">Manual config</span></td></tr>
+      <tr><td>EU-hosted managed cloud (default)</td><td class="ours"><span class="check">✓</span> Frankfurt</td><td><span style="color:var(--muted);font-size:.85rem">EU optional</span></td></tr>
+      <tr><td>Audit log + GDPR right-to-erasure</td><td class="ours"><span class="check">✓</span> Scale plan</td><td><span style="color:var(--muted);font-size:.85rem">DIY</span></td></tr>
+      <tr><td>Automatic quality + hallucination scoring</td><td class="ours"><span class="check">✓</span> heuristic, no judge calls</td><td><span style="color:var(--muted);font-size:.85rem">Eval framework, paid LLM judge</span></td></tr>
+      <tr><td>Agent waterfall debugger</td><td class="ours"><span class="check">✓</span></td><td><span class="check">✓</span></td></tr>
+      <tr><td>Cost / budget alerts with webhooks</td><td class="ours"><span class="check">✓</span></td><td><span style="color:var(--muted);font-size:.85rem">Limited</span></td></tr>
+      <tr><td>Framework-agnostic SDK</td><td class="ours"><span class="check">✓</span></td><td><span class="check">✓</span></td></tr>
+      <tr><td>Production support SLA</td><td class="ours"><span class="check">✓</span> Scale+</td><td><span style="color:var(--muted);font-size:.85rem">Enterprise add-on</span></td></tr>
     </tbody>
   </table>
-  <p style="margin-top:1rem;font-size:.75rem;color:var(--muted)">Based on public Langfuse pricing as of April 2026. Verify at <a href="https://langfuse.com/pricing" target="_blank" rel="noopener">langfuse.com/pricing</a>.</p>
+  <p style="margin-top:1rem;font-size:.75rem;color:var(--muted)">Based on public Langfuse pricing as of May 2026. Verify at <a href="https://langfuse.com/pricing" target="_blank" rel="noopener">https://langfuse.com/pricing</a>.</p>
 </section>
 
 <section class="section">
@@ -119,24 +123,40 @@
   <h2>Honest recommendation</h2>
   <div class="two-col">
     <div>
-      <h3>Choose Langfuse ifâ€¦</h3>
+      <h3>Choose Langfuse if…</h3>
       <ul>
-        <li>You want rich prompt management (versioning, A/B, deploy flow)</li>
-        <li>You already run Postgres + ClickHouse infra</li>
-        <li>You want a larger existing community + plugins ecosystem</li>
-        <li>You'll build your own eval pipelines from scratch</li>
+        <li>You want a fully MIT-licensed stack with no commercial restrictions</li>
+        <li>Your compliance bar is low or you have time to DIY it</li>
+        <li>You're comfortable on a smaller managed plan ($59-200/mo)</li>
+        <li>You want LangChain integrations as a primary feature</li>
       </ul>
     </div>
     <div>
-      <h3>Choose AgentLens ifâ€¦</h3>
+      <h3>Choose AgentLens if…</h3>
       <ul>
-        <li>You want quality & hallucination checks working on day one</li>
-        <li>You want to self-host on a single â‚¬5 VPS, not a cluster</li>
-        <li>You want flat pricing, not per-seat billing</li>
-        <li>You need GDPR DPA without Enterprise negotiation</li>
-        <li>Your priority is "is my LLM output broken?" not "how do I version prompts?"</li>
+        <li>Your buyer requires DPA + audit log + retention policy on day one</li>
+        <li>You need air-gap mode that's verifiable, not configurable</li>
+        <li>You want heuristic evaluation that doesn't make outbound LLM judge calls</li>
+        <li>You want an EU-first managed cloud (Frankfurt-hosted by default)</li>
+        <li>Production SLA matters</li>
       </ul>
     </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="section-label">Migration</div>
+  <h2>Switching from Langfuse takes ~30 minutes</h2>
+  <p>Both tools share a similar mental model. The SDK surface is different but migration is mechanical.</p>
+  <div class="code-block">
+    <div><span class="code-comment"># Before (Langfuse)</span></div>
+    <div>from langfuse import Langfuse</div>
+    <div>langfuse = Langfuse(public_key="...", secret_key="...")</div>
+    <div>&nbsp;</div>
+    <div><span class="code-comment"># After (AgentLens)</span></div>
+    <div><span class="code-key">import</span> agentlens</div>
+    <div>agentlens.<span class="code-fn">init</span>(<span class="code-str">"http://localhost:8000/ingest"</span>)</div>
+    <div>agentlens.<span class="code-fn">patch_openai</span>()  <span class="code-comment"># or patch_anthropic()</span></div>
   </div>
 </section>
 
@@ -144,18 +164,17 @@
   <div class="section-label">FAQ</div>
   <h2>Common questions</h2>
   <div class="faq">
-    <details><summary>Is AgentLens open core like Langfuse?</summary><p>AgentLens follows an open-core model with a public core repository and paid enterprise modules. Langfuse is MIT for core with some features under commercial license. Both support self-hosted deployment paths.</p></details>
-    <details><summary>Why pick AgentLens over Langfuse?</summary><p>Quality scoring + hallucination detection out of the box. Runs on SQLite (no ClickHouse cluster). Faster to self-host on small infra.</p></details>
-    <details><summary>Can I migrate from Langfuse?</summary><p>Yes. Both use a decorator/SDK model. Typical migration is under an hour.</p></details>
-    <details><summary>Which is cheaper to self-host?</summary><p>AgentLens: single container on a â‚¬5 VPS. Langfuse: Postgres + ClickHouse + Redis, typically â‚¬30-50/mo in infrastructure.</p></details>
-    <details><summary>Does AgentLens have prompt management like Langfuse?</summary><p>Not yet. AgentLens focuses on observability and debugging. If prompt versioning/deploy is your top need, Langfuse is stronger there.</p></details>
+    <details><summary>Can I migrate from Langfuse without rewriting my agent?</summary><p>Yes — both use a span/trace model. The SDK call surface differs but the wrapper code is mechanical. ~30 min for a typical agent.</p></details>
+    <details><summary>Does AgentLens have feature parity with Langfuse?</summary><p>Core observability — yes. Langfuse has a more mature LLM-as-judge eval framework. AgentLens leans on heuristic scoring + agent debugging + compliance workflows. Pick based on which mix you need.</p></details>
+    <details><summary>What's the licensing difference?</summary><p>Langfuse is fully MIT. AgentLens server is BSL 1.1 (converts to Apache 2.0 in 2030); SDK is MIT. The BSL only restricts offering AgentLens itself as a competing hosted service — internal production use is unrestricted.</p></details>
+    <details><summary>Why pick AgentLens over a free MIT tool?</summary><p>Compliance (DPA, audit log, retention), production support SLA, EU residency by default, and air-gap mode that's verifiable rather than configurable.</p></details>
   </div>
 </section>
 
 <section class="section">
   <div class="cta-box">
-    <h3>Want it simpler?</h3>
-    <p>15-minute migration call. We'll show you a 2-line integration on your own stack.</p>
+    <h3>Ready to own your LLM data?</h3>
+    <p>15-minute migration call. We'll map your Langfuse setup to AgentLens and get you running.</p>
     <div class="hero-ctas">
       <a href="/book-demo?source=migration-langfuse" class="btn btn-primary">Book a Migration Call</a>
       <a href="https://github.com/Soufianeazz/agentlens" target="_blank" class="btn btn-outline">View Core Repo on GitHub</a>
@@ -164,10 +183,9 @@
 </section>
 
 <footer>
-  <p>AgentLens Â· Open Core Â· <a href="https://github.com/Soufianeazz/agentlens">Core Repo</a> Â· <a href="https://pypi.org/project/agentlens-monitor">PyPI</a> Â· <a href="mailto:contact@agentlens.one">contact@agentlens.one</a></p>
-  <p style="margin-top:.5rem"><a href="/impressum.html">Impressum</a> Â· <a href="/datenschutz.html">Datenschutz</a> Â· <a href="/nutzungsbedingungen.html">Nutzungsbedingungen</a></p>
+  <p>AgentLens · Open Core · <a href="https://github.com/Soufianeazz/agentlens">Core Repo</a> · <a href="https://pypi.org/project/agentlens-monitor">PyPI</a> · <a href="mailto:contact@agentlens.one">contact@agentlens.one</a></p>
+  <p style="margin-top:.5rem"><a href="/impressum.html">Impressum</a> · <a href="/datenschutz.html">Datenschutz</a> · <a href="/nutzungsbedingungen.html">Nutzungsbedingungen</a></p>
 </footer>
 
 </body>
 </html>
-
