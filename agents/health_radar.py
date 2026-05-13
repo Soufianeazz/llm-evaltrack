@@ -358,33 +358,75 @@ def check_static_repo(report: RadarReport) -> None:
 # ── Section 6: pilot state coherence ──────────────────────────────────────────
 
 def check_pilot_state(report: RadarReport) -> None:
+    """Pilot state can come from three sources (in order of preference):
+      1. PILOT_* environment variables (CI / GitHub Actions Secrets)
+      2. agents/pilot_state.json on local disk (dev / one-off runs)
+      3. agents/pilot_state.example.json (placeholder template that ships in git)
+
+    The radar runs inside GitHub Actions where source 2 is gitignored and
+    therefore absent — that is BY DESIGN (customer PII never enters the repo).
+    So we should only flag a problem if NONE of the three sources is present
+    AND the workflow secrets aren't set.
+    """
     pf = REPO_ROOT / "agents" / "pilot_state.json"
-    if not pf.exists():
-        report.add("MEDIUM", "pilot", "pilot_state.json missing", "", "")
+    example = REPO_ROOT / "agents" / "pilot_state.example.json"
+    has_env_config = bool(os.environ.get("PILOT_CONTACT_EMAIL", "").strip())
+
+    # Source 1 (env vars) — preferred and present? All good.
+    if has_env_config:
         return
-    try:
-        state = json.loads(pf.read_text(encoding="utf-8"))
-    except Exception as e:
-        report.add("HIGH", "pilot", "pilot_state.json is invalid JSON", str(e),
-                   "Restore from previous commit or recreate from agents/pilot_state.json template.")
+
+    # Source 2 (local pilot_state.json) — present and valid?
+    if pf.exists():
+        try:
+            state = json.loads(pf.read_text(encoding="utf-8"))
+        except Exception as e:
+            report.add("HIGH", "pilot", "pilot_state.json is invalid JSON", str(e),
+                       "Fix the JSON syntax or remove the file (env vars are preferred).")
+            return
+        contact = state.get("contact_email", "")
+        if not contact or "REPLACE" in contact or "@" not in contact:
+            report.add(
+                "MEDIUM", "pilot",
+                "pilot contact_email not set in pilot_state.json",
+                f"Current value: {contact!r}",
+                "Either set PILOT_CONTACT_EMAIL env var (preferred), or edit "
+                "the local pilot_state.json contact_email.",
+            )
+        kickoff = state.get("kickoff_date_utc", "")
+        if kickoff and "REPLACE" in kickoff:
+            report.add(
+                "NOTED", "pilot",
+                "kickoff_date_utc not set yet (expected before pilot starts)",
+                f"Current value: {kickoff!r}",
+                "After kickoff call, set PILOT_KICKOFF_DATE_UTC env var (or "
+                "kickoff_date_utc in local pilot_state.json) to the call's end "
+                "timestamp (ISO 8601).",
+            )
         return
-    contact = state.get("contact_email", "")
-    if not contact or "REPLACE" in contact or "@" not in contact:
-        report.add(
-            "MEDIUM", "pilot",
-            "pilot contact_email not set",
-            f"Current value: {contact!r}",
-            "After the pilot customer signs up, edit agents/pilot_state.json contact_email so "
-            "customer-reminder emails can fire on Day 10/13/14/18.",
-        )
-    kickoff = state.get("kickoff_date_utc", "")
-    if kickoff and "REPLACE" in kickoff:
+
+    # Source 3 fallback — example template exists, env vars not set
+    if example.exists():
+        # Only NOTED severity — this is the expected state of a fresh checkout
+        # before any pilot is configured. Cron emits will no-op silently.
         report.add(
             "NOTED", "pilot",
-            "kickoff_date_utc not set yet (expected before pilot starts)",
-            f"Current value: {kickoff!r}",
-            "After kickoff call, set kickoff_date_utc to the call's end timestamp (ISO 8601).",
+            "no active pilot configured (env vars unset, no local pilot_state.json)",
+            "This is normal for a fresh checkout or between pilots.",
+            "When a new pilot starts: set PILOT_CONTACT_EMAIL + PILOT_CONTACT_NAME "
+            "+ PILOT_NAME GitHub Actions secrets (preferred) — pilot_state.json "
+            "lives only on local disk (gitignored).",
         )
+        return
+
+    # Nothing at all — this would mean even pilot_state.example.json is missing,
+    # which means someone deleted the template. Real problem.
+    report.add(
+        "MEDIUM", "pilot",
+        "neither pilot_state.example.json nor any PILOT_* env var present",
+        "Cron jobs (pilot_pulse) cannot fall back gracefully.",
+        "Restore agents/pilot_state.example.json from git history.",
+    )
 
 
 # ── Reporting: GitHub Issue + Email ───────────────────────────────────────────
