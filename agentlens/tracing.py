@@ -127,7 +127,7 @@ class SpanContext:
         self._cost = cost_usd
 
     def __enter__(self) -> SpanContext:
-        result = _post(f"/traces/{self.trace_id}/spans", {
+        result = _fire(f"/traces/{self.trace_id}/spans", {
             "name": self.name,
             "span_type": self.span_type,
             "model": self.model,
@@ -146,7 +146,7 @@ class SpanContext:
             self._error = str(exc_val)
 
         if self.span_id:
-            _post(f"/traces/{self.trace_id}/spans/{self.span_id}/end", {
+            _fire(f"/traces/{self.trace_id}/spans/{self.span_id}/end", {
                 "status": self._status,
                 "output": self._output,
                 "error": self._error,
@@ -194,7 +194,7 @@ class TraceContext:
         )
 
     def __enter__(self) -> TraceContext:
-        result = _post("/traces", {
+        result = _fire("/traces", {
             "name": self.name,
             "input": self.input,
             "metadata": self.metadata,
@@ -210,7 +210,7 @@ class TraceContext:
             self._error = str(exc_val)
 
         if self.trace_id:
-            _post(f"/traces/{self.trace_id}/end", {
+            _fire(f"/traces/{self.trace_id}/end", {
                 "status": self._status,
                 "output": self._output,
                 "error": self._error,
@@ -231,8 +231,13 @@ def span(name: str, span_type: str = "custom", model: str | None = None,
          metadata: dict[str, Any] | None = None) -> SpanContext:
     """Create a span within the current trace. Use as a context manager."""
     trace = _current_trace.get()
-    if not trace or not trace.trace_id:
+    if not trace:
         raise RuntimeError("span() must be called inside a trace_agent() context")
+    if not trace.trace_id:
+        # Trace creation failed (network error etc.) — return a no-op span so
+        # user code doesn't crash. Spans will be silently dropped.
+        logger.warning("tracing: trace_id missing, span '%s' will not be recorded", name)
+        return SpanContext(name=name, trace_id="noop", span_type=span_type, model=model)
     parent = _current_span.get()
     return SpanContext(
         name=name,

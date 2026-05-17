@@ -6,13 +6,15 @@ import time
 import uuid
 
 import httpx
-from fastapi import APIRouter, Depends, HTTPException, Query
+from fastapi import APIRouter, Depends, HTTPException, Query, Request
 from pydantic import BaseModel, EmailStr, Field
 from sqlalchemy import select
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from api.admin_auth import require_admin_token
 from api.customer_access import evaluate_customer_access
+from api.limiter import limiter
 from storage.database import get_session
 from storage.models import ApiKey, AuditLog, CustomerAccount
 
@@ -136,12 +138,9 @@ async def _send_welcome_email(user_email: str, api_key: str, name: str | None) -
 
 
 @router.post("/signup")
-async def signup(payload: SignupPayload, db: AsyncSession = Depends(get_session)):
+@limiter.limit("5/minute")
+async def signup(request: Request, payload: SignupPayload, db: AsyncSession = Depends(get_session)):
     email = payload.email.strip().lower()
-    result = await db.execute(select(CustomerAccount).where(CustomerAccount.email == email))
-    existing = result.scalar_one_or_none()
-    if existing:
-        raise HTTPException(status_code=409, detail="Account already exists for this email")
 
     now = time.time()
     trial_days = 14
@@ -173,7 +172,12 @@ async def signup(payload: SignupPayload, db: AsyncSession = Depends(get_session)
             active=True,
         )
     )
-    await db.commit()
+    try:
+        await db.commit()
+    except IntegrityError:
+        await db.rollback()
+        raise HTTPException(status_code=409, detail="Account already exists for this email")
+
     await _send_welcome_email(account.email, api_key_value, account.name)
     await _audit(
         db,
@@ -271,26 +275,28 @@ async def approve_customer(
         raise HTTPException(status_code=404, detail="Customer account not found")
 
     now = time.time()
-    key_value = account.api_key
-    if not key_value:
-        key_value = "al_" + secrets.token_urlsafe(24)
-        db.add(
-            ApiKey(
-                key=key_value,
-                label=account.company or account.email,
-                plan=payload.plan,
-                role=payload.role,
-                created_at=now,
-                active=True,
-            )
+    old_key = account.api_key
+
+    # Always generate a fresh key on (re-)approval so old keys can't persist with stale plans
+    key_value = "al_" + secrets.token_urlsafe(24)
+
+    # Deactivate the old key if one exists
+    if old_key and old_key != key_value:
+        old_key_result = await db.execute(select(ApiKey).where(ApiKey.key == old_key))
+        old_key_obj = old_key_result.scalar_one_or_none()
+        if old_key_obj:
+            old_key_obj.active = False
+
+    db.add(
+        ApiKey(
+            key=key_value,
+            label=account.company or account.email,
+            plan=payload.plan,
+            role=payload.role,
+            created_at=now,
+            active=True,
         )
-    else:
-        key_result = await db.execute(select(ApiKey).where(ApiKey.key == key_value))
-        key_obj = key_result.scalar_one_or_none()
-        if key_obj:
-            key_obj.active = True
-            key_obj.plan = payload.plan
-            key_obj.role = payload.role
+    )
 
     account.api_key = key_value
     account.status = "approved"

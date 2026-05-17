@@ -43,7 +43,8 @@ def patch() -> None:
 
     def _tracked_create(self: Any, **kwargs: Any):
         response = _orig_create(self, **kwargs)
-        _ship_openai(kwargs, response)
+        if not kwargs.get("stream"):
+            _ship_openai(kwargs, response)
         return response
 
     Completions.create = _tracked_create  # type: ignore[method-assign]
@@ -55,7 +56,8 @@ def patch() -> None:
 
     async def _tracked_acreate(self: Any, **kwargs: Any):
         response = await _orig_acreate(self, **kwargs)
-        _ship_openai(kwargs, response)
+        if not kwargs.get("stream"):
+            _ship_openai(kwargs, response)
         return response
 
     AsyncCompletions.create = _tracked_acreate  # type: ignore[method-assign]

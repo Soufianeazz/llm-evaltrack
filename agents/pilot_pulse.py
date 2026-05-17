@@ -174,7 +174,7 @@ def llm_brief(prompt: str, fallback: str) -> str:
         import anthropic
         client = anthropic.Anthropic(api_key=api_key)
         msg = client.messages.create(
-            model=os.environ.get("PULSE_MODEL", "claude-haiku-4-5-20251001"),
+            model=os.environ.get("PULSE_MODEL", "claude-haiku-4-5"),
             max_tokens=600,
             system="You are a pragmatic pilot-program operator. Output plain text, no markdown headers, max 250 words. Speak directly to the recipient (Soufian).",
             messages=[{"role": "user", "content": prompt}],
