@@ -179,12 +179,12 @@
 
     <aside class="panel meta">
       <h2>How access works</h2>
-      <p>Accounts are approval-based. Every approved customer gets an isolated tenant key and only sees their own data.</p>
+      <p>Sign up and get your API key instantly. Every account gets an isolated tenant key and only sees their own data.</p>
       <ul class="list">
-        <li>1. Sign up with company email</li>
-        <li>2. Admin approves account and creates tenant access</li>
-        <li>3. Pilot access starts (default 14 days)</li>
-        <li>4. Access auto-restricted when subscription is past due/canceled</li>
+        <li>1. Sign up — API key generated immediately</li>
+        <li>2. 14-day free trial, no credit card needed</li>
+        <li>3. First trace in under 3 minutes</li>
+        <li>4. Upgrade anytime — or self-host for free</li>
       </ul>
     </aside>
   </div>
@@ -245,8 +245,8 @@
           showMsg(data.detail || "Signup failed.");
           return;
         }
-        showMsg("Signup submitted. We will approve your access shortly.", true);
-        signupForm.reset();
+        localStorage.setItem(STORAGE_KEY, data.api_key);
+        window.location.href = data.dashboard_url || "/app/start";
       } catch (_) {
         showMsg("Network error during signup.");
       }

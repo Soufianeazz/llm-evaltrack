@@ -81,51 +81,58 @@ async def _audit(db: AsyncSession, action: str, detail: str) -> None:
     await db.commit()
 
 
-async def _notify_signup(payload: dict) -> None:
-    webhook_url = os.environ.get("SIGNUP_NOTIFY_WEBHOOK_URL", "").strip()
+async def _send_welcome_email(user_email: str, api_key: str, name: str | None) -> None:
     resend_api_key = os.environ.get("RESEND_API_KEY", "").strip()
+    from_email = os.environ.get("SIGNUP_NOTIFY_FROM_EMAIL", "AgentLens <noreply@agentlens.one>").strip()
     notify_email = os.environ.get("SIGNUP_NOTIFY_EMAIL", "").strip()
-    from_email = os.environ.get("SIGNUP_NOTIFY_FROM_EMAIL", "AgentLens Access <noreply@agentlens.one>").strip()
+    first_name = (name or "").split()[0] if name else "there"
+
+    welcome_body = (
+        f"Hi {first_name},\n\n"
+        "Your AgentLens account is ready. Here's your API key:\n\n"
+        f"  {api_key}\n\n"
+        "Get your first trace in 2 minutes:\n\n"
+        "  pip install agentlens-monitor\n\n"
+        "  import agentlens\n"
+        f'  agentlens.init(api_key="{api_key}")\n'
+        "  agentlens.patch_openai()  # or patch_anthropic()\n\n"
+        "That's it — every LLM call is now tracked automatically.\n\n"
+        "Full quickstart: https://www.agentlens.one/app/start\n"
+        "Dashboard: https://www.agentlens.one/dashboard\n\n"
+        "— Soufiane, AgentLens founder\n"
+        "  Reply to this email anytime.\n"
+    )
 
     async with httpx.AsyncClient(timeout=10) as client:
-        if webhook_url:
+        if resend_api_key:
             try:
-                await client.post(
-                    webhook_url,
-                    json={
-                        "event": "customer_signup_pending",
-                        "timestamp": payload["created_at"],
-                        "account": payload,
-                    },
-                )
-            except Exception:
-                pass
-
-        if resend_api_key and notify_email:
-            try:
-                subject = f"New signup pending approval: {payload['email']}"
-                body = (
-                    "New AgentLens account signup\n\n"
-                    f"Name: {payload.get('name') or 'n/a'}\n"
-                    f"Email: {payload['email']}\n"
-                    f"Company: {payload.get('company') or 'n/a'}\n"
-                    f"Account ID: {payload['id']}\n"
-                    f"Status: {payload['status']}\n"
-                    f"Created at (epoch): {payload['created_at']}\n\n"
-                    "Next step: approve via /admin/customers/{id}/approve\n"
-                )
                 await client.post(
                     "https://api.resend.com/emails",
                     headers={"Authorization": f"Bearer {resend_api_key}"},
                     json={
                         "from": from_email,
-                        "to": [notify_email],
-                        "subject": subject,
-                        "text": body,
+                        "to": [user_email],
+                        "subject": "Your AgentLens API key is ready",
+                        "text": welcome_body,
                     },
                 )
             except Exception:
                 pass
+
+            if notify_email:
+                try:
+                    await client.post(
+                        "https://api.resend.com/emails",
+                        headers={"Authorization": f"Bearer {resend_api_key}"},
+                        json={
+                            "from": from_email,
+                            "to": [notify_email],
+                            "subject": f"New signup: {user_email}",
+                            "text": f"New AgentLens signup\n\nEmail: {user_email}\nAPI key: {api_key}\n",
+                        },
+                    )
+                except Exception:
+                    pass
 
 
 @router.post("/signup")
@@ -137,36 +144,48 @@ async def signup(payload: SignupPayload, db: AsyncSession = Depends(get_session)
         raise HTTPException(status_code=409, detail="Account already exists for this email")
 
     now = time.time()
+    trial_days = 14
+    api_key_value = "al_" + secrets.token_urlsafe(24)
+
     account = CustomerAccount(
         id=str(uuid.uuid4()),
         email=email,
         password_hash=_hash_password(payload.password),
         name=(payload.name or "").strip() or None,
         company=(payload.company or "").strip() or None,
-        status="pending",
-        access_state="pending",
+        status="approved",
+        access_state="trialing",
+        plan="starter",
+        api_key=api_key_value,
+        trial_ends_at=now + trial_days * 86400,
+        approved_at=now,
+        approved_by="auto",
         created_at=now,
     )
     db.add(account)
-    await db.commit()
-    await _notify_signup(
-        {
-            "id": account.id,
-            "email": account.email,
-            "name": account.name,
-            "company": account.company,
-            "status": account.status,
-            "created_at": account.created_at,
-        }
+    db.add(
+        ApiKey(
+            key=api_key_value,
+            label=account.company or account.email,
+            plan="starter",
+            role="admin",
+            created_at=now,
+            active=True,
+        )
     )
+    await db.commit()
+    await _send_welcome_email(account.email, api_key_value, account.name)
     await _audit(
         db,
         "customer_signup",
-        f"account_id={account.id} email={account.email} company={account.company or '-'}",
+        f"account_id={account.id} email={account.email} company={account.company or '-'} auto_approved=true",
     )
     return {
-        "status": "pending_approval",
-        "message": "Signup submitted. Access will be enabled after approval.",
+        "status": "approved",
+        "api_key": api_key_value,
+        "plan": "starter",
+        "trial_ends_at": account.trial_ends_at,
+        "dashboard_url": "/app/start",
     }
 
 

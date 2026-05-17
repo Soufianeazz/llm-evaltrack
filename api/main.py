@@ -217,6 +217,11 @@ async def app_portal():
     return FileResponse("dashboard/app.html")
 
 
+@app.get("/app/start", include_in_schema=False)
+async def app_start():
+    return FileResponse("dashboard/start.html")
+
+
 @app.get("/app/deploy", include_in_schema=False)
 async def app_deploy():
     """Customer-facing 'Deploy your instance' page (requires login client-side)."""
