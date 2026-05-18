@@ -4,8 +4,6 @@ name: Pilot Instance Pulse
 # of registered pilot self-host instances. Emails Soufian on failures.
 
 on:
-  schedule:
-    - cron: '0 7,19 * * *'
   workflow_dispatch:
 
 permissions:
