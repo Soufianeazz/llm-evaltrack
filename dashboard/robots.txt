@@ -8,5 +8,9 @@ Disallow: /traces/
 Disallow: /alerts/
 Disallow: /billing/
 Disallow: /waitlist/
+Disallow: /app/deploy
+Disallow: /admin/
+Disallow: /auth/
+Disallow: /portal/
 
 Sitemap: https://www.agentlens.one/sitemap.xml

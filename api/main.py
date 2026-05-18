@@ -159,7 +159,7 @@ async def root():
     return FileResponse("dashboard/landing.html")
 
 
-@app.get("/dashboard", include_in_schema=False)
+@app.api_route("/dashboard", methods=["GET", "HEAD"], include_in_schema=False)
 async def dashboard_page():
     return FileResponse("dashboard/index.html")
 
@@ -169,62 +169,59 @@ async def dashboard_page():
 # competitors live in COMPETITORS dict there. Adding a new competitor = edit
 # that dict + add a route here.
 
-@app.get("/vs/{slug}", include_in_schema=False)
+@app.api_route("/vs/{slug}", methods=["GET", "HEAD"], include_in_schema=False)
 async def vs_page(slug: str):
-    """Serve /vs/{competitor} comparison pages. Whitelisted slugs only."""
     allowed = {"langsmith", "langfuse", "helicone", "arize-phoenix", "portkey", "lunary"}
     if slug not in allowed:
         return JSONResponse(status_code=404, content={"detail": "comparison page not found"})
     return FileResponse(f"dashboard/vs/{slug}.html")
 
 
-@app.get("/alternatives/{slug}", include_in_schema=False)
+@app.api_route("/alternatives/{slug}", methods=["GET", "HEAD"], include_in_schema=False)
 async def alternatives_page(slug: str):
-    """Serve /alternatives/{competitor} pages — different search intent than /vs/."""
     allowed = {"langsmith", "langfuse", "helicone", "datadog-llm"}
     if slug not in allowed:
         return JSONResponse(status_code=404, content={"detail": "alternatives page not found"})
     return FileResponse(f"dashboard/alternatives/{slug}.html")
 
 
-@app.get("/impressum", include_in_schema=False)
+@app.api_route("/impressum", methods=["GET", "HEAD"], include_in_schema=False)
 async def impressum():
     return FileResponse("dashboard/impressum.html")
 
 
-@app.get("/datenschutz", include_in_schema=False)
+@app.api_route("/datenschutz", methods=["GET", "HEAD"], include_in_schema=False)
 async def datenschutz():
     return FileResponse("dashboard/datenschutz.html")
 
 
-@app.get("/nutzungsbedingungen", include_in_schema=False)
+@app.api_route("/nutzungsbedingungen", methods=["GET", "HEAD"], include_in_schema=False)
 async def nutzungsbedingungen():
     return FileResponse("dashboard/nutzungsbedingungen.html")
 
 
-@app.get("/success", include_in_schema=False)
+@app.api_route("/success", methods=["GET", "HEAD"], include_in_schema=False)
 async def success():
     return FileResponse("dashboard/success.html")
 
 
-@app.get("/book-demo", include_in_schema=False)
+@app.api_route("/book-demo", methods=["GET", "HEAD"], include_in_schema=False)
 async def book_demo():
     return FileResponse("dashboard/book-demo.html")
 
 
-@app.get("/app", include_in_schema=False)
+@app.api_route("/app", methods=["GET", "HEAD"], include_in_schema=False)
 async def app_portal():
     return FileResponse("dashboard/app.html")
 
 
-@app.get("/app/start", include_in_schema=False)
+@app.api_route("/app/start", methods=["GET", "HEAD"], include_in_schema=False)
 async def app_start():
     return FileResponse("dashboard/start.html")
 
 
-@app.get("/app/deploy", include_in_schema=False)
+@app.api_route("/app/deploy", methods=["GET", "HEAD"], include_in_schema=False)
 async def app_deploy():
-    """Customer-facing 'Deploy your instance' page (requires login client-side)."""
     return FileResponse("dashboard/deploy.html")
 
 
