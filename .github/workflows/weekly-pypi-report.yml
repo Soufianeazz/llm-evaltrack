@@ -18,7 +18,25 @@ jobs:
       - name: Fetch PyPI stats
         id: stats
         run: |
-          DATA=$(curl -sf https://pypistats.org/api/packages/agentlens-monitor/recent || echo '{}')
+          # pypistats.org blocks GitHub Actions IPs without a User-Agent header.
+          # Retry up to 3 times with backoff.
+          UA="agentlens-monitor-stats/1.0 (+https://github.com/Soufianeazz/agentlens)"
+          URL="https://pypistats.org/api/packages/agentlens-monitor/recent"
+          DATA=""
+          for attempt in 1 2 3; do
+            RESP=$(curl -s -w "\n%{http_code}" -H "User-Agent: $UA" -H "Accept: application/json" "$URL")
+            CODE=$(echo "$RESP" | tail -n1)
+            BODY=$(echo "$RESP" | sed '$d')
+            echo "Attempt $attempt: HTTP $CODE"
+            if [ "$CODE" = "200" ] && [ -n "$BODY" ]; then
+              DATA="$BODY"
+              break
+            fi
+            sleep $((attempt * 5))
+          done
+          if [ -z "$DATA" ]; then
+            DATA='{}'
+          fi
           echo "Raw response: $DATA"
           LAST_DAY=$(echo "$DATA" | python -c "import sys,json; print(json.load(sys.stdin).get('data',{}).get('last_day','?'))")
           LAST_WEEK=$(echo "$DATA" | python -c "import sys,json; print(json.load(sys.stdin).get('data',{}).get('last_week','?'))")
